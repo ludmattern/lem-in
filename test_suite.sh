@@ -6,7 +6,7 @@
 #    By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 15:36:16 by lmattern          #+#    #+#              #
-#    Updated: 2025/07/11 15:36:48 by lmattern         ###   ########.fr        #
+#    Updated: 2025/07/11 19:12:52 by lmattern         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,17 +42,17 @@ VERBOSE=false
 # ============================================================================
 
 print_header() {
-	echo -e "${BLUE}===========================================${RESET}"
-	echo -e "${WHITE}🧪 LEM-IN PROFESSIONAL TEST SUITE${RESET}"
-	echo -e "${BLUE}===========================================${RESET}"
-	echo -e "${CYAN}Testing binary: ${BINARY}${RESET}"
-	echo -e "${CYAN}Timeout: ${TIMEOUT}s per test${RESET}"
-	echo ""
+	printf "${BLUE}===========================================${RESET}\n"
+	printf "${WHITE}🧪 LEM-IN PROFESSIONAL TEST SUITE${RESET}\n"
+	printf "${BLUE}===========================================${RESET}\n"
+	printf "${CYAN}Testing binary: ${BINARY}${RESET}\n"
+	printf "${CYAN}Timeout: ${TIMEOUT}s per test${RESET}\n"
+	printf "\n"
 }
 
 print_section() {
-	echo -e "\n${PURPLE}📋 $1${RESET}"
-	echo -e "${PURPLE}$(printf '=%.0s' {1..50})${RESET}"
+	printf "\n${PURPLE}📋 %s${RESET}\n" "$1"
+	printf "${PURPLE}$(printf '=%.0s' {1..50})${RESET}\n"
 }
 
 run_test() {
@@ -73,7 +73,7 @@ run_test() {
 
 	# Check timeout
 	if [ $exit_code -eq 124 ]; then
-		echo -e "${RED}✗ TIMEOUT${RESET}"
+		printf "${RED}✗ TIMEOUT${RESET}\n"
 		FAILED_TESTS=$((FAILED_TESTS + 1))
 		return 1
 	fi
@@ -81,12 +81,12 @@ run_test() {
 	# Check result
 	if [ "$should_pass" = "true" ]; then
 		if [ $exit_code -eq 0 ]; then
-			echo -e "${GREEN}✓ PASS${RESET}"
+			printf "${GREEN}✓ PASS${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			echo -e "${RED}✗ FAIL (expected success)${RESET}"
+			printf "${RED}✗ FAIL (expected success)${RESET}\n"
 			if [ "$VERBOSE" = "true" ]; then
-				echo -e "${YELLOW}Output: $output${RESET}"
+				printf "${YELLOW}Output: %s${RESET}\n" "$output"
 			fi
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
@@ -95,24 +95,24 @@ run_test() {
 			# Check for specific error if provided
 			if [ -n "$expected_error" ]; then
 				if echo "$output" | grep -q "$expected_error"; then
-					echo -e "${GREEN}✓ PASS (correct error)${RESET}"
+					printf "${GREEN}✓ PASS (correct error)${RESET}\n"
 					PASSED_TESTS=$((PASSED_TESTS + 1))
 				else
-					echo -e "${YELLOW}⚠ PASS (wrong error message)${RESET}"
+					printf "${YELLOW}⚠ PASS (wrong error message)${RESET}\n"
 					if [ "$VERBOSE" = "true" ]; then
-						echo -e "${YELLOW}Expected: $expected_error${RESET}"
-						echo -e "${YELLOW}Got: $output${RESET}"
+						printf "${YELLOW}Expected: %s${RESET}\n" "$expected_error"
+						printf "${YELLOW}Got: %s${RESET}\n" "$output"
 					fi
 					PASSED_TESTS=$((PASSED_TESTS + 1))
 				fi
 			else
-				echo -e "${GREEN}✓ PASS${RESET}"
+				printf "${GREEN}✓ PASS${RESET}\n"
 				PASSED_TESTS=$((PASSED_TESTS + 1))
 			fi
 		else
-			echo -e "${RED}✗ FAIL (expected failure)${RESET}"
+			printf "${RED}✗ FAIL (expected failure)${RESET}\n"
 			if [ "$VERBOSE" = "true" ]; then
-				echo -e "${YELLOW}Output: $output${RESET}"
+				printf "${YELLOW}Output: %s${RESET}\n" "$output"
 			fi
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
@@ -125,7 +125,7 @@ run_file_test() {
 	local test_name="$(basename "$file_path")"
 
 	if [ ! -f "$file_path" ]; then
-		echo -e "${YELLOW}⚠ SKIP (file not found): $test_name${RESET}"
+		printf "${YELLOW}⚠ SKIP (file not found): %s${RESET}\n" "$test_name"
 		return
 	fi
 
@@ -138,25 +138,25 @@ run_file_test() {
 	exit_code=$?
 
 	if [ $exit_code -eq 124 ]; then
-		echo -e "${RED}✗ TIMEOUT${RESET}"
+		printf "${RED}✗ TIMEOUT${RESET}\n"
 		FAILED_TESTS=$((FAILED_TESTS + 1))
 		return 1
 	fi
 
 	if [ "$should_pass" = "true" ]; then
 		if [ $exit_code -eq 0 ]; then
-			echo -e "${GREEN}✓ PASS${RESET}"
+			printf "${GREEN}✓ PASS${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			echo -e "${RED}✗ FAIL${RESET}"
+			printf "${RED}✗ FAIL${RESET}\n"
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
 	else
 		if [ $exit_code -ne 0 ]; then
-			echo -e "${GREEN}✓ PASS${RESET}"
+			printf "${GREEN}✓ PASS${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			echo -e "${RED}✗ FAIL${RESET}"
+			printf "${RED}✗ FAIL${RESET}\n"
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
 	fi
@@ -171,39 +171,39 @@ test_basic_validation() {
 
 	run_test "Empty input" "" false "Empty input"
 	run_test "Only newlines" "\n\n\n" false "Empty input"
-	run_test "Zero ants" "0" false "Invalid ant count"
-	run_test "Negative ants" "-5" false "Invalid ant count"
+	run_test "Zero ants" "0" false "Ant count must be > 0"
+	run_test "Negative ants" "-5" false "Ant count must be > 0"
 	run_test "Non-numeric ants" "abc" false "Invalid ant count"
 	run_test "Float ants" "3.14" false "Invalid ant count"
-	run_test "Very large ants" "999999999999" false "Invalid ant count"
+	run_test "Very large ants" "999999999999" false "Ant count too large"
 	run_test "Ants with spaces" "1 0" false "Invalid ant count"
 }
 
 test_room_validation() {
 	print_section "Room Validation"
 
-	run_test "No start room" "1\nroom 0 0" false "Missing start"
-	run_test "No end room" "1\n##start\nstart 0 0" false "Missing end"
-	run_test "Multiple start rooms" "1\n##start\nstart1 0 0\n##start\nstart2 1 1\n##end\nend 2 2" false "Multiple start"
-	run_test "Multiple end rooms" "1\n##start\nstart 0 0\n##end\nend1 1 1\n##end\nend2 2 2" false "Multiple end"
+	run_test "No start room" "1\nroom 0 0" false "No ##start room defined"
+	run_test "No end room" "1\n##start\nstart 0 0" false "No ##end room defined"
+	run_test "Multiple start rooms" "1\n##start\nstart1 0 0\n##start\nstart2 1 1\n##end\nend 2 2" false "Multiple ##start rooms defined"
+	run_test "Multiple end rooms" "1\n##start\nstart 0 0\n##end\nend1 1 1\n##end\nend2 2 2" false "Multiple ##end rooms defined"
 	run_test "Duplicate room names" "1\n##start\nstart 0 0\nstart 1 1\n##end\nend 2 2" false "Duplicate room"
-	run_test "Room name starting with L" "1\n##start\nLroom 0 0\n##end\nend 1 1" false "Invalid room name"
-	run_test "Room name with hash" "1\n##start\n#room 0 0\n##end\nend 1 1" false "Invalid room name"
-	run_test "Empty room name" "1\n##start\n 0 0\n##end\nend 1 1" false "Invalid line"
+	run_test "Room name starting with L" "1\n##start\nLroom 0 0\n##end\nend 1 1" false "Room name cannot start with 'L'"
+	run_test "Room name with hash" "1\n##start\n#room 0 0\n##end\nend 1 1" false "No ##start room defined"
+	run_test "Empty room name" "1\n##start\n 0 0\n##end\nend 1 1" false "Invalid room name"
 	run_test "Room with no coordinates" "1\n##start\nstart\n##end\nend 1 1" false "Invalid line"
 	run_test "Room with one coordinate" "1\n##start\nstart 0\n##end\nend 1 1" false "Invalid line"
-	run_test "Room with non-numeric coords" "1\n##start\nstart abc def\n##end\nend 1 1" false "Invalid coordinates"
+	run_test "Room with non-numeric coords" "1\n##start\nstart abc def\n##end\nend 1 1" false "Invalid line format"
 }
 
 test_link_validation() {
 	print_section "Link Validation"
 
-	run_test "Link to non-existent room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-nowhere" false "Room not found"
-	run_test "Self-linking room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-start" false "Self link"
+	run_test "Link to non-existent room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-nowhere" false "Link references unknown room"
+	run_test "Self-linking room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-start" false "Room cannot link to itself"
 	run_test "Invalid link format" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart_end" false "Invalid line"
 	run_test "Link with no dash" "1\n##start\nstart 0 0\n##end\nend 1 1\nstartend" false "Invalid line"
-	run_test "Link with multiple dashes" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-middle-end" false "Link invalid"
-	run_test "Empty link parts" "1\n##start\nstart 0 0\n##end\nend 1 1\n-end" false "Link invalid"
+	run_test "Link with multiple dashes" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-middle-end" false "Link references unknown room"
+	run_test "Empty link parts" "1\n##start\nstart 0 0\n##end\nend 1 1\n-end" false "Invalid link format"
 }
 
 test_valid_cases() {
@@ -236,7 +236,7 @@ test_file_suite() {
 		fi
 	done
 
-	echo -e "\nTesting valid maps:"
+	printf "\nTesting valid maps:\n"
 	for file in resources/valid_maps/*; do
 		if [ -f "$file" ]; then
 			run_file_test "$file" true
@@ -245,20 +245,20 @@ test_file_suite() {
 }
 
 print_summary() {
-	echo -e "\n${BLUE}===========================================${RESET}"
-	echo -e "${WHITE}📊 TEST SUMMARY${RESET}"
-	echo -e "${BLUE}===========================================${RESET}"
-	echo -e "${CYAN}Total tests: ${TOTAL_TESTS}${RESET}"
-	echo -e "${GREEN}Passed: ${PASSED_TESTS}${RESET}"
-	echo -e "${RED}Failed: ${FAILED_TESTS}${RESET}"
+	printf "\n${BLUE}===========================================${RESET}\n"
+	printf "${WHITE}📊 TEST SUMMARY${RESET}\n"
+	printf "${BLUE}===========================================${RESET}\n"
+	printf "${CYAN}Total tests: %d${RESET}\n" "$TOTAL_TESTS"
+	printf "${GREEN}Passed: %d${RESET}\n" "$PASSED_TESTS"
+	printf "${RED}Failed: %d${RESET}\n" "$FAILED_TESTS"
 
 	if [ $FAILED_TESTS -eq 0 ]; then
-		echo -e "${GREEN}🎉 ALL TESTS PASSED!${RESET}"
+		printf "${GREEN}🎉 ALL TESTS PASSED!${RESET}\n"
 		exit 0
 	else
 		local success_rate=$((PASSED_TESTS * 100 / TOTAL_TESTS))
-		echo -e "${YELLOW}Success rate: ${success_rate}%${RESET}"
-		echo -e "${RED}❌ SOME TESTS FAILED${RESET}"
+		printf "${YELLOW}Success rate: %d%%${RESET}\n" "$success_rate"
+		printf "${RED}❌ SOME TESTS FAILED${RESET}\n"
 		exit 1
 	fi
 }
@@ -300,7 +300,7 @@ done
 
 # Check if binary exists
 if [ ! -f "$BINARY" ]; then
-	echo -e "${RED}Error: Binary not found: $BINARY${RESET}"
+	printf "${RED}Error: Binary not found: %s${RESET}\n" "$BINARY"
 	echo "Run 'make' to build the project first."
 	exit 1
 fi
