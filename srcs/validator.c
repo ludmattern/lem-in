@@ -161,14 +161,93 @@ bool is_room_line(const char *line)
 	if (!line || !*line)
 		return false;
 
-	// Skip comments and links
-	if (*line == '#' || strchr(line, '-') != NULL)
+	// Skip comments
+	if (*line == '#')
+	{
+		return false;
+	}
+
+	// ROBUST APPROACH: Parse the line structure to distinguish room vs link
+	// ROOM format: "name coord_x coord_y" (always 3 tokens separated by spaces)
+	// LINK format: "name1-name2" (1 token containing a dash)
+	// SPECIAL CASE: " coord_x coord_y" (empty name, should be caught as room error)
+	
+	// Handle special case: line starting with whitespace (empty room name)
+	if (*line == ' ' || *line == '\t')
+	{
+		// This could be a room with empty name, let parse_room_line handle the error
+		// Count remaining tokens after initial whitespace
+		const char *p = line;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		
+		int remaining_tokens = 0;
+		while (*p)
+		{
+			// Skip to next token
+			while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r')
+				p++;
+			remaining_tokens++;
+			
+			// Skip whitespace
+			while (*p == ' ' || *p == '\t')
+				p++;
+		}
+		
+		// If we have 2 tokens after initial space, treat as room (empty name + 2 coords)
+		if (remaining_tokens == 2)
+			return true;
+	}
+	
+	// Count tokens and check for dashes
+	const char *p = line;
+	int token_count = 0;
+	bool has_dash_in_token = false;
+	
+	while (*p)
+	{
+		// Skip leading whitespace
+		while (*p == ' ' || *p == '\t')
+			p++;
+		if (!*p)
+			break;
+		
+		// Found start of token
+		token_count++;
+		const char *token_start = p;
+		
+		// Read until end of token
+		while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r')
+			p++;
+		
+		// Check if this token contains a dash
+		for (const char *check = token_start; check < p; check++)
+		{
+			if (*check == '-')
+			{
+				has_dash_in_token = true;
+				break;
+			}
+		}
+	}
+	
+	// DECISIVE LOGIC:
+	// - If 1 token with dash: it's a LINK ("room1-room2")
+	// - If 3 tokens: it's a ROOM ("name x y") even with negative coords
+	// - Otherwise: invalid format
+	
+	if (token_count == 1 && has_dash_in_token)
+	{
+		return false;
+	}
+	
+	if (token_count != 3)
 	{
 		return false;
 	}
 
 	// Basic format check: name X Y
-	const char *p = line;
+	p = line;
 
 	// Skip room name
 	while (*p && *p != ' ' && *p != '\t')

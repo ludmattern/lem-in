@@ -34,6 +34,13 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		return false;
 	}
 
+	// Check if room name is empty (line starts with space)
+	if (p == name)
+	{
+		print_error(ERR_ROOM_NAME_INVALID, "");
+		return false;
+	}
+
 	if (parser->room_count >= MAX_ROOMS)
 	{
 		print_error(ERR_TOO_MANY_ROOMS, NULL);
@@ -72,9 +79,7 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		print_error(ERR_INVALID_LINE, line);
 		return false;
 	}
-	char x_save = *p;
-	(void)x_save; // Mark as used to avoid warning
-	*p = '\0';
+	char *x_end = p;
 	p++;
 
 	// Skip whitespace
@@ -98,6 +103,7 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		return false;
 	}
 	*y_end = '\0'; // Null terminate at end of Y coordinate
+	*x_end = '\0'; // Null terminate at end of X coordinate
 
 	// Validate coordinates
 	if (!validate_coordinates(x_start, y_start, &error))
