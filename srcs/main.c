@@ -88,7 +88,8 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 	while (*p >= '0' && *p <= '9')
 		p++;
 
-	// Null terminate Y coordinate
+	// Check for end of line or whitespace
+	char *y_end = p;
 	while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
 		p++;
 	if (*p != '\0')
@@ -96,7 +97,7 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		print_error(ERR_INVALID_LINE, line);
 		return false;
 	}
-	*p = '\0';
+	*y_end = '\0'; // Null terminate at end of Y coordinate
 
 	// Validate coordinates
 	if (!validate_coordinates(x_start, y_start, &error))
@@ -271,8 +272,10 @@ bool parser_parse_input(lem_in_parser_t *parser)
 		// First non-comment line must be ant count
 		else if (!found_ant_count)
 		{
-			if (!validate_ant_count(line, &parser->ant_count, &(error_code_t){ERR_NONE}))
+			error_code_t ant_error = ERR_NONE;
+			if (!validate_ant_count(line, &parser->ant_count, &ant_error))
 			{
+				print_error(ant_error, line);
 				return false;
 			}
 			found_ant_count = true;

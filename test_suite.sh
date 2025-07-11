@@ -68,7 +68,7 @@ run_test() {
 	# Run the test with timeout
 	local output
 	local exit_code
-	output=$(echo -e "$input" | timeout $TIMEOUT $BINARY 2>&1)
+	output=$(printf "%b\n" "$input" | timeout $TIMEOUT $BINARY 2>&1)
 	exit_code=$?
 
 	# Check timeout
@@ -268,7 +268,7 @@ print_summary() {
 # ============================================================================
 
 # Parse command line arguments
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
 	case $1 in
 	-v | --verbose)
 		VERBOSE=true
