@@ -1,0 +1,162 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lem_in.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/11 15:36:39 by lmattern          #+#    #+#             */
+/*   Updated: 2025/07/11 15:36:39 by lmattern         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef LEM_IN_H
+#define LEM_IN_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <limits.h>
+#include <stdbool.h> // C99+ pour bool
+#include <stddef.h>	 // pour size_t
+#include <errno.h>	 // pour errno
+
+// ============================================================================
+// CONSTANTS AND LIMITS
+// ============================================================================
+
+#define MAX_ROOMS 20000
+#define MAX_LINKS 200000
+#define HASH_SIZE 32768
+#define MAX_INPUT_SIZE (1 << 20) // 1MB
+#define INVALID_ROOM_ID UINT16_MAX
+
+// ============================================================================
+// DATA STRUCTURES
+// ============================================================================
+
+typedef enum
+{
+	ROOM_NORMAL = 0,
+	ROOM_START = 1,
+	ROOM_END = 2,
+	ROOM_VISITED = 4
+} room_flags_t;
+
+typedef struct
+{
+	const char *name;	// points inside input buffer
+	int32_t x, y;		// coordinates (can be negative)
+	room_flags_t flags; // room type and state
+	uint16_t id;		// unique room identifier
+} room_t;
+
+typedef struct
+{
+	uint16_t from; // source room id
+	uint16_t to;   // destination room id
+} link_t;
+
+typedef struct
+{
+	const char *name;
+	uint16_t room_id;
+} hash_entry_t;
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+typedef enum
+{
+	ERR_NONE = 0,
+	ERR_MEMORY,
+	ERR_INPUT_READ,
+	ERR_EMPTY_INPUT,
+	ERR_INVALID_ANT_COUNT,
+	ERR_ANT_COUNT_ZERO,
+	ERR_ANT_COUNT_OVERFLOW,
+	ERR_ROOM_NAME_INVALID,
+	ERR_ROOM_NAME_STARTS_L,
+	ERR_ROOM_NAME_STARTS_HASH,
+	ERR_ROOM_NAME_HAS_SPACE,
+	ERR_ROOM_NAME_HAS_DASH,
+	ERR_ROOM_DUPLICATE,
+	ERR_ROOM_COORDINATES,
+	ERR_MULTIPLE_START,
+	ERR_MULTIPLE_END,
+	ERR_LINK_INVALID,
+	ERR_LINK_SELF,
+	ERR_LINK_ROOM_NOT_FOUND,
+	ERR_NO_START,
+	ERR_NO_END,
+	ERR_NO_ROOMS,
+	ERR_INVALID_LINE,
+	ERR_TOO_MANY_ROOMS,
+	ERR_TOO_MANY_LINKS
+} error_code_t;
+
+// ============================================================================
+// MAIN PARSER STRUCTURE
+// ============================================================================
+
+typedef struct
+{
+	char *input_buffer;
+	size_t input_size;
+
+	room_t *rooms;
+	link_t *links;
+	hash_entry_t *hash_table;
+
+	size_t room_count;
+	size_t link_count;
+	uint16_t start_room_id;
+	uint16_t end_room_id;
+
+	int32_t ant_count;
+	bool has_start;
+	bool has_end;
+} lem_in_parser_t;
+
+// ============================================================================
+// FUNCTION PROTOTYPES
+// ============================================================================
+
+// Parser lifecycle
+lem_in_parser_t *parser_create(void);
+void parser_destroy(lem_in_parser_t *parser);
+bool parser_parse_input(lem_in_parser_t *parser);
+
+// Input handling
+bool read_stdin_to_buffer(lem_in_parser_t *parser);
+
+// Validation functions
+bool validate_ant_count(const char *line, int32_t *count, error_code_t *error);
+bool validate_room_name(const char *name, error_code_t *error);
+bool validate_coordinates(const char *x_str, const char *y_str, error_code_t *error);
+
+// Parsing functions
+bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag);
+bool parse_link_line(lem_in_parser_t *parser, char *line);
+bool is_room_line(const char *line);
+
+// Hash table
+uint32_t hash_string(const char *str);
+bool hash_add_room(lem_in_parser_t *parser, const char *name, uint16_t room_id);
+int16_t hash_get_room_id(const lem_in_parser_t *parser, const char *name);
+
+// Error handling
+void print_error(error_code_t code, const char *context);
+const char *error_to_string(error_code_t code);
+
+// Output
+bool output_original_input(const lem_in_parser_t *parser);
+
+#ifdef DEBUG
+void debug_print_parser_state(const lem_in_parser_t *parser);
+#endif
+
+#endif // LEM_IN_H

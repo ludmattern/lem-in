@@ -1,0 +1,33 @@
+# Compiled binary
+lem-in
+
+# Object files
+*.o
+*.d
+objs/
+
+# Debug files
+*.dSYM/
+*.gch
+*.pch
+
+# Temporary files
+*~
+*.swp
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Test outputs
+test_results.txt
+*.log
+
+# Backup files
+*.bak
+*.orig
