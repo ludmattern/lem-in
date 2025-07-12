@@ -149,7 +149,7 @@ bool hash_add_room(lem_in_parser_t *parser, const char *name, uint16_t room_id);
 int16_t hash_get_room_id(const lem_in_parser_t *parser, const char *name);
 
 // Error handling
-void print_error(error_code_t code, const char *context);
+bool print_error(error_code_t code, const char *context);
 const char *error_to_string(error_code_t code);
 
 // Output

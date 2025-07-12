@@ -94,10 +94,7 @@ static bool apply_room_flags(lem_in_parser_t *parser, room_t *room, int next_fla
 	if (next_flag == 1) // ##start
 	{
 		if (parser->has_start)
-		{
-			print_error(ERR_MULTIPLE_START, NULL);
-			return false;
-		}
+			return print_error(ERR_MULTIPLE_START, NULL);
 		room->flags = ROOM_START;
 		parser->start_room_id = room->id;
 		parser->has_start = true;
@@ -105,10 +102,7 @@ static bool apply_room_flags(lem_in_parser_t *parser, room_t *room, int next_fla
 	else if (next_flag == 2) // ##end
 	{
 		if (parser->has_end)
-		{
-			print_error(ERR_MULTIPLE_END, NULL);
-			return false;
-		}
+			return print_error(ERR_MULTIPLE_END, NULL);
 		room->flags = ROOM_END;
 		parser->end_room_id = room->id;
 		parser->has_end = true;
@@ -117,7 +111,125 @@ static bool apply_room_flags(lem_in_parser_t *parser, room_t *room, int next_fla
 }
 
 // ============================================================================
-// MAIN PARSING LOGIC - Refactored and modular
+// INPUT PARSING HELPER FUNCTIONS - Modular approach
+// ============================================================================
+
+// Extract and normalize a line from input buffer
+static char *extract_line(char **line_ptr, char *end, char *saved_char)
+{
+	char *line = *line_ptr;
+	char *line_end = line;
+
+	// Find line boundaries
+	while (line_end < end && *line_end != '\n' && *line_end != '\r')
+		line_end++;
+
+	// Null terminate current line
+	*saved_char = '\0';
+	if (line_end < end)
+	{
+		*saved_char = *line_end;
+		*line_end = '\0';
+	}
+
+	// Update line pointer for next iteration
+	if (line_end >= end)
+	{
+		*line_ptr = end;
+	}
+	else
+	{
+		*line_ptr = line_end + 1;
+		// Skip additional line ending characters
+		if (*line_ptr < end && *saved_char == '\n' && **line_ptr == '\r')
+			(*line_ptr)++;
+		else if (*line_ptr < end && *saved_char == '\r' && **line_ptr == '\n')
+			(*line_ptr)++;
+	}
+
+	return line;
+}
+
+// Handle ##start and ##end commands
+static bool handle_command(char *line, int *next_flag)
+{
+	if (line[1] != '#')
+		return true; // Regular comment, ignore
+
+	if (strcmp(line, "##start") == 0)
+	{
+		if (*next_flag == 1) // Already have a pending ##start
+			return print_error(ERR_MULTIPLE_START, NULL);
+		*next_flag = 1;
+	}
+	else if (strcmp(line, "##end") == 0)
+	{
+		if (*next_flag == 2) // Already have a pending ##end
+			return print_error(ERR_MULTIPLE_END, NULL);
+		*next_flag = 2;
+	}
+	else
+	{
+		*next_flag = 0; // Unknown command, ignore
+	}
+
+	return true;
+}
+
+// Process a single line according to its type
+static bool process_line(lem_in_parser_t *parser, char *line, int *next_flag, bool *found_ant_count)
+{
+	// Handle comments and commands
+	if (line[0] == '#')
+	{
+		return handle_command(line, next_flag);
+	}
+
+	// First non-comment line must be ant count
+	if (!*found_ant_count)
+	{
+		error_code_t ant_error = ERR_NONE;
+		if (!validate_ant_count(line, &parser->ant_count, &ant_error))
+			return print_error(ant_error, line);
+		*found_ant_count = true;
+		return true;
+	}
+
+	// Parse room lines
+	if (is_room_line(line))
+	{
+		if (!parse_room_line(parser, line, *next_flag))
+			return false;
+		*next_flag = 0; // Reset flag after use
+		return true;
+	}
+
+	// Parse link lines
+	if (strchr(line, '-'))
+	{
+		return parse_link_line(parser, line);
+	}
+
+	// Invalid line format
+	return print_error(ERR_INVALID_LINE, line);
+}
+
+// Validate final parser state
+static bool validate_final_state(lem_in_parser_t *parser, bool found_ant_count)
+{
+	if (!found_ant_count)
+		return print_error(ERR_EMPTY_INPUT, NULL);
+	if (!parser->has_start)
+		return print_error(ERR_NO_START, NULL);
+	if (!parser->has_end)
+		return print_error(ERR_NO_END, NULL);
+	if (parser->room_count == 0)
+		return print_error(ERR_NO_ROOMS, NULL);
+	return true;
+}
+
+// ============================================================================
+// MAIN PARSING LOGIC - Refactored and simplified
 // ============================================================================
 
 bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
@@ -127,50 +239,31 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 
 	// Check room limit
 	if (parser->room_count >= MAX_ROOMS)
-	{
-		print_error(ERR_TOO_MANY_ROOMS, NULL);
-		return false;
-	}
+		return print_error(ERR_TOO_MANY_ROOMS, NULL);
 
 	// Extract room name
 	char *name;
 	char *rest = extract_room_name(line, &name);
 	if (!rest)
-	{
-		print_error(!name ? ERR_ROOM_NAME_INVALID : ERR_INVALID_LINE,
-					!name ? line : line);
-		return false;
-	}
+		return print_error(!name ? ERR_ROOM_NAME_INVALID : ERR_INVALID_LINE, !name ? line : line);
 
 	// Validate room name
 	error_code_t error = ERR_NONE;
 	if (!validate_room_name(name, &error))
-	{
-		print_error(error, name);
-		return false;
-	}
+		return print_error(error, name);
 
 	// Check for duplicates
 	if (hash_get_room_id(parser, name) >= 0)
-	{
-		print_error(ERR_ROOM_DUPLICATE, name);
-		return false;
-	}
+		return print_error(ERR_ROOM_DUPLICATE, name);
 
 	// Extract coordinates
 	char *x_str, *y_str;
 	if (!extract_coordinates(rest, &x_str, &y_str))
-	{
-		print_error(ERR_INVALID_LINE, line);
-		return false;
-	}
+		return print_error(ERR_INVALID_LINE, line);
 
 	// Validate coordinates
 	if (!validate_coordinates(x_str, y_str, &error))
-	{
-		print_error(error, line);
-		return false;
-	}
+		return print_error(error, line);
 
 	// Create room
 	uint16_t room_id = (uint16_t)parser->room_count;
@@ -188,10 +281,7 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 
 	// Add to hash table
 	if (!hash_add_room(parser, room->name, room_id))
-	{
-		print_error(ERR_ROOM_DUPLICATE, name);
-		return false;
-	}
+		return print_error(ERR_ROOM_DUPLICATE, name);
 
 	parser->room_count++;
 	return true;
@@ -204,16 +294,10 @@ bool parse_link_line(lem_in_parser_t *parser, char *line)
 
 	char *dash = strchr(line, '-');
 	if (!dash || dash == line || !dash[1])
-	{
-		print_error(ERR_LINK_INVALID, line);
-		return false;
-	}
+		return print_error(ERR_LINK_INVALID, line);
 
 	if (parser->link_count >= MAX_LINKS)
-	{
-		print_error(ERR_TOO_MANY_LINKS, NULL);
-		return false;
-	}
+		return print_error(ERR_TOO_MANY_LINKS, NULL);
 
 	// Split the line at the dash
 	*dash = '\0';
@@ -236,16 +320,10 @@ bool parse_link_line(lem_in_parser_t *parser, char *line)
 	int16_t room2_id = hash_get_room_id(parser, room2_name);
 
 	if (room1_id < 0 || room2_id < 0)
-	{
-		print_error(ERR_LINK_ROOM_NOT_FOUND, line);
-		return false;
-	}
+		return print_error(ERR_LINK_ROOM_NOT_FOUND, line);
 
 	if (room1_id == room2_id)
-	{
-		print_error(ERR_LINK_SELF, line);
-		return false;
-	}
+		return print_error(ERR_LINK_SELF, line);
 
 	// Add the link
 	link_t *link = &parser->links[parser->link_count];
@@ -268,131 +346,28 @@ bool parser_parse_input(lem_in_parser_t *parser)
 
 	while (line < end)
 	{
-		// Find line boundaries
-		char *line_end = line;
-		while (line_end < end && *line_end != '\n' && *line_end != '\r')
-		{
-			line_end++;
-		}
-
-		// Null terminate current line
 		char saved_char = '\0';
-		if (line_end < end)
-		{
-			saved_char = *line_end;
-			*line_end = '\0';
-		}
+
+		// Extract and normalize the line
+		char *current_line = extract_line(&line, end, &saved_char);
 
 		// Skip empty lines
-		if (!*line)
+		if (!*current_line)
 		{
 			if (!found_ant_count)
-			{
-				print_error(ERR_EMPTY_INPUT, NULL);
-				return false;
-			}
+				return print_error(ERR_EMPTY_INPUT, NULL);
 			// Empty line can terminate parsing according to subject
 			break;
 		}
 
-		// Handle comments and commands
-		if (line[0] == '#')
-		{
-			if (line[1] == '#')
-			{
-				if (strcmp(line, "##start") == 0)
-				{
-					if (next_flag == 1) // Already have a pending ##start
-					{
-						print_error(ERR_MULTIPLE_START, NULL);
-						return false;
-					}
-					next_flag = 1;
-				}
-				else if (strcmp(line, "##end") == 0)
-				{
-					if (next_flag == 2) // Already have a pending ##end
-					{
-						print_error(ERR_MULTIPLE_END, NULL);
-						return false;
-					}
-					next_flag = 2;
-				}
-				else
-				{
-					next_flag = 0; // Unknown command, ignore
-				}
-			}
-			// Regular comments are ignored
-		}
-		// First non-comment line must be ant count
-		else if (!found_ant_count)
-		{
-			error_code_t ant_error = ERR_NONE;
-			if (!validate_ant_count(line, &parser->ant_count, &ant_error))
-			{
-				print_error(ant_error, line);
-				return false;
-			}
-			found_ant_count = true;
-		}
-		// Parse room lines
-		else if (is_room_line(line))
-		{
-			if (!parse_room_line(parser, line, next_flag))
-			{
-				return false;
-			}
-			next_flag = 0; // Reset flag after use
-		}
-		// Parse link lines
-		else if (strchr(line, '-'))
-		{
-			if (!parse_link_line(parser, line))
-			{
-				return false;
-			}
-		}
-		// Invalid line format
-		else
-		{
-			print_error(ERR_INVALID_LINE, line);
+		// Process the line based on its type
+		if (!process_line(parser, current_line, &next_flag, &found_ant_count))
 			return false;
-		}
-
-		// Move to next line
-		if (line_end >= end)
-			break;
-
-		line = line_end + 1;
-		// Skip additional line ending characters
-		if (line < end && saved_char == '\n' && *line == '\r')
-			line++;
-		else if (line < end && saved_char == '\r' && *line == '\n')
-			line++;
 	}
 
 	// Final validation
-	if (!found_ant_count)
-	{
-		print_error(ERR_EMPTY_INPUT, NULL);
+	if (!validate_final_state(parser, found_ant_count))
 		return false;
-	}
-	if (!parser->has_start)
-	{
-		print_error(ERR_NO_START, NULL);
-		return false;
-	}
-	if (!parser->has_end)
-	{
-		print_error(ERR_NO_END, NULL);
-		return false;
-	}
-	if (parser->room_count == 0)
-	{
-		print_error(ERR_NO_ROOMS, NULL);
-		return false;
-	}
 
 	return true;
 }

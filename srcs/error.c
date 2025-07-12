@@ -52,7 +52,7 @@ const char *error_to_string(error_code_t code)
 	return "Unknown error";
 }
 
-void print_error(error_code_t code, const char *context)
+bool print_error(error_code_t code, const char *context)
 {
 	fprintf(stderr, "ERROR: %s", error_to_string(code));
 	if (context && *context)
@@ -60,4 +60,5 @@ void print_error(error_code_t code, const char *context)
 		fprintf(stderr, " '%s'", context);
 	}
 	fprintf(stderr, "\n");
+	return false;
 }

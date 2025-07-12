@@ -89,10 +89,7 @@ bool read_stdin_to_buffer(lem_in_parser_t *parser)
 
 	parser->input_buffer = malloc(capacity);
 	if (!parser->input_buffer)
-	{
-		print_error(ERR_MEMORY, "input buffer");
-		return false;
-	}
+		return print_error(ERR_MEMORY, "input buffer");
 
 	ssize_t bytes_read;
 	while ((bytes_read = read(STDIN_FILENO, parser->input_buffer + size, capacity - size)) > 0)
@@ -103,10 +100,7 @@ bool read_stdin_to_buffer(lem_in_parser_t *parser)
 		if (size >= capacity - 1)
 		{
 			if (capacity >= MAX_INPUT_SIZE)
-			{
-				print_error(ERR_INPUT_READ, "input too large");
-				return false;
-			}
+				return print_error(ERR_INPUT_READ, "input too large");
 
 			capacity *= 2;
 			if (capacity > MAX_INPUT_SIZE)
@@ -116,19 +110,13 @@ bool read_stdin_to_buffer(lem_in_parser_t *parser)
 
 			char *new_buffer = realloc(parser->input_buffer, capacity);
 			if (!new_buffer)
-			{
-				print_error(ERR_MEMORY, "input buffer resize");
-				return false;
-			}
+				return print_error(ERR_MEMORY, "input buffer resize");
 			parser->input_buffer = new_buffer;
 		}
 	}
 
 	if (bytes_read < 0)
-	{
-		print_error(ERR_INPUT_READ, strerror(errno));
-		return false;
-	}
+		return print_error(ERR_INPUT_READ, strerror(errno));
 
 	parser->input_buffer[size] = '\0';
 	parser->input_size = size;
