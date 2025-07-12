@@ -6,7 +6,7 @@
 #    By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 15:36:16 by lmattern          #+#    #+#              #
-#    Updated: 2025/07/11 19:12:52 by lmattern         ###   ########.fr        #
+#    Updated: 2025/07/12 10:58:13 by lmattern         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,7 +43,7 @@ VERBOSE=false
 
 print_header() {
 	printf "${BLUE}===========================================${RESET}\n"
-	printf "${WHITE}🧪 LEM-IN PROFESSIONAL TEST SUITE${RESET}\n"
+	printf "${WHITE}LEM-IN PROFESSIONAL TEST SUITE${RESET}\n"
 	printf "${BLUE}===========================================${RESET}\n"
 	printf "${CYAN}Testing binary: ${BINARY}${RESET}\n"
 	printf "${CYAN}Timeout: ${TIMEOUT}s per test${RESET}\n"
@@ -51,7 +51,7 @@ print_header() {
 }
 
 print_section() {
-	printf "\n${PURPLE}📋 %s${RESET}\n" "$1"
+	printf "\n${PURPLE}[%s]${RESET}\n" "$1"
 	printf "${PURPLE}$(printf '=%.0s' {1..50})${RESET}\n"
 }
 
@@ -73,7 +73,7 @@ run_test() {
 
 	# Check timeout
 	if [ $exit_code -eq 124 ]; then
-		printf "${RED}✗ TIMEOUT${RESET}\n"
+		printf "${RED}[TIMEOUT]${RESET}\n"
 		FAILED_TESTS=$((FAILED_TESTS + 1))
 		return 1
 	fi
@@ -81,10 +81,10 @@ run_test() {
 	# Check result
 	if [ "$should_pass" = "true" ]; then
 		if [ $exit_code -eq 0 ]; then
-			printf "${GREEN}✓ PASS${RESET}\n"
+			printf "${GREEN}[PASS]${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			printf "${RED}✗ FAIL (expected success)${RESET}\n"
+			printf "${RED}[FAIL] (expected success)${RESET}\n"
 			if [ "$VERBOSE" = "true" ]; then
 				printf "${YELLOW}Output: %s${RESET}\n" "$output"
 			fi
@@ -95,10 +95,10 @@ run_test() {
 			# Check for specific error if provided
 			if [ -n "$expected_error" ]; then
 				if echo "$output" | grep -q "$expected_error"; then
-					printf "${GREEN}✓ PASS (correct error)${RESET}\n"
+					printf "${GREEN}[PASS] (correct error)${RESET}\n"
 					PASSED_TESTS=$((PASSED_TESTS + 1))
 				else
-					printf "${YELLOW}⚠ PASS (wrong error message)${RESET}\n"
+					printf "${YELLOW}[PASS] (wrong error message)${RESET}\n"
 					if [ "$VERBOSE" = "true" ]; then
 						printf "${YELLOW}Expected: %s${RESET}\n" "$expected_error"
 						printf "${YELLOW}Got: %s${RESET}\n" "$output"
@@ -106,11 +106,11 @@ run_test() {
 					PASSED_TESTS=$((PASSED_TESTS + 1))
 				fi
 			else
-				printf "${GREEN}✓ PASS${RESET}\n"
+				printf "${GREEN}[PASS]${RESET}\n"
 				PASSED_TESTS=$((PASSED_TESTS + 1))
 			fi
 		else
-			printf "${RED}✗ FAIL (expected failure)${RESET}\n"
+			printf "${RED}[FAIL] (expected failure)${RESET}\n"
 			if [ "$VERBOSE" = "true" ]; then
 				printf "${YELLOW}Output: %s${RESET}\n" "$output"
 			fi
@@ -125,7 +125,7 @@ run_file_test() {
 	local test_name="$(basename "$file_path")"
 
 	if [ ! -f "$file_path" ]; then
-		printf "${YELLOW}⚠ SKIP (file not found): %s${RESET}\n" "$test_name"
+		printf "${YELLOW}[SKIP] (file not found): %s${RESET}\n" "$test_name"
 		return
 	fi
 
@@ -138,25 +138,25 @@ run_file_test() {
 	exit_code=$?
 
 	if [ $exit_code -eq 124 ]; then
-		printf "${RED}✗ TIMEOUT${RESET}\n"
+		printf "${RED}[TIMEOUT]${RESET}\n"
 		FAILED_TESTS=$((FAILED_TESTS + 1))
 		return 1
 	fi
 
 	if [ "$should_pass" = "true" ]; then
 		if [ $exit_code -eq 0 ]; then
-			printf "${GREEN}✓ PASS${RESET}\n"
+			printf "${GREEN}[PASS]${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			printf "${RED}✗ FAIL${RESET}\n"
+			printf "${RED}[FAIL]${RESET}\n"
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
 	else
 		if [ $exit_code -ne 0 ]; then
-			printf "${GREEN}✓ PASS${RESET}\n"
+			printf "${GREEN}[PASS]${RESET}\n"
 			PASSED_TESTS=$((PASSED_TESTS + 1))
 		else
-			printf "${RED}✗ FAIL${RESET}\n"
+			printf "${RED}[FAIL]${RESET}\n"
 			FAILED_TESTS=$((FAILED_TESTS + 1))
 		fi
 	fi
@@ -169,14 +169,14 @@ run_file_test() {
 test_basic_validation() {
 	print_section "Basic Input Validation"
 
-	run_test "Empty input" "" false "Empty input"
-	run_test "Only newlines" "\n\n\n" false "Empty input"
+	run_test "Empty input" "" false "Empty input or missing ant count"
+	run_test "Only newlines" "\n\n\n" false "Empty input or missing ant count"
 	run_test "Zero ants" "0" false "Ant count must be > 0"
 	run_test "Negative ants" "-5" false "Ant count must be > 0"
-	run_test "Non-numeric ants" "abc" false "Invalid ant count"
-	run_test "Float ants" "3.14" false "Invalid ant count"
+	run_test "Non-numeric ants" "abc" false "Invalid ant count format"
+	run_test "Float ants" "3.14" false "Invalid ant count format"
 	run_test "Very large ants" "999999999999" false "Ant count too large"
-	run_test "Ants with spaces" "1 0" false "Invalid ant count"
+	run_test "Ants with spaces" "1 0" false "Invalid ant count format"
 }
 
 test_room_validation() {
@@ -186,7 +186,7 @@ test_room_validation() {
 	run_test "No end room" "1\n##start\nstart 0 0" false "No ##end room defined"
 	run_test "Multiple start rooms" "1\n##start\nstart1 0 0\n##start\nstart2 1 1\n##end\nend 2 2" false "Multiple ##start rooms defined"
 	run_test "Multiple end rooms" "1\n##start\nstart 0 0\n##end\nend1 1 1\n##end\nend2 2 2" false "Multiple ##end rooms defined"
-	run_test "Duplicate room names" "1\n##start\nstart 0 0\nstart 1 1\n##end\nend 2 2" false "Duplicate room"
+	run_test "Duplicate room names" "1\n##start\nstart 0 0\nstart 1 1\n##end\nend 2 2" false "Duplicate room name"
 	run_test "Room name starting with L" "1\n##start\nLroom 0 0\n##end\nend 1 1" false "Room name cannot start with 'L'"
 	run_test "Room name with hash" "1\n##start\n#room 0 0\n##end\nend 1 1" false "No ##start room defined"
 	run_test "Empty room name" "1\n##start\n 0 0\n##end\nend 1 1" false "Invalid room name"
@@ -200,10 +200,19 @@ test_link_validation() {
 
 	run_test "Link to non-existent room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-nowhere" false "Link references unknown room"
 	run_test "Self-linking room" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-start" false "Room cannot link to itself"
-	run_test "Invalid link format" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart_end" false "Invalid line"
-	run_test "Link with no dash" "1\n##start\nstart 0 0\n##end\nend 1 1\nstartend" false "Invalid line"
+	run_test "Invalid link format" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart_end" false "Invalid line format"
+	run_test "Link with no dash" "1\n##start\nstart 0 0\n##end\nend 1 1\nstartend" false "Invalid line format"
 	run_test "Link with multiple dashes" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-middle-end" false "Link references unknown room"
 	run_test "Empty link parts" "1\n##start\nstart 0 0\n##end\nend 1 1\n-end" false "Invalid link format"
+}
+
+test_ambiguous_cases() {
+	print_section "Ambiguous Format Cases"
+
+	run_test "Room name with dash" "1\n##start\nstart 0 0\n##end\nend 1 1\nroom-name 2 2" false "Room name cannot contain dashes"
+	run_test "Link with coordinates" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-end 2 2" false "Room name cannot contain dashes"
+	run_test "Multi-dash link" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-middle-end" false "Link references unknown room"
+	run_test "Complex ambiguous case" "1\n##start\nleo 0 0\n##end\nlea 1 1\nleo-lea 2 2" false "Room name cannot contain dashes"
 }
 
 test_valid_cases() {
@@ -236,6 +245,26 @@ test_file_suite() {
 		fi
 	done
 
+	printf "\nTesting particular case maps:\n"
+	# Test specific cases - need to determine validity case by case
+	run_file_test "resources/particular_case_maps/ambiguous" false       # Has room name with dashes
+	run_file_test "resources/particular_case_maps/start-end" true        # Valid simple case
+	run_file_test "resources/particular_case_maps/wrong_room_link" false # Invalid room reference
+
+	printf "\nTesting visualizer maps:\n"
+	for file in resources/visualizer_maps/*; do
+		if [ -f "$file" ]; then
+			run_file_test "$file" true # These are typically valid maps for visualization
+		fi
+	done
+
+	printf "\nTesting slow maps:\n"
+	for file in resources/slow_maps/*; do
+		if [ -f "$file" ]; then
+			run_file_test "$file" true # These are performance test maps, should be valid
+		fi
+	done
+
 	printf "\nTesting valid maps:\n"
 	for file in resources/valid_maps/*; do
 		if [ -f "$file" ]; then
@@ -246,19 +275,19 @@ test_file_suite() {
 
 print_summary() {
 	printf "\n${BLUE}===========================================${RESET}\n"
-	printf "${WHITE}📊 TEST SUMMARY${RESET}\n"
+	printf "${WHITE}TEST SUMMARY${RESET}\n"
 	printf "${BLUE}===========================================${RESET}\n"
 	printf "${CYAN}Total tests: %d${RESET}\n" "$TOTAL_TESTS"
 	printf "${GREEN}Passed: %d${RESET}\n" "$PASSED_TESTS"
 	printf "${RED}Failed: %d${RESET}\n" "$FAILED_TESTS"
 
 	if [ $FAILED_TESTS -eq 0 ]; then
-		printf "${GREEN}🎉 ALL TESTS PASSED!${RESET}\n"
+		printf "${GREEN}ALL TESTS PASSED!${RESET}\n"
 		exit 0
 	else
 		local success_rate=$((PASSED_TESTS * 100 / TOTAL_TESTS))
 		printf "${YELLOW}Success rate: %d%%${RESET}\n" "$success_rate"
-		printf "${RED}❌ SOME TESTS FAILED${RESET}\n"
+		printf "${RED}SOME TESTS FAILED${RESET}\n"
 		exit 1
 	fi
 }
@@ -310,6 +339,7 @@ print_header
 test_basic_validation
 test_room_validation
 test_link_validation
+test_ambiguous_cases
 test_valid_cases
 test_edge_cases
 test_file_suite

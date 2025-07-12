@@ -1,10 +1,10 @@
 # LEM-IN - Ant Farm Pathfinding Simulator
 
-## 📋 Description
+## Description
 
-A comprehensive ant farm simulator implementing pathfinding algorithms to move `n` ants from a start room to an end room in the minimum number of turns. Built with modern C11 standards and a modular architecture.
+A comprehensive ant farm simulator implementing pathfinding algorithms to move `n` ants from a start room to an end room in the minimum number of turns. Built with C11 standards and a modular architecture.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Compilation
 
@@ -23,12 +23,10 @@ make release           # Optimized release build
 ### Testing
 
 ```bash
-make test              # Run basic validation tests
-make test-full         # Run comprehensive test suite
-bash test_suite.sh     # Manual test execution
+make test              # Run comprehensive test suite
 ```
 
-## 📝 Input Format
+## Input Format
 
 ```text
 number_of_ants
@@ -44,23 +42,23 @@ room2-room3
 ...
 ```
 
-## ✅ Validation Features
+## Validation Features
 
-### ✅ **Ant Count Validation**
+### Ant Count Validation
 
 - Must be a positive integer (> 0)
 - First non-comment line is mandatory
 - Within `int32_t` limits for safety
 
-### ✅ **Room Name Validation**
+### Room Name Validation
 
-- ❌ Cannot start with `L` (reserved for ants)
-- ❌ Cannot start with `#` (reserved for comments)
-- ❌ Cannot contain spaces or hyphens
-- ❌ No duplicate names allowed
-- ✅ Hash table lookup for O(1) duplicate detection
+- Cannot start with `L` (reserved for ants)
+- Cannot start with `#` (reserved for comments)
+- Cannot contain spaces or hyphens
+- No duplicate names allowed
+- Hash table lookup for O(1) duplicate detection
 
-### ✅ **Structural Validation**
+### Structural Validation
 
 - Exactly one `##start` room (mandatory and unique)
 - Exactly one `##end` room (mandatory and unique)
@@ -69,16 +67,16 @@ room2-room3
 - Coordinates must be valid integers
 - Immediate termination on invalid input
 
-### ✅ **Link Validation**
+### Link Validation
 
 - Both rooms must exist in the graph
 - No self-links allowed
 - Buffer overflow protection
 - Efficient hash-based room lookup
 
-## 🏗️ Architecture
+## Architecture
 
-### **Modern C11 Modular Design**
+### C11 Modular Design
 
 ```text
 include/
@@ -94,7 +92,7 @@ srcs/
 
 objs/                  # Object files (auto-generated)
 test_suite.sh         # Comprehensive testing framework
-Makefile              # Professional build system
+Makefile              # Build system
 resources/            # Test maps provided by subject
 ├── valid_maps/
 ├── invalid_maps/
@@ -102,33 +100,26 @@ resources/            # Test maps provided by subject
 └── slow_maps/
 ```
 
-### **Key Design Patterns**
+### Key Design Patterns
 
 - **RAII Pattern**: Automatic resource management with `create_data()` / `destroy_data()`
 - **Hash Table**: djb2 algorithm with linear probing for O(1) room lookup
 - **Error Handling**: Centralized error enum system with detailed messages
 - **Memory Safety**: Automatic cleanup on failure, buffer overflow protection
 
-## 🧪 Testing Framework
+## Testing Framework
 
-### **Automated Testing**
+### Automated Testing
 
 ```bash
-# Basic validation tests
+# Comprehensive test suite with all edge cases
 make test
 
-# Comprehensive test suite with all edge cases
-make test-full
-
-# Manual test execution with detailed output
-bash test_suite.sh
-
-# Code analysis and debugging
-make analyze           # Static analysis
+# Code debugging
 make debug            # Debug build with sanitizers
 ```
 
-### **Test Categories**
+### Test Categories
 
 **Invalid Cases (should return ERROR):**
 
@@ -148,51 +139,51 @@ echo "" | ./lem-in                                     # Empty input
 ./lem-in < resources/particular_case_maps/start-end   # Start and end are same
 ```
 
-## 📊 Project Status
+## Project Status
 
-### ✅ **Completed Features**
+### Completed Features
 
-- ✅ **Robust input parsing** with modern C11 standards
-- ✅ **Comprehensive validation** according to subject requirements
-- ✅ **Detailed error handling** with specific error messages
-- ✅ **Efficient data structures** (hash table with djb2 algorithm)
-- ✅ **Professional test suite** with Makefile integration
-- ✅ **Modular architecture** with clean separation of concerns
-- ✅ **Memory safety** with RAII patterns and automatic cleanup
-- ✅ **Subject-compliant output** formatting without input duplication
+- **Robust input parsing** with C11 standards
+- **Comprehensive validation** according to subject requirements
+- **Detailed error handling** with specific error messages
+- **Efficient data structures** (hash table with djb2 algorithm)
+- **Professional test suite** with Makefile integration
+- **Modular architecture** with clean separation of concerns
+- **Memory safety** with RAII patterns and automatic cleanup
+- **Subject-compliant output** formatting without input duplication
 
-### 🔄 **Next Implementation Phase**
+### Next Implementation Phase
 
-- 🔄 **Pathfinding algorithm** (BFS/Dijkstra for shortest paths)
-- 🔄 **Ant movement simulation** with optimal flow management
-- 🔄 **Collision handling** and traffic optimization
-- 🔄 **Large graph optimization** (4000+ rooms support)
-- 🔄 **Output format** `Lx-room_name` for each movement turn
+- **Pathfinding algorithm** (BFS/Dijkstra for shortest paths)
+- **Ant movement simulation** with optimal flow management
+- **Collision handling** and traffic optimization
+- **Large graph optimization** (4000+ rooms support)
+- **Output format** `Lx-room_name` for each movement turn
 
-## 🔧 Core Functions
+## Core Functions
 
-### **Parser Module**
+### Parser Module
 
 - `create_data()` / `destroy_data()` - RAII lifecycle management
 - `parse_input()` - Main parsing orchestration
 
-### **Validator Module**
+### Validator Module
 
 - `validate_ant_count()` - Ant number validation with errno handling
 - `validate_room_name()` - Room name rules enforcement
 - `validate_coordinates()` - Coordinate parsing with overflow protection
 
-### **Hash Module**
+### Hash Module
 
 - `hash_create()` / `hash_destroy()` - Hash table lifecycle
 - `hash_insert()` / `hash_find()` - O(1) room operations with collision handling
 
-### **Error Module**
+### Error Module
 
 - `print_error()` - Centralized error reporting
 - `get_error_message()` - Detailed error message lookup
 
-## 📈 Performance Characteristics
+## Performance Characteristics
 
 - **Hash Table**: O(1) average case room lookup with djb2 algorithm
 - **Memory Efficiency**: Single-pass parsing with optimized data structures
@@ -200,23 +191,21 @@ echo "" | ./lem-in                                     # Empty input
 - **Safety**: Built with security flags (`-fsanitize=address,undefined`)
 - **Standards**: Modern C11 with `bool`, `int32_t`, comprehensive error handling
 
-## 🛠️ Build System
+## Build System
 
-### **Makefile Targets**
+### Makefile Targets
 
 ```bash
-make                   # Standard build
+make                  # Standard build
 make debug            # Debug build with all sanitizers
-make release          # Optimized build with -O3
-make test             # Basic validation tests
-make test-full        # Comprehensive test suite
+make test             # Comprehensive test suite
 make analyze          # Static analysis with additional warnings
 make clean            # Clean object files
 make fclean           # Full clean including executable
 make re               # Rebuild from scratch
 ```
 
-### **Compiler Configuration**
+### Compiler Configuration
 
 - **Standard**: C11 with modern features
 - **Warnings**: `-Wall -Wextra -Werror` for strict compliance
@@ -225,5 +214,5 @@ make re               # Rebuild from scratch
 
 ---
 
-**Current Phase**: Input parsing and validation ✅ **COMPLETE**  
+**Current Phase**: Input parsing and validation - COMPLETE  
 **Next Phase**: Pathfinding algorithm implementation for ant movement simulation
