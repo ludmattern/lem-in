@@ -13,7 +13,111 @@
 #include "lem_in.h"
 
 // ============================================================================
-// MAIN PARSING LOGIC - Complete implementation
+// PARSING HELPER FUNCTIONS - Modular approach
+// ============================================================================
+
+// Extract room name from line, returns pointer after name or NULL on error
+// Sets name_out to NULL if empty name detected
+static char *extract_room_name(char *line, char **name_out)
+{
+	if (!line || !name_out)
+		return NULL;
+
+	char *p = line;
+	*name_out = p;
+
+	// Check for empty name (line starts with space/tab)
+	if (*p == ' ' || *p == '\t')
+	{
+		*name_out = NULL; // Signal empty name
+		return NULL;
+	}
+
+	// Find end of room name
+	while (*p && *p != ' ' && *p != '\t')
+		p++;
+
+	if (!*p)
+		return NULL; // No space after name
+
+	*p = '\0';	  // Null terminate name
+	return p + 1; // Return pointer after name
+}
+
+// Extract coordinates from line, returns true on success
+static bool extract_coordinates(char *p, char **x_out, char **y_out)
+{
+	if (!p || !x_out || !y_out)
+		return false;
+
+	// Skip whitespace before X
+	while (*p == ' ' || *p == '\t')
+		p++;
+
+	// Extract X coordinate
+	*x_out = p;
+	while (*p && *p != ' ' && *p != '\t')
+		p++;
+	if (!*p)
+		return false; // No space after X
+	*p = '\0';
+	p++;
+
+	// Skip whitespace before Y
+	while (*p == ' ' || *p == '\t')
+		p++;
+
+	// Extract Y coordinate
+	*y_out = p;
+	while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r')
+		p++;
+
+	// Null-terminate Y coordinate
+	if (*p)
+	{
+		*p = '\0';
+		p++;
+
+		// Check for trailing characters
+		while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
+			p++;
+
+		return *p == '\0'; // Should be end of line
+	}
+
+	return true; // End of string, that's fine
+}
+
+// Apply start/end flags to room
+static bool apply_room_flags(lem_in_parser_t *parser, room_t *room, int next_flag)
+{
+	if (next_flag == 1) // ##start
+	{
+		if (parser->has_start)
+		{
+			print_error(ERR_MULTIPLE_START, NULL);
+			return false;
+		}
+		room->flags = ROOM_START;
+		parser->start_room_id = room->id;
+		parser->has_start = true;
+	}
+	else if (next_flag == 2) // ##end
+	{
+		if (parser->has_end)
+		{
+			print_error(ERR_MULTIPLE_END, NULL);
+			return false;
+		}
+		room->flags = ROOM_END;
+		parser->end_room_id = room->id;
+		parser->has_end = true;
+	}
+	return true;
+}
+
+// ============================================================================
+// MAIN PARSING LOGIC - Refactored and modular
 // ============================================================================
 
 bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
@@ -21,36 +125,25 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 	if (!parser || !line)
 		return false;
 
-	error_code_t error = ERR_NONE;
-	char *p = line;
-	char *name = p;
-
-	// Extract room name
-	while (*p && *p != ' ' && *p != '\t')
-		p++;
-	if (!*p)
-	{
-		print_error(ERR_INVALID_LINE, line);
-		return false;
-	}
-
-	// Check if room name is empty (line starts with space)
-	if (p == name)
-	{
-		print_error(ERR_ROOM_NAME_INVALID, "");
-		return false;
-	}
-
+	// Check room limit
 	if (parser->room_count >= MAX_ROOMS)
 	{
 		print_error(ERR_TOO_MANY_ROOMS, NULL);
 		return false;
 	}
 
-	*p = '\0';
-	p++;
+	// Extract room name
+	char *name;
+	char *rest = extract_room_name(line, &name);
+	if (!rest)
+	{
+		print_error(!name ? ERR_ROOM_NAME_INVALID : ERR_INVALID_LINE,
+					!name ? line : line);
+		return false;
+	}
 
 	// Validate room name
+	error_code_t error = ERR_NONE;
 	if (!validate_room_name(name, &error))
 	{
 		print_error(error, name);
@@ -64,47 +157,18 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		return false;
 	}
 
-	// Skip whitespace
-	while (*p == ' ' || *p == '\t')
-		p++;
-
-	// Extract X coordinate
-	char *x_start = p;
-	while (*p && *p != ' ' && *p != '\t')
-		p++;
-	if (!*p)
-	{
-		print_error(ERR_INVALID_LINE, line);
-		return false;
-	}
-	char *x_end = p;
-	*x_end = '\0';
-	p++;
-
-	// Skip whitespace
-	while (*p == ' ' || *p == '\t')
-		p++;
-
-	// Extract Y coordinate
-	char *y_start = p;
-	while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r')
-		p++;
-	char *y_end = p;
-	*y_end = '\0';
-
-	// Check for trailing characters
-	while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
-		p++;
-	if (*p != '\0')
+	// Extract coordinates
+	char *x_str, *y_str;
+	if (!extract_coordinates(rest, &x_str, &y_str))
 	{
 		print_error(ERR_INVALID_LINE, line);
 		return false;
 	}
 
 	// Validate coordinates
-	if (!validate_coordinates(x_start, y_start, &error))
+	if (!validate_coordinates(x_str, y_str, &error))
 	{
-		print_error(error, name);
+		print_error(error, line);
 		return false;
 	}
 
@@ -113,34 +177,14 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 	room_t *room = &parser->rooms[parser->room_count];
 
 	room->name = name;
-	room->x = (int32_t)atoi(x_start);
-	room->y = (int32_t)atoi(y_start);
+	room->x = (int32_t)atoi(x_str);
+	room->y = (int32_t)atoi(y_str);
 	room->flags = ROOM_NORMAL;
 	room->id = room_id;
 
-	// Handle start/end flags
-	if (next_flag == 1)
-	{ // ##start
-		if (parser->has_start)
-		{
-			print_error(ERR_MULTIPLE_START, NULL);
-			return false;
-		}
-		room->flags = ROOM_START;
-		parser->start_room_id = room_id;
-		parser->has_start = true;
-	}
-	else if (next_flag == 2)
-	{ // ##end
-		if (parser->has_end)
-		{
-			print_error(ERR_MULTIPLE_END, NULL);
-			return false;
-		}
-		room->flags = ROOM_END;
-		parser->end_room_id = room_id;
-		parser->has_end = true;
-	}
+	// Apply start/end flags
+	if (!apply_room_flags(parser, room, next_flag))
+		return false;
 
 	// Add to hash table
 	if (!hash_add_room(parser, room->name, room_id))
