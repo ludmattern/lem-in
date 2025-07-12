@@ -84,6 +84,6 @@ re: fclean all
 # Testing
 test: $(NAME)
 	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
-	@./test_suite.sh
+	@./test_suite.sh -v
 
 .PHONY: all clean fclean re test debug release

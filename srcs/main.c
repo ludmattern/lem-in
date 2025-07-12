@@ -70,16 +70,15 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 
 	// Extract X coordinate
 	char *x_start = p;
-	if (*p == '-')
-		p++; // Allow negative
-	while (*p >= '0' && *p <= '9')
+	while (*p && *p != ' ' && *p != '\t')
 		p++;
-	if (*p != ' ' && *p != '\t')
+	if (!*p)
 	{
 		print_error(ERR_INVALID_LINE, line);
 		return false;
 	}
 	char *x_end = p;
+	*x_end = '\0';
 	p++;
 
 	// Skip whitespace
@@ -88,13 +87,12 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 
 	// Extract Y coordinate
 	char *y_start = p;
-	if (*p == '-')
-		p++; // Allow negative
-	while (*p >= '0' && *p <= '9')
+	while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r')
 		p++;
-
-	// Check for end of line or whitespace
 	char *y_end = p;
+	*y_end = '\0';
+
+	// Check for trailing characters
 	while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
 		p++;
 	if (*p != '\0')
@@ -102,8 +100,6 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 		print_error(ERR_INVALID_LINE, line);
 		return false;
 	}
-	*y_end = '\0'; // Null terminate at end of Y coordinate
-	*x_end = '\0'; // Null terminate at end of X coordinate
 
 	// Validate coordinates
 	if (!validate_coordinates(x_start, y_start, &error))
@@ -262,10 +258,20 @@ bool parser_parse_input(lem_in_parser_t *parser)
 			{
 				if (strcmp(line, "##start") == 0)
 				{
+					if (next_flag == 1) // Already have a pending ##start
+					{
+						print_error(ERR_MULTIPLE_START, NULL);
+						return false;
+					}
 					next_flag = 1;
 				}
 				else if (strcmp(line, "##end") == 0)
 				{
+					if (next_flag == 2) // Already have a pending ##end
+					{
+						print_error(ERR_MULTIPLE_END, NULL);
+						return false;
+					}
 					next_flag = 2;
 				}
 				else
