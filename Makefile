@@ -17,9 +17,11 @@ SRCDIR = srcs
 OBJDIR = objs
 INCDIR = include
 
-# Source files - modular approach
+# Source files - modular approach with new organization
 SRCS = main.c \
        parser.c \
+       parse_line.c \
+       input.c \
        validator.c \
        hash.c \
        error.c \
