@@ -25,7 +25,8 @@ SRCS = main.c \
        validator.c \
        hash.c \
        error.c \
-       output.c
+       output.c \
+       pathfinding.c
 
 # Object files
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
@@ -72,14 +73,36 @@ debug: $(NAME)
 release: CFLAGS = -Wall -Wextra -Werror -std=c11 -O3 -DNDEBUG
 release: fclean $(NAME)
 
+# Bonus rule - compile both lem-in and visualizer
+bonus: $(NAME)
+	@echo "$(BLUE)Compiling visualizer...$(RESET)"
+	@cd visualizer && make
+	@echo "$(GREEN)Bonus compilation complete!$(RESET)"
+
+# Visualizer rule - run lem-in with map and pipe to visualizer
+visualizer:
+	@if [ -z "$(MAP)" ]; then \
+		echo "$(RED)Error: Please specify a map file with MAP=path/to/map$(RESET)"; \
+		echo "Example: make visualizer MAP=resources/valid_maps/simple_test"; \
+		exit 1; \
+	fi
+	@if [ ! -f "./visualizer/visualizer" ]; then \
+		echo "$(RED)Error: Visualizer not compiled. Please run 'make bonus' first.$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Running visualizer with map: $(MAP)$(RESET)"
+	@./lem-in < $(MAP) | ./visualizer/visualizer
+
 # Clean targets  
 clean:
 	@echo "$(RED)Removing object files...$(RESET)"
 	@rm -rf $(OBJDIR)
+	@cd visualizer && make clean
 
 fclean: clean
 	@echo "$(RED)Removing $(NAME)...$(RESET)"
 	@rm -f $(NAME)
+	@cd visualizer && make fclean
 
 re: fclean all
 
@@ -88,4 +111,4 @@ test: $(NAME)
 	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
 	@./test_suite.sh -v
 
-.PHONY: all clean fclean re test debug release
+.PHONY: all clean fclean re test debug release bonus visualizer

@@ -38,8 +38,12 @@ int main(void)
 	debug_print_parser_state(parser);
 #endif
 
-	// TODO: Implement pathfinding algorithm here
-	// For now, parsing is complete and successful
+	// Execute pathfinding algorithm
+	if (!valid_path(parser) || !find_paths_optimized(parser))
+	{
+		parser_destroy(parser);
+		return EXIT_FAILURE;
+	}
 
 	parser_destroy(parser);
 	return EXIT_SUCCESS;

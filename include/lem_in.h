@@ -18,6 +18,8 @@
 #define MAX_ROOMS 20000
 #define MAX_LINKS 200000
 #define HASH_SIZE 32768
+#define MAX_ANTS 10000
+#define MAX_PATHS 5
 #define MAX_INPUT_SIZE (1 << 20) // 1MB
 #define INVALID_ROOM_ID UINT16_MAX
 
@@ -86,6 +88,33 @@ typedef enum
 	ERR_TOO_MANY_LINKS
 } error_code_t;
 
+
+// Table de hachage pour les voisins (accès O(1) garanti)
+typedef struct hash_node {
+    uint16_t neighbor;
+    struct hash_node *next;
+} hash_node_t;
+
+typedef struct {
+    hash_node_t *buckets[256]; // 256 buckets pour une distribution optimale
+    size_t count;
+} hash_table_t;
+
+// Structures optimisées
+typedef struct {
+    uint16_t path[MAX_ROOMS];
+    size_t length;
+    int cost;
+} path_t;
+
+typedef struct {
+    uint16_t id;
+    uint16_t current_room;
+    uint16_t path_index;
+    bool finished;
+} ant_t;
+
+
 // ============================================================================
 // MAIN PARSER STRUCTURE
 // ============================================================================
@@ -142,6 +171,15 @@ const char *error_to_string(error_code_t code);
 
 // Output
 bool output_original_input(const lem_in_parser_t *parser);
+
+// Pathfinding functions
+bool valid_path(const lem_in_parser_t *parser);
+bool find_paths(lem_in_parser_t *parser);
+bool find_paths_optimized(lem_in_parser_t *parser);
+
+// Fonctions de debug pour pathfinding
+void debug_print_paths(const lem_in_parser_t *parser);
+void debug_print_used_rooms(const lem_in_parser_t *parser);
 
 #ifdef DEBUG
 void debug_print_parser_state(const lem_in_parser_t *parser);

@@ -1,0 +1,79 @@
+20
+#Here is the number of lines required: 15
+##start
+Start 1 1
+##end
+End 15 15
+A 3 3
+B 5 5
+C 7 7
+D 9 9
+E 11 11
+F 13 13
+G 2 4
+H 4 6
+I 6 8
+J 8 10
+K 10 12
+Z 12 14
+M 4 2
+N 6 4
+O 8 6
+P 10 8
+Q 12 10
+R 14 12
+S 3 6
+T 5 8
+U 7 10
+V 9 12
+W 11 14
+X 6 2
+Y 8 4
+Start-A
+Start-M
+Start-X
+A-B
+A-G
+A-S
+B-C
+B-H
+B-T
+C-D
+C-I
+C-U
+D-E
+D-J
+D-V
+E-F
+E-K
+E-W
+F-End
+F-Z
+F-R
+G-H
+G-S
+H-I
+H-T
+I-J
+I-U
+J-K
+J-V
+K-Z
+K-W
+Z-End
+Z-R
+M-N
+M-X
+N-O
+N-Y
+O-P
+P-Q
+Q-R
+R-End
+S-T
+T-U
+U-V
+V-W
+W-End
+X-Y
+Y-P 
