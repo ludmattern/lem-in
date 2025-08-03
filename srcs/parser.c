@@ -185,7 +185,7 @@ static bool validate_final_state(lem_in_parser_t *parser, bool found_ant_count)
 // MAIN PARSING LOGIC - Core parsing orchestration
 // ============================================================================
 
-bool parser_parse_input(lem_in_parser_t *parser)
+bool parse_input(lem_in_parser_t *parser)
 {
 	if (!parser || !parser->input_buffer)
 		return false;

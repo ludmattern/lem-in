@@ -9,14 +9,14 @@ int main(void)
 	}
 
 	// Read input
-	if (!read_stdin_to_buffer(parser))
+	if (!read_input(parser))
 	{
 		parser_destroy(parser);
 		return EXIT_FAILURE;
 	}
 
 	// Parse input
-	if (!parser_parse_input(parser))
+	if (!parse_input(parser))
 	{
 		parser_destroy(parser);
 		return EXIT_FAILURE;
@@ -30,7 +30,7 @@ int main(void)
 	}
 
 	// Execute pathfinding algorithm
-	if (!valid_path(parser) || !find_paths_optimized(parser))
+	if (!valid_path(parser) || !find_paths(parser))
 	{
 		parser_destroy(parser);
 		return EXIT_FAILURE;
