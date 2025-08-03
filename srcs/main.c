@@ -33,11 +33,6 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-#ifdef DEBUG
-	// Debug output is only available in debug builds
-	debug_print_parser_state(parser);
-#endif
-
 	// Execute pathfinding algorithm
 	if (!valid_path(parser) || !find_paths_optimized(parser))
 	{
