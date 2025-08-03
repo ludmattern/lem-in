@@ -5,6 +5,8 @@
 //==============================================
 
 #include "visualizer.h"
+#include <string.h>
+
 
 int add_room(char* name, int x, int y)
 {

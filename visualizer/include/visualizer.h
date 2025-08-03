@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
 
 #define MAX_ROOMS 256
 #define MAX_NAME_LENGTH 100
@@ -69,8 +69,7 @@ int all_ants_stopped(void);
 
 // Global variables declarations
 extern Map g_map;
-extern SDL_Window* window;
-extern SDL_Renderer* renderer;
+extern SDL_Surface* screen;
 extern TTF_Font* font;
 extern int next_start;
 extern int next_end;

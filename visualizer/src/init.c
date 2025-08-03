@@ -24,19 +24,14 @@ int init_sdl(void)
         printf("Erreur TTF_Init: %s\n", TTF_GetError());
         return -1;
     }    
-    window = SDL_CreateWindow("Lem-in Visualizer", 
-                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             1200, 800, SDL_WINDOW_SHOWN);
-    if (!window) {
-        printf("Erreur SDL_CreateWindow: %s\n", SDL_GetError());
+    
+    screen = SDL_SetVideoMode(1200, 800, 32, SDL_SWSURFACE);
+    if (!screen) {
+        printf("Erreur SDL_SetVideoMode: %s\n", SDL_GetError());
         return -1;
     }
     
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        printf("Erreur SDL_CreateRenderer: %s\n", SDL_GetError());
-        return -1;
-    }
+    SDL_WM_SetCaption("Lem-in Visualizer", NULL);
     
     return 0;
 }

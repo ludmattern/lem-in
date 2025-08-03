@@ -8,8 +8,7 @@
 
 Map g_map;
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
+SDL_Surface* screen = NULL;
 TTF_Font* font = NULL;
 
 int next_start = 0;

@@ -8,12 +8,12 @@
 
 void draw_rooms(void)
 {
-    SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
-    SDL_RenderClear(renderer);
+    // Clear screen with brown color
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 139, 69, 19));
     
-    SDL_SetRenderDrawColor(renderer, 34, 139, 34, 255);
+    // Draw grass band at top
     SDL_Rect grass_band = {0, 0, 1200, 20};
-    SDL_RenderFillRect(renderer, &grass_band);
+    SDL_FillRect(screen, &grass_band, SDL_MapRGB(screen->format, 34, 139, 34));
     
     // Draw each room
     for (int i = 0; i < g_map.room_count; i++) {
@@ -22,48 +22,71 @@ void draw_rooms(void)
         int screen_x = room->x * 20 + 100;
         int screen_y = room->y * 20 + 100;
         
-        
-        SDL_SetRenderDrawColor(renderer, 80, 40, 8, 255);
+        Uint32 room_color = SDL_MapRGB(screen->format, 80, 40, 8); // Couleur normale pour toutes les salles
         
         int ellipse_width = 32;
         int ellipse_height = 20;
         
+        // Dessiner la salle avec la couleur normale
         for (int dx = -ellipse_width/2; dx <= ellipse_width/2; dx++) {
             for (int dy = -ellipse_height/2; dy <= ellipse_height/2; dy++) {
                 float normalized_x = (float)dx / (ellipse_width/2);
                 float normalized_y = (float)dy / (ellipse_height/2);
                 if (normalized_x * normalized_x + normalized_y * normalized_y <= 1.0) {
-                    SDL_RenderDrawPoint(renderer, screen_x + dx, screen_y + dy);
+                    SDL_Rect pixel = {screen_x + dx, screen_y + dy, 1, 1};
+                    SDL_FillRect(screen, &pixel, room_color);
                 }
             }
         }
         
-        // Display the room name with SDL2 TTF
+        // Ajouter un contour coloré pour start et end
+        if (room->is_start || room->is_end) {
+            Uint32 border_color;
+            if (room->is_start) {
+                border_color = SDL_MapRGB(screen->format, 0, 255, 0); // Vert pour start
+            } else {
+                border_color = SDL_MapRGB(screen->format, 255, 0, 0); // Rouge pour end
+            }
+            
+            // Dessiner le contour (ligne plus épaisse autour de l'ellipse)
+            for (int dx = -ellipse_width/2 - 2; dx <= ellipse_width/2 + 2; dx++) {
+                for (int dy = -ellipse_height/2 - 2; dy <= ellipse_height/2 + 2; dy++) {
+                    float normalized_x = (float)dx / (ellipse_width/2);
+                    float normalized_y = (float)dy / (ellipse_height/2);
+                    float distance = normalized_x * normalized_x + normalized_y * normalized_y;
+                    
+                    // Dessiner le contour si on est dans la zone de contour (entre 1.0 et 1.2)
+                    if (distance > 1.0 && distance <= 1.2) {
+                        SDL_Rect pixel = {screen_x + dx, screen_y + dy, 1, 1};
+                        SDL_FillRect(screen, &pixel, border_color);
+                    }
+                }
+            }
+        }
+        
+        // Display the room name with SDL1 TTF
         font = TTF_OpenFont("assets/DejaVuSans.ttf", 12);
+        if (font) {
             SDL_Color text_color = {255, 255, 255, 255};
             SDL_Surface* text_surface = TTF_RenderText_Solid(font, room->name, text_color);
             if (text_surface) {
-                SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-                if (text_texture) {
-                    SDL_Rect text_rect = {
-                        screen_x - text_surface->w/2,
-                        screen_y - 25,
-                        text_surface->w,
-                        text_surface->h
-                    };
-                    SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
-                    SDL_DestroyTexture(text_texture);
-                }
+                SDL_Rect text_rect = {
+                    screen_x - text_surface->w/2,
+                    screen_y - 25,
+                    text_surface->w,
+                    text_surface->h
+                };
+                SDL_BlitSurface(text_surface, NULL, screen, &text_rect);
                 SDL_FreeSurface(text_surface);
             }
             TTF_CloseFont(font);
+        }
     }
 }
 
 void draw_connections(void)
 {
-    
-    SDL_SetRenderDrawColor(renderer, 80, 40, 8, 255);
+    Uint32 line_color = SDL_MapRGB(screen->format, 80, 40, 8);
     
     // Draw each connection
     for (int i = 0; i < g_map.connection_count; i++) {
@@ -77,9 +100,45 @@ void draw_connections(void)
         int x2 = to_room->x * 20 + 100;
         int y2 = to_room->y * 20 + 100;
                 
-        for (int offset = -2; offset <= 2; offset++) {
-            SDL_RenderDrawLine(renderer, x1 + offset, y1, x2 + offset, y2);
-            SDL_RenderDrawLine(renderer, x1, y1 + offset, x2, y2 + offset);
+        // Algorithme de Bresenham amélioré pour dessiner des lignes épaisses
+        int dx = abs(x2 - x1);
+        int dy = abs(y2 - y1);
+        int sx = (x1 < x2) ? 1 : -1;
+        int sy = (y1 < y2) ? 1 : -1;
+        
+        // Dessiner une ligne épaisse de 5 pixels
+        for (int thickness = -2; thickness <= 2; thickness++) {
+            int x_temp = x1;
+            int y_temp = y1;
+            int err_temp = dx - dy;
+            
+            while (x_temp != x2 || y_temp != y2) {
+                // Dessiner un pixel à la position actuelle avec l'épaisseur
+                for (int offset_x = -1; offset_x <= 1; offset_x++) {
+                    for (int offset_y = -1; offset_y <= 1; offset_y++) {
+                        SDL_Rect pixel = {x_temp + offset_x + thickness, y_temp + offset_y, 1, 1};
+                        SDL_FillRect(screen, &pixel, line_color);
+                    }
+                }
+                
+                int e2 = 2 * err_temp;
+                if (e2 > -dy) {
+                    err_temp -= dy;
+                    x_temp += sx;
+                }
+                if (e2 < dx) {
+                    err_temp += dx;
+                    y_temp += sy;
+                }
+            }
+            
+            // Dessiner le dernier pixel
+            for (int offset_x = -1; offset_x <= 1; offset_x++) {
+                for (int offset_y = -1; offset_y <= 1; offset_y++) {
+                    SDL_Rect pixel = {x_temp + offset_x + thickness, y_temp + offset_y, 1, 1};
+                    SDL_FillRect(screen, &pixel, line_color);
+                }
+            }
         }
     }
 }
@@ -108,11 +167,12 @@ void draw_ants(void)
             screen_y = current_room->y * 20 + 100;
         }
         
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        Uint32 ant_color = SDL_MapRGB(screen->format, 0, 0, 0);
         for (int dx = -3; dx <= 3; dx++) {
             for (int dy = -3; dy <= 3; dy++) {
                 if (dx*dx + dy*dy <= 9) {
-                    SDL_RenderDrawPoint(renderer, screen_x + dx, screen_y + dy);
+                    SDL_Rect pixel = {screen_x + dx, screen_y + dy, 1, 1};
+                    SDL_FillRect(screen, &pixel, ant_color);
                 }
             }
         }
@@ -128,7 +188,7 @@ int display_map(void)
     }
     
     if (init_sdl() != 0) {
-        printf("Error: Failed to initialize SDL2\n");
+        printf("Error: Failed to initialize SDL\n");
         return -1;
     }
     
@@ -171,18 +231,14 @@ int display_map(void)
             SDL_Color text_color = {255, 255, 255, 255};
             SDL_Surface* text_surface = TTF_RenderText_Solid(font, turn_info, text_color);
             if (text_surface) {
-                SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-                if (text_texture) {
-                    SDL_Rect text_rect = {10, 10, text_surface->w, text_surface->h};
-                    SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
-                    SDL_DestroyTexture(text_texture);
-                }
+                SDL_Rect text_rect = {10, 10, text_surface->w, text_surface->h};
+                SDL_BlitSurface(text_surface, NULL, screen, &text_rect);
                 SDL_FreeSurface(text_surface);
             }
             TTF_CloseFont(font);
         }
         
-        SDL_RenderPresent(renderer);
+        SDL_Flip(screen);
         
         // Control the animation speed
         Uint32 current_time = SDL_GetTicks();
@@ -192,9 +248,7 @@ int display_map(void)
         last_time = SDL_GetTicks();
     }
     
-    // Clean up SDL2
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    // Clean up SDL
     SDL_Quit();
     
     for (int i = 0; i < turn_line_count; i++) {

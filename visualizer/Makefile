@@ -17,9 +17,9 @@ CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
 CFLAGS += -O2 -march=native  # Optimization
 INCLUDES = -I$(INCDIR)
 
-# SDL2 flags
-SDL2_CFLAGS = $(shell pkg-config --cflags sdl2 sdl2_ttf)
-SDL2_LIBS = $(shell pkg-config --libs sdl2 sdl2_ttf)
+# SDL1 flags
+SDL_CFLAGS = $(shell sdl-config --cflags)
+SDL_LIBS = $(shell sdl-config --libs) -lSDL_ttf
 
 # Additional security and analysis flags
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
@@ -37,7 +37,7 @@ all: $(NAME)
 
 $(NAME): $(OBJDIR) $(OBJS)
 	@echo "$(BLUE)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(SDL2_LIBS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(SDL_LIBS) -o $(NAME)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(RESET)"
 
 $(OBJDIR):
@@ -45,7 +45,7 @@ $(OBJDIR):
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@echo "$(BLUE)Compiling $<...$(RESET)"
-	@$(CC) $(CFLAGS) $(INCLUDES) $(SDL2_CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) $(SDL_CFLAGS) -c $< -o $@
 
 # Build variants
 debug: CFLAGS += -g3 -DDEBUG -fsanitize=address,undefined
