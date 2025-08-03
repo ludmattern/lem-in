@@ -62,6 +62,7 @@ void update_ant_animation(void);
 void process_turn_movements(int turn);
 void reset_ants_to_start(void);
 int all_ants_stopped(void);
+void error_checker(void);
 
 // Global variables declarations
 extern Map g_map;

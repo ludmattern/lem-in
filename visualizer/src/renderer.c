@@ -180,7 +180,6 @@ int display_map(void)
         printf("Error: Failed to get map info\n");
         return (-1);
     }
-    
     if (init_sdl() != 0) {
         printf("Error: Failed to initialize SDL\n");
         return -1;

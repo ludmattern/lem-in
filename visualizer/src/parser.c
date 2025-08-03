@@ -1,6 +1,14 @@
 #include "visualizer.h"
 #include <string.h>
 
+void error_checker(void)
+{
+    char line[1024];
+    //Utiliser GNL pour lire la ligne d'erreur
+    //Si rien n'est lu, on continue
+    if (read(2, line, sizeof(line)) > 0)
+        exit(1);
+}
 
 int add_room(char* name, int x, int y)
 {
