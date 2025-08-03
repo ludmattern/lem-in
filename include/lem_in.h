@@ -178,6 +178,5 @@ bool output_original_input(const lem_in_parser_t *parser);
 // Pathfinding functions
 bool valid_path(const lem_in_parser_t *parser);
 bool find_paths(lem_in_parser_t *parser);
-bool find_paths(lem_in_parser_t *parser);
 
 #endif // LEM_IN_H

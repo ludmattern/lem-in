@@ -22,6 +22,13 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
+		// Execute pathfinding algorithm
+	if (!valid_path(parser))
+	{
+		parser_destroy(parser);
+		return EXIT_FAILURE;
+	}
+
 	// Output the original input (required by subject)
 	if (!output_original_input(parser))
 	{
@@ -30,11 +37,12 @@ int main(void)
 	}
 
 	// Execute pathfinding algorithm
-	if (!valid_path(parser) || !find_paths(parser))
+	if (!find_paths(parser))
 	{
 		parser_destroy(parser);
 		return EXIT_FAILURE;
 	}
+
 
 	parser_destroy(parser);
 	return EXIT_SUCCESS;
