@@ -173,7 +173,7 @@ bool print_error(error_code_t code, const char *context);
 const char *error_to_string(error_code_t code);
 
 // Output
-bool output_original_input(const lem_in_parser_t *parser);
+bool display_input(const lem_in_parser_t *parser);
 
 // Pathfinding functions
 bool valid_path(const lem_in_parser_t *parser);

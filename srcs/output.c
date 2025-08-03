@@ -1,6 +1,6 @@
 #include "lem_in.h"
 
-bool output_original_input(const lem_in_parser_t *parser)
+bool display_input(const lem_in_parser_t *parser)
 {
 	if (!parser)
 		return false;
@@ -34,4 +34,3 @@ bool output_original_input(const lem_in_parser_t *parser)
 
 	return true;
 }
-
