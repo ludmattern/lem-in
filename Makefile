@@ -16,6 +16,7 @@ NAME = lem-in
 SRCDIR = srcs
 OBJDIR = objs
 INCDIR = include
+LIBFTDIR = libft
 
 # Source files - modular approach with new organization
 SRCS = main.c \
@@ -35,7 +36,8 @@ OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
 CFLAGS += -O2 -march=native  # Optimization
-INCLUDES = -I$(INCDIR)
+INCLUDES = -I$(INCDIR) -I$(LIBFTDIR)/inc
+LIBS = -L$(LIBFTDIR) -lft
 
 # Additional security and analysis flags
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
@@ -51,10 +53,14 @@ RESET = \033[0m
 # Rules
 all: $(NAME)
 
-$(NAME): $(OBJDIR) $(OBJS)
+$(NAME): $(OBJDIR) libft $(OBJS)
 	@echo "$(BLUE)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(RESET)"
+
+libft:
+	@echo "$(BLUE)Compiling libft...$(RESET)"
+	@$(MAKE) -C $(LIBFTDIR) --no-print-directory > /dev/null
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
@@ -64,12 +70,12 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 release: CFLAGS = -Wall -Wextra -Werror -std=c11 -O3 -DNDEBUG
-release: fclean $(NAME)
+release: fclean libft $(NAME)
 
 # Bonus rule - compile both lem-in and visualizer
 bonus: $(NAME)
 	@echo "$(BLUE)Compiling visualizer...$(RESET)"
-	@cd visualizer && make
+	@cd visualizer && make > /dev/null
 	@echo "$(GREEN)Bonus compilation complete!$(RESET)"
 
 # Visualizer rule - run lem-in with map and pipe to visualizer
@@ -90,12 +96,14 @@ visualizer:
 clean:
 	@echo "$(RED)Removing object files...$(RESET)"
 	@rm -rf $(OBJDIR)
-	@cd visualizer && make clean
+	@$(MAKE) -C $(LIBFTDIR) clean --no-print-directory > /dev/null 2>&1
+	@cd visualizer && make clean > /dev/null 2>&1
 
 fclean: clean
 	@echo "$(RED)Removing $(NAME)...$(RESET)"
 	@rm -f $(NAME)
-	@cd visualizer && make fclean
+	@$(MAKE) -C $(LIBFTDIR) fclean --no-print-directory > /dev/null 2>&1
+	@cd visualizer && make fclean > /dev/null 2>&1
 
 re: fclean all
 
@@ -104,4 +112,4 @@ test: $(NAME)
 	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
 	@./test_suite.sh -v
 
-.PHONY: all clean fclean re test release bonus visualizer
+.PHONY: all clean fclean re test release bonus visualizer libft
