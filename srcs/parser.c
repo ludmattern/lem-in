@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// PARSER LIFECYCLE - Modern resource management
-// ============================================================================
-
 lem_in_parser_t *parser_create(void)
 {
 	lem_in_parser_t *parser = calloc(1, sizeof(lem_in_parser_t));

@@ -1,9 +1,3 @@
-//==============================================
-//                                            //
-//          42 lem-in visualizer              //
-//                 init.c                     //
-//==============================================
-
 #include "visualizer.h"
 
 void init_map(void)
@@ -16,18 +10,18 @@ void init_map(void)
 int init_sdl(void)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("Erreur SDL_Init: %s\n", SDL_GetError());
+        printf("Error: SDL_Init: %s\n", SDL_GetError());
         return -1;
     }
     
     if (TTF_Init() < 0) {
-        printf("Erreur TTF_Init: %s\n", TTF_GetError());
+        printf("Error: TTF_Init: %s\n", TTF_GetError());
         return -1;
     }    
     
     screen = SDL_SetVideoMode(1200, 800, 32, SDL_SWSURFACE);
     if (!screen) {
-        printf("Erreur SDL_SetVideoMode: %s\n", SDL_GetError());
+        printf("Error: SDL_SetVideoMode: %s\n", SDL_GetError());
         return -1;
     }
     

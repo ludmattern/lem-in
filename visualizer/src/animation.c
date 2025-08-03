@@ -1,9 +1,3 @@
-//==============================================
-//                                            //
-//          42 lem-in visualizer              //
-//                 animation.c                //
-//==============================================
-
 #include "visualizer.h"
 
 void update_ant_animation(void)

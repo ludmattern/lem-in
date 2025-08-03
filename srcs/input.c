@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// INPUT HANDLING - Modern and secure
-// ============================================================================
-
 bool read_stdin_to_buffer(lem_in_parser_t *parser)
 {
 	if (!parser)

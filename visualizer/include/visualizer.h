@@ -1,7 +1,3 @@
-//==============================================
-// 42 lem-in visualizer include file
-//==============================================
-
 #ifndef VISUALIZER_H
 #define VISUALIZER_H
 

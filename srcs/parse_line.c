@@ -1,11 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// PARSING HELPER FUNCTIONS - Modular approach
-// ============================================================================
-
-// Extract room name from line, returns pointer after name or NULL on error
-// Sets name_out to NULL if empty name detected
 static char *extract_room_name(char *line, char **name_out)
 {
 	if (!line || !name_out)

@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// VALIDATION MODULE - Modern input validation with detailed error reporting
-// ============================================================================
-
 bool validate_ant_count(const char *line, int32_t *count, error_code_t *error)
 {
 	if (!line || !*line || !count || !error)

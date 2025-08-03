@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// OUTPUT MODULE - Handle output formatting and display
-// ============================================================================
-
 bool output_original_input(const lem_in_parser_t *parser)
 {
 	if (!parser)

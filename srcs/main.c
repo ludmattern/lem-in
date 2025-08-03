@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// MAIN ENTRY POINT - Program orchestration
-// ============================================================================
-
 int main(void)
 {
 	lem_in_parser_t *parser = parser_create();

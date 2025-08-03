@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// ERROR HANDLING MODULE
-// ============================================================================
-
 const char *error_to_string(error_code_t code)
 {
 	static const char *error_messages[] = {

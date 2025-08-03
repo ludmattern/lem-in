@@ -1,9 +1,5 @@
 #include "lem_in.h"
 
-// ============================================================================
-// HASH TABLE MODULE - Modern implementation with better collision handling
-// ============================================================================
-
 // djb2 hash algorithm - industry standard
 uint32_t hash_string(const char *str)
 {
