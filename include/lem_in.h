@@ -177,12 +177,4 @@ bool valid_path(const lem_in_parser_t *parser);
 bool find_paths(lem_in_parser_t *parser);
 bool find_paths_optimized(lem_in_parser_t *parser);
 
-// Fonctions de debug pour pathfinding
-void debug_print_paths(const lem_in_parser_t *parser);
-void debug_print_used_rooms(const lem_in_parser_t *parser);
-
-#ifdef DEBUG
-void debug_print_parser_state(const lem_in_parser_t *parser);
-#endif
-
 #endif // LEM_IN_H

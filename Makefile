@@ -37,9 +37,6 @@ CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
 CFLAGS += -O2 -march=native  # Optimization
 INCLUDES = -I$(INCDIR)
 
-# Debug flags (only when explicitly requested)
-DEBUG_FLAGS = -g3 -DDEBUG
-
 # Additional security and analysis flags
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes
@@ -65,10 +62,6 @@ $(OBJDIR):
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@echo "$(BLUE)Compiling $<...$(RESET)"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-# Build variants
-debug: CFLAGS += -g3 -DDEBUG -fsanitize=address,undefined
-debug: $(NAME)
 
 release: CFLAGS = -Wall -Wextra -Werror -std=c11 -O3 -DNDEBUG
 release: fclean $(NAME)
@@ -111,4 +104,4 @@ test: $(NAME)
 	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
 	@./test_suite.sh -v
 
-.PHONY: all clean fclean re test debug release bonus visualizer
+.PHONY: all clean fclean re test release bonus visualizer
