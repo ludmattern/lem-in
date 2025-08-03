@@ -27,7 +27,8 @@ const char *error_to_string(error_code_t code)
 		[ERR_NO_ROOMS] = "No rooms defined",
 		[ERR_INVALID_LINE] = "Invalid line format",
 		[ERR_TOO_MANY_ROOMS] = "Too many rooms",
-		[ERR_TOO_MANY_LINKS] = "Too many links"};
+		[ERR_TOO_MANY_LINKS] = "Too many links",
+		[ERR_NO_PATH] = "No path found"};
 
 	if (code >= 0 && code < sizeof(error_messages) / sizeof(error_messages[0]))
 	{

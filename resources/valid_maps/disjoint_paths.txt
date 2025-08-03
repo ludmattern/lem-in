@@ -14,25 +14,7 @@ H 6 -1
 I 8 -1
 J 10 -1
 K 2 2
-L 4 2
+P 4 2
 M 6 2
 N 8 2
 O 10 2
-Start-A
-A-B
-B-C
-C-D
-D-E
-E-End
-Start-F
-F-G
-G-H
-H-I
-I-J
-J-End
-Start-K
-K-L
-L-M
-M-N
-N-O
-O-End 

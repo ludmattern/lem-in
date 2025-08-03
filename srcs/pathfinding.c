@@ -111,7 +111,7 @@ bool valid_path(const lem_in_parser_t *parser)
     }
     
     free_neighbors_table();
-    return false;
+    return print_error(ERR_NO_PATH, NULL);
 }
 
 static uint16_t find_min_distance_room(void) 
