@@ -88,32 +88,34 @@ typedef enum
 	ERR_TOO_MANY_LINKS
 } error_code_t;
 
-
 // Table de hachage pour les voisins (accès O(1) garanti)
-typedef struct hash_node {
-    uint16_t neighbor;
-    struct hash_node *next;
+typedef struct hash_node
+{
+	uint16_t neighbor;
+	struct hash_node *next;
 } hash_node_t;
 
-typedef struct {
-    hash_node_t *buckets[256]; // 256 buckets pour une distribution optimale
-    size_t count;
+typedef struct
+{
+	hash_node_t *buckets[256]; // 256 buckets pour une distribution optimale
+	size_t count;
 } hash_table_t;
 
 // Structures optimisées
-typedef struct {
-    uint16_t path[MAX_ROOMS];
-    size_t length;
-    int cost;
+typedef struct
+{
+	uint16_t path[MAX_ROOMS];
+	size_t length;
+	int cost;
 } path_t;
 
-typedef struct {
-    uint16_t id;
-    uint16_t current_room;
-    uint16_t path_index;
-    bool finished;
+typedef struct
+{
+	uint16_t id;
+	uint16_t current_room;
+	uint16_t path_index;
+	bool finished;
 } ant_t;
-
 
 // ============================================================================
 // MAIN PARSER STRUCTURE
@@ -145,10 +147,10 @@ typedef struct
 // Parser lifecycle
 lem_in_parser_t *parser_create(void);
 void parser_destroy(lem_in_parser_t *parser);
-bool parser_parse_input(lem_in_parser_t *parser);
+bool parse_input(lem_in_parser_t *parser);
 
 // Input handling
-bool read_stdin_to_buffer(lem_in_parser_t *parser);
+bool read_input(lem_in_parser_t *parser);
 
 // Validation functions
 bool validate_ant_count(const char *line, int32_t *count, error_code_t *error);
@@ -175,6 +177,6 @@ bool output_original_input(const lem_in_parser_t *parser);
 // Pathfinding functions
 bool valid_path(const lem_in_parser_t *parser);
 bool find_paths(lem_in_parser_t *parser);
-bool find_paths_optimized(lem_in_parser_t *parser);
+bool find_paths(lem_in_parser_t *parser);
 
 #endif // LEM_IN_H

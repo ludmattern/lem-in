@@ -1,6 +1,6 @@
 #include "lem_in.h"
 
-bool read_stdin_to_buffer(lem_in_parser_t *parser)
+bool read_input(lem_in_parser_t *parser)
 {
 	if (!parser)
 		return false;
