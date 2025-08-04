@@ -1,15 +1,9 @@
 #ifndef LEM_IN_H
 # define LEM_IN_H
 
-# include <stdio.h>
-# include <stdlib.h>
 # include <stdint.h>
-# include <string.h>
-# include <unistd.h>
 # include <limits.h>
-# include <stdbool.h> // C99+ pour bool
-# include <stddef.h>	 // pour size_t
-# include <errno.h>	 // pour errno
+# include <errno.h>
 # include "libft.h"
 # include "get_next_line.h"
 # include "ft_printf.h"
@@ -150,7 +144,7 @@ typedef struct
 
 // Parser lifecycle
 lem_in_parser_t *parser_create(void);
-void parser_destroy(lem_in_parser_t *parser);
+void *parser_destroy(lem_in_parser_t *parser);
 bool parse_input(lem_in_parser_t *parser);
 
 // Input handling

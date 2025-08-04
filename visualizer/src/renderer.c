@@ -63,25 +63,19 @@ void cleanup_fonts(void)
 
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y)
 {
-	if (g_map.room_count == 0)
-	{
+	if (g_map.room_count == 0) {
 		*min_x = *max_x = *min_y = *max_y = 0;
 		return;
 	}
-
+	
 	*min_x = *max_x = g_map.rooms[0].x;
 	*min_y = *max_y = g_map.rooms[0].y;
-
-	for (int i = 1; i < g_map.room_count; i++)
-	{
-		if (g_map.rooms[i].x < *min_x)
-			*min_x = g_map.rooms[i].x;
-		if (g_map.rooms[i].x > *max_x)
-			*max_x = g_map.rooms[i].x;
-		if (g_map.rooms[i].y < *min_y)
-			*min_y = g_map.rooms[i].y;
-		if (g_map.rooms[i].y > *max_y)
-			*max_y = g_map.rooms[i].y;
+	
+	for (int i = 1; i < g_map.room_count; i++) {
+		if (g_map.rooms[i].x < *min_x) *min_x = g_map.rooms[i].x;
+		if (g_map.rooms[i].x > *max_x) *max_x = g_map.rooms[i].x;
+		if (g_map.rooms[i].y < *min_y) *min_y = g_map.rooms[i].y;
+		if (g_map.rooms[i].y > *max_y) *max_y = g_map.rooms[i].y;
 	}
 }
 
@@ -89,39 +83,35 @@ void calculate_scaling(void)
 {
 	int min_x, max_x, min_y, max_y;
 	get_map_bounds(&min_x, &max_x, &min_y, &max_y);
-
+	
 	// Calculer les dimensions de la carte
 	int map_width = max_x - min_x;
 	int map_height = max_y - min_y;
-
+	
 	// Ajouter une marge pour éviter que les éléments touchent les bords
 	int margin = 100;
 	int available_width = window_width - 2 * margin;
 	int available_height = window_height - 2 * margin - 50; // 50px pour le texte en haut
-
+	
 	// Éviter la division par zéro
-	if (map_width == 0)
-		map_width = 1;
-	if (map_height == 0)
-		map_height = 1;
-
+	if (map_width == 0) map_width = 1;
+	if (map_height == 0) map_height = 1;
+	
 	// Calculer le facteur d'échelle pour s'adapter à la fenêtre
 	float scale_x = (float)available_width / map_width;
 	float scale_y = (float)available_height / map_height;
 	scale_factor = (scale_x < scale_y) ? scale_x : scale_y;
-
+	
 	// Limiter l'échelle pour éviter des éléments trop petits ou trop grands
-	if (scale_factor < 5.0)
-		scale_factor = 5.0;
-	if (scale_factor > 50.0)
-		scale_factor = 50.0;
-
+	if (scale_factor < 5.0) scale_factor = 5.0;
+	if (scale_factor > 50.0) scale_factor = 50.0;
+	
 	// Calculer les offsets pour centrer la carte
 	int scaled_width = (int)(map_width * scale_factor);
 	int scaled_height = (int)(map_height * scale_factor);
 	offset_x = (window_width - scaled_width) / 2 - (int)(min_x * scale_factor);
 	offset_y = (window_height - scaled_height) / 2 - (int)(min_y * scale_factor) + 25; // 25px pour le texte
-
+	
 	ft_printf("Map bounds: (%d,%d) to (%d,%d)\n", min_x, min_y, max_x, max_y);
 	ft_printf("Scale factor: %.2f, Offset: (%d,%d)\n", scale_factor, offset_x, offset_y);
 }
@@ -147,12 +137,10 @@ void draw_rooms(void)
 
 		int ellipse_width = (int)(32 * scale_factor / 20.0); // Adapter la taille à l'échelle
 		int ellipse_height = (int)(20 * scale_factor / 20.0);
-
+		
 		// Taille minimum pour la visibilité
-		if (ellipse_width < 8)
-			ellipse_width = 8;
-		if (ellipse_height < 6)
-			ellipse_height = 6;
+		if (ellipse_width < 8) ellipse_width = 8;
+		if (ellipse_height < 6) ellipse_height = 6;
 
 		// Dessiner la salle avec la couleur normale
 		for (int dx = -ellipse_width / 2; dx <= ellipse_width / 2; dx++)
@@ -184,9 +172,8 @@ void draw_rooms(void)
 
 			// Dessiner le contour (ligne plus épaisse autour de l'ellipse)
 			int border_thickness = (int)(2 * scale_factor / 20.0);
-			if (border_thickness < 1)
-				border_thickness = 1;
-
+			if (border_thickness < 1) border_thickness = 1;
+			
 			for (int dx = -ellipse_width / 2 - border_thickness; dx <= ellipse_width / 2 + border_thickness; dx++)
 			{
 				for (int dy = -ellipse_height / 2 - border_thickness; dy <= ellipse_height / 2 + border_thickness; dy++)
@@ -206,8 +193,7 @@ void draw_rooms(void)
 		}
 
 		// Display the room name with SDL1 TTF (seulement si suffisamment grand)
-		if (scale_factor > 10.0)
-		{
+		if (scale_factor > 10.0) {
 			int font_size = (int)(12 * scale_factor / 20.0);
 			if (font_size < 8)
 				font_size = 8;
@@ -260,10 +246,8 @@ void draw_connections(void)
 
 		// Épaisseur adaptée à l'échelle
 		int line_thickness = (int)(scale_factor / 10.0);
-		if (line_thickness < 1)
-			line_thickness = 1;
-		if (line_thickness > 5)
-			line_thickness = 5;
+		if (line_thickness < 1) line_thickness = 1;
+		if (line_thickness > 5) line_thickness = 5;
 
 		// Dessiner une ligne épaisse
 		for (int thickness = -line_thickness; thickness <= line_thickness; thickness++)
@@ -341,10 +325,8 @@ void draw_ants(void)
 
 		// Taille des fourmis adaptée à l'échelle
 		int ant_size = (int)(3 * scale_factor / 20.0);
-		if (ant_size < 2)
-			ant_size = 2;
-		if (ant_size > 8)
-			ant_size = 8;
+		if (ant_size < 2) ant_size = 2;
+		if (ant_size > 8) ant_size = 8;
 
 		Uint32 ant_color = SDL_MapRGB(screen->format, 0, 0, 0);
 		for (int dx = -ant_size; dx <= ant_size; dx++)
@@ -374,7 +356,6 @@ int display_map(void)
 		return -1;
 	}
 
-	// Calculer la mise à l'échelle automatique
 	calculate_scaling();
 
 	reset_ants_to_start();
@@ -401,7 +382,9 @@ int display_map(void)
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
+			{
 				quit = 1;
+			}
 			else if (event.type == SDL_KEYDOWN)
 			{
 				if (event.key.keysym.sym == SDLK_SPACE)
@@ -424,7 +407,9 @@ int display_map(void)
 					ft_printf("Auto-play: %s\n", auto_play ? "ON" : "OFF");
 				}
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
+				{
 					quit = 1;
+				}
 			}
 		}
 
@@ -469,8 +454,8 @@ int display_map(void)
 				snprintf(turn_info, sizeof(turn_info), "FINI - Tours: %d/%d", current_turn, turn_line_count);
 			else
 			{
-				snprintf(turn_info, sizeof(turn_info), "Tour: %d/%d %s", current_turn, turn_line_count,
-						   auto_play ? "(AUTO)" : "");
+				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count,
+						auto_play ? "(AUTO)" : "");
 			}
 			SDL_Color text_color = {255, 255, 255, 255};
 			SDL_Surface *text_surface = TTF_RenderText_Solid(font, turn_info, text_color);
@@ -485,7 +470,6 @@ int display_map(void)
 
 		SDL_Flip(screen);
 
-		// Control the animation speed
 		Uint32 current_time = SDL_GetTicks();
 		if ((int)(current_time - last_time) < animation_speed)
 			SDL_Delay(animation_speed - (int)(current_time - last_time));
