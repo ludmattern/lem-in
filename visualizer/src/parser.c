@@ -165,7 +165,7 @@ int get_map_info(void)
 	{
 		if (ft_strncmp(line, "ERROR", 5) == 0)
 		{
-			ft_printf("%s", line);
+			ft_eprintf("%s", line);
 			get_next_line(-1);
 			free(line);
 			exit(-1);
