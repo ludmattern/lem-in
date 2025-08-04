@@ -27,36 +27,50 @@ int add_room(char* name, int x, int y)
 
 int get_room(char* token)
 {
-    char* name;
-    int x, y;
-    char* new_token = strtok(token, " \n");
-    if (!new_token) return (-1);
-    name = new_token;
-    new_token = strtok(NULL, " \n");
-    if (!new_token) return (-1);
-    x = ft_atoi(new_token);
-    new_token = strtok(NULL, " \n");
-    if (!new_token) return (-1);
-    y = ft_atoi(new_token);
+    char **parts = ft_split(token, ' ');
+    if (!parts || !parts[0] || !parts[1] || !parts[2])
+    {
+        printf("Error: Invalid room format\n");
+        if (parts)
+            ft_free_double_array(parts);
+        return (-1);
+    }
+
+    char* name = parts[0];
+    int x = ft_atoi(parts[1]);
+    int y = ft_atoi(parts[2]);
+    
     if (add_room(name, x, y) == -1)
     {
         printf("Error: Too many rooms\n");
+        ft_free_double_array(parts);
         return (-1);
     }
+    
+    ft_free_double_array(parts);
     g_map.room_count++;
     return (0);
 }
 
 int get_connection(char* token)
 {
-    char* name1 = strtok(token, "-");
-    char* name2 = strtok(NULL, "-");
-
-    if (add_connection(name1, name2) == -1)
+    char **parts = ft_split(token, '-');
+    if (!parts || !parts[0] || !parts[1])
     {
-        printf("Error: Too many connections\n");
+        printf("Error: Invalid connection format\n");
+        if (parts) 
+            ft_free_double_array(parts);
         return (-1);
     }
+
+    if (add_connection(parts[0], parts[1]) == -1)
+    {
+        printf("Error: Too many connections\n");
+        ft_free_double_array(parts);
+        return (-1);
+    }
+    
+    ft_free_double_array(parts);
     return (0);
 }
 
@@ -89,8 +103,11 @@ int parse_ant_movement(char* line)
         turn_line_count++;
     }
     
-    char* token = strtok(line, " ");
-    while (token) {
+    char **tokens = ft_split(line, ' ');
+    if (!tokens) return 0;
+    
+    for (int j = 0; tokens[j] != NULL; j++) {
+        char* token = tokens[j];
         char* dash = strchr(token, '-');
         if (dash) {
             *dash = '\0';
@@ -119,8 +136,9 @@ int parse_ant_movement(char* line)
                 g_map.ants[ant_id - 1].is_moving = 0;
             }
         }
-        token = strtok(NULL, " ");
     }
+    
+    ft_free_double_array(tokens);
     return 0;
 }
 
@@ -130,8 +148,14 @@ int get_map_info(void)
     while (fgets(line, sizeof(line), stdin))
     {
         printf("Line: %s\n", line);
-        char* token = strtok(line, "\n");
-        if (!token)
+        
+        // Enlever le \n à la fin de la ligne
+        char* token = line;
+        size_t len = ft_strlen(token);
+        if (len > 0 && token[len - 1] == '\n')
+            token[len - 1] = '\0';
+            
+        if (!token || token[0] == '\0')
             continue;
         if (is_first_line == 1)
         {
