@@ -1,60 +1,48 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/11/06 16:14:01 by lmattern          #+#    #+#              #
-#    Updated: 2024/05/17 13:53:15 by lmattern         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 .PHONY: all clean fclean re
 
-FLAGS= 	-Wall -Werror -Wextra -fPIC
+CC = cc
+CFLAGS = -Wall -Werror -Wextra -fPIC -MMD -MP
 
-NAME= 	libft.a
+SRCS_DIR = ./src
+INCLUDE_DIR = ./inc
+OBJS_DIR = ./build
 
-SRCS= 	./src/ft_isalpha.c ./src/ft_isdigit.c ./src/ft_isalnum.c \
-		./src/ft_isascii.c ./src/ft_isprint.c ./src/ft_strlen.c \
-		./src/ft_strdup.c ./src/ft_strchr.c ./src/ft_strrchr.c \
-		./src/ft_strncmp.c ./src/ft_strnstr.c ./src/ft_strlcpy.c \
-		./src/ft_strlcat.c ./src/ft_substr.c ./src/ft_strjoin.c \
-		./src/ft_strtrim.c ./src/ft_split.c ./src/ft_itoa.c \
-		./src/ft_strmapi.c ./src/ft_striteri.c ./src/ft_memset.c \
-		./src/ft_bzero.c ./src/ft_memcpy.c ./src/ft_memmove.c \
-		./src/ft_memchr.c ./src/ft_memcmp.c ./src/ft_calloc.c \
-		./src/ft_toupper.c ./src/ft_tolower.c ./src/ft_atoi.c \
-		./src/ft_putchar_fd.c ./src/ft_putstr_fd.c ./src/ft_putendl_fd.c \
-		./src/ft_putnbr_fd.c ./src/ft_lstnew_bonus.c ./src/ft_strndup.c\
-		./src/ft_lstadd_front_bonus.c ./src/ft_lstsize_bonus.c \
-		./src/ft_lstlast_bonus.c ./src/ft_lstadd_back_bonus.c \
-		./src/ft_lstdelone_bonus.c ./src/ft_lstclear_bonus.c \
-		./src/ft_lstiter_bonus.c ./src/ft_lstmap_bonus.c \
-		./src/get_next_line.c ./src/get_next_line_utils.c \
-		./src/printf_fmt.c ./src/itoa_printf.c ./src/libftprintf.c \
-		./src/eprintf_fmt.c ./src/libfteprintf.c ./src/ft_strcat.c \
-		./src/ft_strncpy.c ./src/ft_strcpy.c ./src/ft_realloc.c \
-		./src/ft_free_double_array.c ./src/ft_isspace.c \
-		./src/ft_double_array_len.c ./src/ft_free.c ./src/ft_sprintf_fmt.c \
-		./src/ft_sprintf.c ./src/ft_str_signed_char.c ./src/ft_strnrcmp.c \
-		./src/ft_check_extension.c ./src/ft_close.c ./src/ft_strtol.c
+SRC_FILES = ft_isalpha ft_isdigit ft_isalnum ft_isascii ft_isprint ft_strlen \
+			ft_strdup ft_strchr ft_strrchr ft_strncmp ft_strnstr ft_strlcpy \
+			ft_strlcat ft_substr ft_strjoin ft_strtrim ft_split ft_itoa \
+			ft_strmapi ft_striteri ft_memset ft_bzero ft_memcpy ft_memmove \
+			ft_memchr ft_memcmp ft_calloc ft_toupper ft_tolower ft_atoi \
+			ft_putchar_fd ft_putstr_fd ft_putendl_fd ft_putnbr_fd ft_lstnew_bonus ft_strndup \
+			ft_lstadd_front_bonus ft_lstsize_bonus ft_lstlast_bonus ft_lstadd_back_bonus \
+			ft_lstdelone_bonus ft_lstclear_bonus ft_lstiter_bonus ft_lstmap_bonus \
+			get_next_line get_next_line_utils printf_fmt itoa_printf libftprintf \
+			eprintf_fmt libfteprintf ft_strcat ft_strncpy ft_strcpy ft_realloc \
+			ft_free_double_array ft_isspace ft_double_array_len ft_free ft_sprintf_fmt \
+			ft_sprintf ft_str_signed_char ft_strnrcmp ft_check_extension ft_close ft_strtol
 
-OBJS= 	$(SRCS:.c=.o)
+SRCS = $(addprefix $(SRCS_DIR)/,$(addsuffix .c,$(SRC_FILES)))
+OBJS = $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS))
+DEPS = $(OBJS:.o=.d)
+NAME = libft.a
 
-all:	$(NAME)
+all: $(NAME)
 
 $(NAME): $(OBJS)
-			@ar rcs $(NAME) $(OBJS)
+	@ar rcs $(NAME) $(OBJS)
 
-%.o: 	%.c ./inc/libft.h ./inc/get_next_line.h ./inc/ft_printf.h
-			@cc $(FLAGS) -c $< -o $@
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
+	@$(CC) $(CFLAGS) -I $(INCLUDE_DIR) -c $< -o $@
+
+$(OBJS_DIR):
+	@mkdir -p $(OBJS_DIR)
 
 clean:
-			rm -f $(OBJS)
+	@rm -f $(OBJS) $(DEPS)
+	@rm -rf $(OBJS_DIR)
 
 fclean: clean
-			rm -f $(NAME)
+	@rm -f $(NAME)
 
-re: 	fclean all
+re: fclean all
+
+-include $(DEPS)
