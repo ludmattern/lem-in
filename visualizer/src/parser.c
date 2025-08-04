@@ -163,6 +163,13 @@ int get_map_info(void)
 	char *line;
 	while ((line = get_next_line(STDIN_FILENO)) != NULL)
 	{
+		if (ft_strncmp(line, "ERROR", 5) == 0)
+		{
+			ft_printf("%s", line);
+			get_next_line(-1);
+			free(line);
+			exit(-1);
+		}
 		size_t len = ft_strlen(line);
 		if (len > 0 && line[len - 1] == '\n')
 			line[len - 1] = '\0';
@@ -174,7 +181,6 @@ int get_map_info(void)
 		}
 		if (is_first_line == 1)
 		{
-			ft_printf("Number of ants: %s\n", line);
 			is_first_line = 0;
 			int ants_count = ft_atoi(line);
 			if (ants_count > MAX_ANTS)
