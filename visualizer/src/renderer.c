@@ -460,9 +460,10 @@ int display_map(void)
 		font = load_font(16);
 		if (font)
 		{
-			char turn_info[256]; // Buffer plus grand pour sécurité
+			char turn_info[256];
+            ft_bzero(turn_info, sizeof(turn_info));
 			if (animation_finished)
-				snprintf(turn_info, sizeof(turn_info), "FINI - Tours: %d/%d", current_turn, turn_line_count);
+				ft_sprintf(turn_info, "FINI - Tours: %d/%d", current_turn, turn_line_count);
 			else
 			{
 				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count,
