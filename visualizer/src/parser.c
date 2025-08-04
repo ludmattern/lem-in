@@ -111,7 +111,7 @@ int parse_ant_movement(char *line)
 
 	char **tokens = ft_split(line, ' ');
 	if (!tokens)
-		return 0;
+		return (-1);
 
 	for (int j = 0; tokens[j] != NULL; j++)
 	{
