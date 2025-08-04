@@ -110,7 +110,7 @@ int parse_ant_movement(char* line)
     
     for (int j = 0; tokens[j] != NULL; j++) {
         char* token = tokens[j];
-        char* dash = strchr(token, '-');
+        char* dash = ft_strchr(token, '-');
         if (dash) {
             *dash = '\0';
             char* ant_id_str = token;
