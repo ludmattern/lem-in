@@ -10,6 +10,9 @@
 #include <stdbool.h> // C99+ pour bool
 #include <stddef.h>	 // pour size_t
 #include <errno.h>	 // pour errno
+#include "libft.h"
+#include "get_next_line.h"
+#include "ft_printf.h"
 
 // ============================================================================
 // CONSTANTS AND LIMITS

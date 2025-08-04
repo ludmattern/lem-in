@@ -10,9 +10,7 @@ uint32_t hash_string(const char *str)
 	int c;
 
 	while ((c = *str++))
-	{
 		hash = ((hash << 5) + hash) + c; // hash * 33 + c
-	}
 
 	return hash;
 }
@@ -20,9 +18,7 @@ uint32_t hash_string(const char *str)
 bool hash_add_room(lem_in_parser_t *parser, const char *name, uint16_t room_id)
 {
 	if (!parser || !name || !parser->hash_table)
-	{
 		return false;
-	}
 
 	uint32_t hash = hash_string(name);
 	uint32_t index = hash & (HASH_SIZE - 1);
@@ -32,18 +28,14 @@ bool hash_add_room(lem_in_parser_t *parser, const char *name, uint16_t room_id)
 	while (parser->hash_table[index].name != NULL)
 	{
 		// Check for duplicate
-		if (strcmp(parser->hash_table[index].name, name) == 0)
-		{
+		if (ft_strncmp(parser->hash_table[index].name, name, ft_strlen(name)) == 0)
 			return false; // Duplicate found
-		}
 
 		index = (index + 1) & (HASH_SIZE - 1);
 
 		// Table full check (should never happen with our size limits)
 		if (index == original_index)
-		{
 			return false;
-		}
 	}
 
 	// Add the entry
@@ -56,9 +48,7 @@ bool hash_add_room(lem_in_parser_t *parser, const char *name, uint16_t room_id)
 int16_t hash_get_room_id(const lem_in_parser_t *parser, const char *name)
 {
 	if (!parser || !name || !parser->hash_table)
-	{
 		return -1;
-	}
 
 	uint32_t hash = hash_string(name);
 	uint32_t index = hash & (HASH_SIZE - 1);
@@ -66,17 +56,13 @@ int16_t hash_get_room_id(const lem_in_parser_t *parser, const char *name)
 
 	while (parser->hash_table[index].name != NULL)
 	{
-		if (strcmp(parser->hash_table[index].name, name) == 0)
-		{
+		if (ft_strncmp(parser->hash_table[index].name, name, ft_strlen(name)) == 0)
 			return parser->hash_table[index].room_id;
-		}
 
 		index = (index + 1) & (HASH_SIZE - 1);
 
 		if (index == original_index)
-		{
 			break; // Searched entire table
-		}
 	}
 
 	return -1; // Not found

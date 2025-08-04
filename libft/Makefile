@@ -12,7 +12,7 @@
 
 .PHONY: all clean fclean re
 
-FLAGS= 	-Wall -Werror -Wextra
+FLAGS= 	-Wall -Werror -Wextra -fPIC
 
 NAME= 	libft.a
 
@@ -39,7 +39,7 @@ SRCS= 	./src/ft_isalpha.c ./src/ft_isdigit.c ./src/ft_isalnum.c \
 		./src/ft_free_double_array.c ./src/ft_isspace.c \
 		./src/ft_double_array_len.c ./src/ft_free.c ./src/ft_sprintf_fmt.c \
 		./src/ft_sprintf.c ./src/ft_str_signed_char.c ./src/ft_strnrcmp.c \
-		./src/ft_check_extension.c ./src/ft_close.c
+		./src/ft_check_extension.c ./src/ft_close.c ./src/ft_strtol.c
 
 OBJS= 	$(SRCS:.c=.o)
 
