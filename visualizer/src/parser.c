@@ -102,14 +102,12 @@ int add_connection(char *name1, char *name2)
 int parse_ant_movement(char *line)
 {
 	if (turn_line_count < MAX_ACTIONS_PER_TURN - 1)
-	{ // -1 pour sécurité
-		turn_lines[turn_line_count] = strdup(line);
+	{
+		turn_lines[turn_line_count] = ft_strdup(line);
 		turn_line_count++;
 	}
 	else
-	{
 		ft_printf("Attention: Trop de tours, limite atteinte (%d)\n", MAX_ACTIONS_PER_TURN);
-	}
 
 	char **tokens = ft_split(line, ' ');
 	if (!tokens)

@@ -240,8 +240,8 @@ void draw_connections(void)
 		int x2 = (int)(to_room->x * scale_factor) + offset_x;
 		int y2 = (int)(to_room->y * scale_factor) + offset_y;
 
-		int dx = abs(x2 - x1);
-		int dy = abs(y2 - y1);
+		int dx = ft_abs(x2 - x1);
+		int dy = ft_abs(y2 - y1);
 		int sx = (x1 < x2) ? 1 : -1;
 		int sy = (y1 < y2) ? 1 : -1;
 
@@ -251,14 +251,12 @@ void draw_connections(void)
 		if (line_thickness > 5)
 			line_thickness = 5;
 
-		// Dessiner une ligne épaisse en appliquant l'épaisseur perpendiculairement
 		int x_temp = x1;
 		int y_temp = y1;
 		int err_temp = dx - dy;
 
 		while (x_temp != x2 || y_temp != y2)
 		{
-			// Dessiner l'épaisseur autour du point actuel
 			for (int thick_x = -line_thickness; thick_x <= line_thickness; thick_x++)
 			{
 				for (int thick_y = -line_thickness; thick_y <= line_thickness; thick_y++)

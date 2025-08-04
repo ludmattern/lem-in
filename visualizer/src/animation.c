@@ -23,7 +23,6 @@ void process_turn_movements(int turn)
     char* line = turn_lines[turn];
     if (!line) return;
     
-    // Parse the movements of this turn using ft_split
     char** tokens = ft_split(line, ' ');
     if (!tokens) return;
     
@@ -37,7 +36,6 @@ void process_turn_movements(int turn)
             
             int ant_id = ft_atoi(ant_id_str + 1);
             
-            // search the index of the target room
             int target_room_index = -1;
             for (int i = 0; i < g_map.room_count; i++) {
                 if (ft_strncmp(g_map.rooms[i].name, room_name, ft_strlen(room_name)) == 0 && 
@@ -46,7 +44,6 @@ void process_turn_movements(int turn)
                     break;
                 }
             }
-            // move the ant to the target room
             if (target_room_index != -1 && ant_id <= g_map.ant_count) {
                 Ant* ant = &g_map.ants[ant_id - 1];
                 ant->target_room = target_room_index;
@@ -56,7 +53,6 @@ void process_turn_movements(int turn)
         }
     }
     
-    // Free the allocated memory
     ft_free_double_array(tokens);
 }
 
@@ -82,7 +78,6 @@ void reset_ants_to_start(void)
     }
 }
 
-// check if all ants are stopped
 int all_ants_stopped(void)
 {
     for (int i = 0; i < g_map.ant_count; i++) {

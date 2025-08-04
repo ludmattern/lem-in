@@ -74,5 +74,6 @@ size_t	skip_prefix(char *program);
 int		ft_close(int fd);
 void	ft_free_double_int_array(int **double_array, size_t size);
 long	ft_strtol(const char *str, char **endptr, int base);
+int		ft_abs(int n);
 
 #endif
