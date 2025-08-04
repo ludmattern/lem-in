@@ -1,4 +1,65 @@
 #include "visualizer.h"
+#include <stdio.h>
+
+// Cache de polices pour éviter les rechargements
+static TTF_Font* font_cache_small = NULL;
+static TTF_Font* font_cache_medium = NULL;
+static TTF_Font* font_cache_large = NULL;
+
+TTF_Font* load_font(int size)
+{
+    // Utiliser le cache selon la taille
+    TTF_Font** cache_ptr = NULL;
+    if (size <= 12)
+        cache_ptr = &font_cache_small;
+    else if (size <= 18)
+        cache_ptr = &font_cache_medium;
+    else
+        cache_ptr = &font_cache_large;
+    
+    // Si déjà en cache, retourner directement
+    if (*cache_ptr != NULL)
+        return *cache_ptr;
+    
+    // Sinon, charger la police
+    const char* font_paths[] = {
+        "assets/DejaVuSans.ttf",                    // Local
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", // Ubuntu/Debian
+        "/usr/share/fonts/TTF/DejaVuSans.ttf",      // Arch Linux
+        "/System/Library/Fonts/Helvetica.ttc",     // macOS
+        "/usr/share/fonts/liberation/LiberationSans-Regular.ttf", // Alternative
+        NULL
+    };
+    
+    for (int i = 0; font_paths[i] != NULL; i++)
+    {
+        *cache_ptr = TTF_OpenFont(font_paths[i], size);
+        if (*cache_ptr)
+        {
+            ft_printf("Police chargée: %s (taille %d)\n", font_paths[i], size);
+            return *cache_ptr;
+        }
+    }
+    
+    ft_printf("Erreur: Aucune police trouvée\n");
+    return NULL;
+}
+
+void cleanup_fonts(void)
+{
+    if (font_cache_small) {
+        TTF_CloseFont(font_cache_small);
+        font_cache_small = NULL;
+    }
+    if (font_cache_medium) {
+        TTF_CloseFont(font_cache_medium);
+        font_cache_medium = NULL;
+    }
+    if (font_cache_large) {
+        TTF_CloseFont(font_cache_large);
+        font_cache_large = NULL;
+    }
+}
 
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y)
 {
@@ -153,7 +214,7 @@ void draw_rooms(void)
 			if (font_size > 24)
 				font_size = 24;
 
-			font = TTF_OpenFont("assets/DejaVuSans.ttf", font_size);
+			font = load_font(font_size);
 			if (font)
 			{
 				SDL_Color text_color = {255, 255, 255, 255};
@@ -168,7 +229,7 @@ void draw_rooms(void)
 					SDL_BlitSurface(text_surface, NULL, screen, &text_rect);
 					SDL_FreeSurface(text_surface);
 				}
-				TTF_CloseFont(font);
+				// NE PAS fermer la police - elle est en cache !
 			}
 		}
 	}
@@ -400,26 +461,26 @@ int display_map(void)
 		draw_connections();
 		draw_ants();
 
-		font = TTF_OpenFont("assets/DejaVuSans.ttf", 16);
+		font = load_font(16);
 		if (font)
 		{
-			char turn_info[100];
+			char turn_info[256];  // Buffer plus grand pour sécurité
 			if (animation_finished)
-				ft_sprintf(turn_info, "FINI - Tours: %d/%d", current_turn, turn_line_count);
+				snprintf(turn_info, sizeof(turn_info), "FINI - Tours: %d/%d", current_turn, turn_line_count);
 			else
 			{
-				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count,
+				snprintf(turn_info, sizeof(turn_info), "Tour: %d/%d %s", current_turn, turn_line_count,
 						   auto_play ? "(AUTO)" : "");
 			}
 			SDL_Color text_color = {255, 255, 255, 255};
 			SDL_Surface *text_surface = TTF_RenderText_Solid(font, turn_info, text_color);
 			if (text_surface)
 			{
-				SDL_Rect text_rect = {10, 10, text_surface->w, text_surface->h};
+				SDL_Rect text_rect = {10, 25, text_surface->w, text_surface->h};
 				SDL_BlitSurface(text_surface, NULL, screen, &text_rect);
 				SDL_FreeSurface(text_surface);
 			}
-			TTF_CloseFont(font);
+			// NE PAS fermer la police - elle est en cache !
 		}
 
 		SDL_Flip(screen);
@@ -431,6 +492,9 @@ int display_map(void)
 		last_time = SDL_GetTicks();
 	}
 
+	// Clean up fonts
+	cleanup_fonts();
+	
 	// Clean up SDL
 	SDL_Quit();
 
