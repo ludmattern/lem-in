@@ -107,9 +107,7 @@ int parse_ant_movement(char *line)
 		turn_line_count++;
 	}
 	else
-	{
 		ft_printf("Attention: Trop de tours, limite atteinte (%d)\n", MAX_ACTIONS_PER_TURN);
-	}
 
 	char **tokens = ft_split(line, ' ');
 	if (!tokens)
@@ -163,6 +161,13 @@ int get_map_info(void)
 	char *line;
 	while ((line = get_next_line(STDIN_FILENO)) != NULL)
 	{
+		if (ft_strncmp(line, "ERROR", 5) == 0)
+		{
+			ft_eprintf("%s", line);
+			get_next_line(-1);
+			free(line);
+			exit(-1);
+		}
 		size_t len = ft_strlen(line);
 		if (len > 0 && line[len - 1] == '\n')
 			line[len - 1] = '\0';

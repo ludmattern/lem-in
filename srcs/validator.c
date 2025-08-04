@@ -236,10 +236,8 @@ bool is_room_line(const char *line)
 	// - anything else = invalid (let main parser handle)
 
 	if (token_count == 1 && has_dash_in_first_token)
-		return false; // It's a link
-
+		return false;
 	if (token_count == 3)
-		return true; // Treat as room, validation will catch errors
-
-	return false; // Invalid format
+		return true;
+	return false;
 }
