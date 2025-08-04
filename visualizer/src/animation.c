@@ -1,4 +1,5 @@
 #include "visualizer.h"
+#include <libft.h>
 
 void update_ant_animation(void)
 {
@@ -22,16 +23,19 @@ void process_turn_movements(int turn)
     char* line = turn_lines[turn];
     if (!line) return;
     
-    // Parse the movements of this turn
-    char* token = strtok(line, " ");
-    while (token) {
+    // Parse the movements of this turn using ft_split
+    char** tokens = ft_split(line, ' ');
+    if (!tokens) return;
+    
+    for (int j = 0; tokens[j] != NULL; j++) {
+        char* token = tokens[j];
         char* dash = strchr(token, '-');
         if (dash) {
             *dash = '\0';
             char* ant_id_str = token;
             char* room_name = dash + 1;
             
-            int ant_id = atoi(ant_id_str + 1);
+            int ant_id = ft_atoi(ant_id_str + 1);
             
             // search the index of the target room
             int target_room_index = -1;
@@ -49,8 +53,10 @@ void process_turn_movements(int turn)
                 ant->progress = 0.0;
             }
         }
-        token = strtok(NULL, " ");
     }
+    
+    // Free the allocated memory
+    ft_free_double_array(tokens);
 }
 
 void reset_ants_to_start(void)

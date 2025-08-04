@@ -1,24 +1,7 @@
 #include "visualizer.h"
 #include <string.h>
 #include <get_next_line.h>
-
-void error_checker(void)
-{
-    char *line = NULL;
-
-    // Lire toutes les lignes d'erreur jusqu'à la fin
-    while ((line = get_next_line(2)) != NULL) // stderr = 2
-    {
-        // Si une ligne d'erreur est trouvée (non vide), sortir avec erreur
-        if (line[0] != '\0')
-        {
-            free(line);
-            exit(1);
-        }
-        free(line);
-    }
-    // Si aucune ligne d'erreur n'est trouvée, continuer normalement
-}
+#include <libft.h>
 
 int add_room(char* name, int x, int y)
 {
@@ -51,10 +34,10 @@ int get_room(char* token)
     name = new_token;
     new_token = strtok(NULL, " \n");
     if (!new_token) return (-1);
-    x = atoi(new_token);
+    x = ft_atoi(new_token);
     new_token = strtok(NULL, " \n");
     if (!new_token) return (-1);
-    y = atoi(new_token);
+    y = ft_atoi(new_token);
     if (add_room(name, x, y) == -1)
     {
         printf("Error: Too many rooms\n");
@@ -114,7 +97,7 @@ int parse_ant_movement(char* line)
             char* ant_id_str = token;
             char* room_name = dash + 1;
             
-            int ant_id = atoi(ant_id_str + 1);
+            int ant_id = ft_atoi(ant_id_str + 1);
             
             int room_index = -1;
             for (int i = 0; i < g_map.room_count; i++) {
@@ -146,6 +129,7 @@ int get_map_info(void)
     char line[1024];
     while (fgets(line, sizeof(line), stdin))
     {
+        printf("Line: %s\n", line);
         char* token = strtok(line, "\n");
         if (!token)
             continue;
@@ -153,7 +137,7 @@ int get_map_info(void)
         {
             printf("Number of ants: %s\n", token);
             is_first_line = 0;
-            int ants_count = atoi(token);
+            int ants_count = ft_atoi(token);
             if (ants_count > MAX_ANTS)
             {
                 printf("Error: Too many ants\n");

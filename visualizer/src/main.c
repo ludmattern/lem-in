@@ -16,7 +16,6 @@ int turn_line_count = 0;
 
 int main(void)
 {
-    error_checker();
     init_map();
     display_map();
     return (0);
