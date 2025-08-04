@@ -5,7 +5,7 @@ void error_checker(void)
     char *line = NULL;
 
     // Lire toutes les lignes d'erreur jusqu'à la fin
-    while ((line = get_next_line(2)) != NULL) // stderr = 2
+    while ((line = get_next_line(1)) != NULL) // stdout = 1
     {
         // Si une ligne d'erreur est trouvée (non vide), sortir avec erreur
         if (line[0] != '\0')
