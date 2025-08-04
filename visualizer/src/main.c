@@ -14,7 +14,6 @@ int max_turns = 0;
 char *turn_lines[MAX_ACTIONS_PER_TURN];
 int turn_line_count = 0;
 
-// Scaling variables
 float scale_factor = 1.0;
 int offset_x = 0, offset_y = 0;
 int window_width = 1200, window_height = 800;

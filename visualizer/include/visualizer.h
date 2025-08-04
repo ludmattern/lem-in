@@ -48,7 +48,6 @@ typedef struct
 } Map;
 
 // Function prototypes
-void global_init(void);
 int get_map_info(void);
 int get_room(char *token);
 int display_map(void);
@@ -65,7 +64,6 @@ void update_ant_animation(void);
 void process_turn_movements(int turn);
 void reset_ants_to_start(void);
 int all_ants_stopped(void);
-void error_checker(void);
 void calculate_scaling(void);
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y);
 TTF_Font* load_font(int size);
