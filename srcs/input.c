@@ -28,8 +28,8 @@ bool read_input(lem_in_parser_t *parser)
 			{
 				capacity = MAX_INPUT_SIZE;
 			}
-
-			char *new_buffer = realloc(parser->input_buffer, capacity);
+			// void	*ft_realloc(void *ptr, size_t original_size, size_t new_size);
+			char *new_buffer = ft_realloc(parser->input_buffer, capacity / 2, capacity);
 			if (!new_buffer)
 				return print_error(ERR_MEMORY, "input buffer resize");
 			parser->input_buffer = new_buffer;

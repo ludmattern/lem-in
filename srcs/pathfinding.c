@@ -229,9 +229,7 @@ static bool find_disjoint_paths(const lem_in_parser_t *parser)
 	{
 
 		if (!dijkstra_simplified(parser))
-		{
 			break;
-		}
 
 		save_path(parser);
 
@@ -245,12 +243,8 @@ static bool find_disjoint_paths(const lem_in_parser_t *parser)
 // Calculate ant distribution
 static void calculate_ants_per_path(const lem_in_parser_t *parser)
 {
-	(void)parser;
-
 	for (size_t i = 0; i < path_count; i++)
-	{
 		ants_per_path[i] = 0;
-	}
 
 	if (path_count == 0)
 		return;
@@ -264,9 +258,7 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 	{
 		ants_per_path[i] = ants_per_path_base;
 		if (i < extra_ants)
-		{
 			ants_per_path[i]++;
-		}
 	}
 }
 
@@ -336,13 +328,11 @@ static void simulate_turn(const lem_in_parser_t *parser, int turn)
 			{
 				if (first_move)
 				{
-					printf("L%d-%s", ants[i].id, parser->rooms[next_room].name);
+					ft_printf("L%d-%s", ants[i].id, parser->rooms[next_room].name);
 					first_move = false;
 				}
 				else
-				{
-					printf(" L%d-%s", ants[i].id, parser->rooms[next_room].name);
-				}
+					ft_printf(" L%d-%s", ants[i].id, parser->rooms[next_room].name);
 
 				ants[i].current_room = next_room;
 				ants[i].path_index++;
@@ -356,9 +346,7 @@ static void simulate_turn(const lem_in_parser_t *parser, int turn)
 	}
 
 	if (!first_move)
-	{
-		printf("\n");
-	}
+		ft_printf("\n");
 }
 
 // Calculate total turns

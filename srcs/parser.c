@@ -2,7 +2,7 @@
 
 lem_in_parser_t *parser_create(void)
 {
-	lem_in_parser_t *parser = calloc(1, sizeof(lem_in_parser_t));
+	lem_in_parser_t *parser = ft_calloc(1, sizeof(lem_in_parser_t));
 	if (!parser)
 	{
 		print_error(ERR_MEMORY, "parser allocation");
@@ -10,7 +10,7 @@ lem_in_parser_t *parser_create(void)
 	}
 
 	// Allocate rooms array
-	parser->rooms = calloc(MAX_ROOMS, sizeof(room_t));
+	parser->rooms = ft_calloc(MAX_ROOMS, sizeof(room_t));
 	if (!parser->rooms)
 	{
 		print_error(ERR_MEMORY, "rooms array");
@@ -18,7 +18,7 @@ lem_in_parser_t *parser_create(void)
 	}
 
 	// Allocate links array
-	parser->links = calloc(MAX_LINKS, sizeof(link_t));
+	parser->links = ft_calloc(MAX_LINKS, sizeof(link_t));
 	if (!parser->links)
 	{
 		print_error(ERR_MEMORY, "links array");
@@ -26,7 +26,7 @@ lem_in_parser_t *parser_create(void)
 	}
 
 	// Allocate hash table
-	parser->hash_table = calloc(HASH_SIZE, sizeof(hash_entry_t));
+	parser->hash_table = ft_calloc(HASH_SIZE, sizeof(hash_entry_t));
 	if (!parser->hash_table)
 	{
 		print_error(ERR_MEMORY, "hash table");
@@ -109,22 +109,20 @@ static bool handle_command(char *line, int *next_flag)
 	if (line[1] != '#')
 		return true; // Regular comment, ignore
 
-	if (strcmp(line, "##start") == 0)
+	if (ft_strncmp(line, "##start", 8) == 0)
 	{
 		if (*next_flag == 1) // Already have a pending ##start
 			return print_error(ERR_MULTIPLE_START, NULL);
 		*next_flag = 1;
 	}
-	else if (strcmp(line, "##end") == 0)
+	else if (ft_strncmp(line, "##end", 6) == 0)
 	{
 		if (*next_flag == 2) // Already have a pending ##end
 			return print_error(ERR_MULTIPLE_END, NULL);
 		*next_flag = 2;
 	}
 	else
-	{
 		*next_flag = 0; // Unknown command, ignore
-	}
 
 	return true;
 }
@@ -134,9 +132,7 @@ static bool process_line(lem_in_parser_t *parser, char *line, int *next_flag, bo
 {
 	// Handle comments and commands
 	if (line[0] == '#')
-	{
 		return handle_command(line, next_flag);
-	}
 
 	// First non-comment line must be ant count
 	if (!*found_ant_count)
@@ -158,10 +154,8 @@ static bool process_line(lem_in_parser_t *parser, char *line, int *next_flag, bo
 	}
 
 	// Parse link lines
-	if (strchr(line, '-'))
-	{
+	if (ft_strchr(line, '-'))
 		return parse_link_line(parser, line);
-	}
 
 	// Invalid line format
 	return print_error(ERR_INVALID_LINE, line);

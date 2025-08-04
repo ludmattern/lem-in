@@ -104,7 +104,7 @@ bool validate_room_name(const char *name, error_code_t *error)
 	}
 
 	// Check for reasonable name length
-	size_t len = strlen(name);
+	size_t len = ft_strlen(name);
 	if (len > 255) // Reasonable limit
 	{
 		*error = ERR_ROOM_NAME_INVALID;

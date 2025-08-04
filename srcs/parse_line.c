@@ -134,8 +134,8 @@ bool parse_room_line(lem_in_parser_t *parser, char *line, int next_flag)
 	room_t *room = &parser->rooms[parser->room_count];
 
 	room->name = name;
-	room->x = (int32_t)atoi(x_str);
-	room->y = (int32_t)atoi(y_str);
+	room->x = (int32_t)ft_atoi(x_str);
+	room->y = (int32_t)ft_atoi(y_str);
 	room->flags = ROOM_NORMAL;
 	room->id = room_id;
 
@@ -156,7 +156,7 @@ bool parse_link_line(lem_in_parser_t *parser, char *line)
 	if (!parser || !line)
 		return false;
 
-	char *dash = strchr(line, '-');
+	char *dash = ft_strchr(line, '-');
 	if (!dash || dash == line || !dash[1])
 		return print_error(ERR_LINK_INVALID, line);
 
@@ -169,13 +169,13 @@ bool parse_link_line(lem_in_parser_t *parser, char *line)
 	char *room2_name = dash + 1;
 
 	// Trim whitespace
-	char *p = room1_name + strlen(room1_name) - 1;
+	char *p = room1_name + ft_strlen(room1_name) - 1;
 	while (p >= room1_name && (*p == ' ' || *p == '\t'))
 		*p-- = '\0';
 
 	while (*room2_name == ' ' || *room2_name == '\t')
 		room2_name++;
-	p = room2_name + strlen(room2_name) - 1;
+	p = room2_name + ft_strlen(room2_name) - 1;
 	while (p >= room2_name && (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'))
 		*p-- = '\0';
 

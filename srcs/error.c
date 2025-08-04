@@ -39,11 +39,11 @@ const char *error_to_string(error_code_t code)
 
 bool print_error(error_code_t code, const char *context)
 {
-	fprintf(stderr, "ERROR: %s", error_to_string(code));
+	ft_eprintf("ERROR: %s", error_to_string(code));
 	if (context && *context)
 	{
-		fprintf(stderr, " '%s'", context);
+		ft_eprintf(" '%s'", context);
 	}
-	fprintf(stderr, "\n");
+	ft_eprintf("\n");
 	return false;
 }
