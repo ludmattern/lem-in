@@ -174,7 +174,6 @@ int get_map_info(void)
 		}
 		if (is_first_line == 1)
 		{
-			ft_printf("Number of ants: %s\n", line);
 			is_first_line = 0;
 			int ants_count = ft_atoi(line);
 			if (ants_count > MAX_ANTS)
