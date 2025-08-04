@@ -10,12 +10,13 @@ CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
 SRCS_DIR = ./src
 INCLUDE_DIR = ./include
 OBJS_DIR = ./objs
+LIBFTDIR = ../libft
 
 SRC_FILES = main init parser renderer animation
 SRCS = $(addprefix $(SRCS_DIR)/,$(addsuffix .c,$(SRC_FILES)))
 OBJS = $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS))
 DEPS = $(OBJS:.o=.d)
-INCLUDES = -I$(INCLUDE_DIR)
+INCLUDES = -I$(INCLUDE_DIR) -I$(LIBFTDIR)/inc
 NAME = visualizer
 
 # SDL1 flags

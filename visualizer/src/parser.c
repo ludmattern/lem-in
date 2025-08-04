@@ -1,6 +1,4 @@
 #include "visualizer.h"
-#include <string.h>
-#include <get_next_line.h>
 
 void error_checker(void)
 {

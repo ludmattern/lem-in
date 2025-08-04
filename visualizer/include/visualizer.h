@@ -8,6 +8,9 @@
 # include <stdbool.h>
 # include <SDL/SDL.h>
 # include <SDL/SDL_ttf.h>
+# include "libft.h"
+# include "get_next_line.h"
+# include "ft_printf.h"
 
 # define MAX_ROOMS 256
 # define MAX_NAME_LENGTH 100
