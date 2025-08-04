@@ -12,7 +12,7 @@
 
 #include "../inc/libft.h"
 
-long ft_strtol(const char *str, char **endptr, int base)
+long	ft_strtol(const char *str, char **endptr, int base)
 {
 	long result;
 	int sign;

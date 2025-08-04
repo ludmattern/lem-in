@@ -21,7 +21,7 @@ bool validate_ant_count(const char *line, int32_t *count, error_code_t *error)
 
 	char *endptr;
 	errno = 0; // Reset errno for error detection
-	long num = strtol(line, &endptr, 10);
+	long num = ft_strtol(line, &endptr, 10);
 
 	// Check for conversion errors
 	if (errno == ERANGE)
@@ -32,9 +32,7 @@ bool validate_ant_count(const char *line, int32_t *count, error_code_t *error)
 
 	// Must be valid integer (no trailing characters except whitespace/newline)
 	while (*endptr == ' ' || *endptr == '\t' || *endptr == '\n' || *endptr == '\r')
-	{
 		endptr++;
-	}
 
 	if (*endptr != '\0')
 	{
@@ -169,7 +167,7 @@ bool validate_coordinates(const char *x_str, const char *y_str, error_code_t *er
 	char *endptr;
 	errno = 0;
 
-	long x = strtol(x_str, &endptr, 10);
+	long x = ft_strtol(x_str, &endptr, 10);
 	if (errno == ERANGE || x < INT32_MIN || x > INT32_MAX)
 	{
 		*error = ERR_ROOM_COORDINATES;
@@ -177,7 +175,7 @@ bool validate_coordinates(const char *x_str, const char *y_str, error_code_t *er
 	}
 
 	errno = 0;
-	long y = strtol(y_str, &endptr, 10);
+	long y = ft_strtol(y_str, &endptr, 10);
 	if (errno == ERANGE || y < INT32_MIN || y > INT32_MAX)
 	{
 		*error = ERR_ROOM_COORDINATES;
