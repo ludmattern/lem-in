@@ -145,7 +145,7 @@ viz: bonus
 		exit 1; \
 	fi
 	@printf "$(MSG_INFO) Running visualizer with map: $(MAP)\n"
-	@./$(LEMIN_TARGET) < $(MAP) | ./$(VIS_TARGET)
+	@./$(LEMIN_TARGET) < $(MAP) 2>&1 | ./$(VIS_TARGET)
 
 test: $(LEMIN_TARGET)
 	@printf "$(MSG_INFO) Running comprehensive test suite...\n"
