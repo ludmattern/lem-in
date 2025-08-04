@@ -60,13 +60,14 @@ void init_map(void);
 void draw_rooms(void);
 void draw_connections(void);
 void draw_ants(void);
+void draw_room_names(void);
 void update_ant_animation(void);
 void process_turn_movements(int turn);
 void reset_ants_to_start(void);
 int all_ants_stopped(void);
 void calculate_scaling(void);
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y);
-TTF_Font* load_font(int size);
+TTF_Font *load_font(int size);
 void cleanup_fonts(void);
 
 // Global variables declarations
