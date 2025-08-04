@@ -7,7 +7,7 @@ int add_room(char* name, int x, int y)
 {
     if (g_map.room_count > MAX_ROOMS)
         return -1;
-    strcpy(g_map.rooms[g_map.room_count].name, name);
+    ft_strcpy(g_map.rooms[g_map.room_count].name, name);
     g_map.rooms[g_map.room_count].x = x;
     g_map.rooms[g_map.room_count].y = y;
     g_map.rooms[g_map.room_count].is_start = 0;
@@ -30,7 +30,7 @@ int get_room(char* token)
     char **parts = ft_split(token, ' ');
     if (!parts || !parts[0] || !parts[1] || !parts[2])
     {
-        printf("Error: Invalid room format\n");
+        ft_printf("Error: Invalid room format\n");
         if (parts)
             ft_free_double_array(parts);
         return (-1);
@@ -42,7 +42,7 @@ int get_room(char* token)
     
     if (add_room(name, x, y) == -1)
     {
-        printf("Error: Too many rooms\n");
+        ft_printf("Error: Too many rooms\n");
         ft_free_double_array(parts);
         return (-1);
     }
@@ -57,7 +57,7 @@ int get_connection(char* token)
     char **parts = ft_split(token, '-');
     if (!parts || !parts[0] || !parts[1])
     {
-        printf("Error: Invalid connection format\n");
+        ft_printf("Error: Invalid connection format\n");
         if (parts) 
             ft_free_double_array(parts);
         return (-1);
@@ -65,7 +65,7 @@ int get_connection(char* token)
 
     if (add_connection(parts[0], parts[1]) == -1)
     {
-        printf("Error: Too many connections\n");
+        ft_printf("Error: Too many connections\n");
         ft_free_double_array(parts);
         return (-1);
     }
@@ -80,14 +80,16 @@ int add_connection(char* name1, char* name2)
         return (-1);
     for (int i = 0; i < g_map.room_count; i++)
     {
-        if (strcmp(g_map.rooms[i].name, name1) == 0)
+        if (ft_strncmp(g_map.rooms[i].name, name1, ft_strlen(name1)) == 0 && 
+            ft_strlen(g_map.rooms[i].name) == ft_strlen(name1))
         {
             g_map.connections[g_map.connection_count].from_room = i;
         }
     }
     for (int i = 0; i < g_map.room_count; i++)
     {
-        if (strcmp(g_map.rooms[i].name, name2) == 0)
+        if (ft_strncmp(g_map.rooms[i].name, name2, ft_strlen(name2)) == 0 && 
+            ft_strlen(g_map.rooms[i].name) == ft_strlen(name2))
         {
             g_map.connections[g_map.connection_count].to_room = i;
         }
@@ -118,7 +120,8 @@ int parse_ant_movement(char* line)
             
             int room_index = -1;
             for (int i = 0; i < g_map.room_count; i++) {
-                if (strcmp(g_map.rooms[i].name, room_name) == 0) {
+                if (ft_strncmp(g_map.rooms[i].name, room_name, ft_strlen(room_name)) == 0 && 
+                    ft_strlen(g_map.rooms[i].name) == ft_strlen(room_name)) {
                     room_index = i;
                     break;
                 }
@@ -147,9 +150,8 @@ int get_map_info(void)
     char line[1024];
     while (fgets(line, sizeof(line), stdin))
     {
-        printf("Line: %s\n", line);
+        ft_printf("Line: %s\n", line);
         
-        // Enlever le \n à la fin de la ligne
         char* token = line;
         size_t len = ft_strlen(token);
         if (len > 0 && token[len - 1] == '\n')
@@ -159,12 +161,12 @@ int get_map_info(void)
             continue;
         if (is_first_line == 1)
         {
-            printf("Number of ants: %s\n", token);
+            ft_printf("Number of ants: %s\n", token);
             is_first_line = 0;
             int ants_count = ft_atoi(token);
             if (ants_count > MAX_ANTS)
             {
-                printf("Error: Too many ants\n");
+                ft_printf("Error: Too many ants\n");
                 return (-1);
             }
             g_map.ant_count = ants_count;
@@ -172,31 +174,31 @@ int get_map_info(void)
         }
         if (token[0] == '#') 
         {
-            if (strcmp(token, "##start") == 0)
+            if (ft_strncmp(token, "##start", 7) == 0)
                 next_start = 1;
-            else if (strcmp(token, "##end") == 0)
+            else if (ft_strncmp(token, "##end", 5) == 0)
                 next_end = 1;
             continue;
         }
-        if (strchr(token, '-') != NULL && token[0] != 'L')
+        if (ft_strchr(token, '-') != NULL && token[0] != 'L')
         {
             if (get_connection(token) == -1)
             {
-                printf("Error: Failed to get connection\n");
+                ft_printf("Error: Failed to get connection\n");
                 return (-1);
             }
             continue;
         }
         if (token[0] == 'L')
         {
-            printf("Ant: %s\n", token);
+            ft_printf("Ant: %s\n", token);
             parse_ant_movement(token);
             continue;
         }
-        if (strchr(token, '-') == NULL) {
+        if (ft_strchr(token, '-') == NULL) {
             if (get_room(token) == -1)
             {
-                printf("Error: Failed to get room\n");
+                ft_printf("Error: Failed to get room\n");
                 return (-1);
             }
         }
