@@ -1,13 +1,23 @@
 #include "visualizer.h"
 #include <string.h>
+#include <get_next_line.h>
 
 void error_checker(void)
 {
-    char line[1024];
-    //Utiliser GNL pour lire la ligne d'erreur
-    //Si rien n'est lu, on continue
-    if (read(2, line, sizeof(line)) > 0)
-        exit(1);
+    char *line = NULL;
+
+    // Lire toutes les lignes d'erreur jusqu'à la fin
+    while ((line = get_next_line(2)) != NULL) // stderr = 2
+    {
+        // Si une ligne d'erreur est trouvée (non vide), sortir avec erreur
+        if (line[0] != '\0')
+        {
+            free(line);
+            exit(1);
+        }
+        free(line);
+    }
+    // Si aucune ligne d'erreur n'est trouvée, continuer normalement
 }
 
 int add_room(char* name, int x, int y)

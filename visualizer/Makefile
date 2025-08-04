@@ -33,7 +33,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "$(BLUE)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(SDL_LIBS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(SDL_LIBS) $(LIBFTDIR)/libft.a -o $(NAME)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(RESET)"
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
