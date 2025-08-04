@@ -100,9 +100,11 @@ int add_connection(char* name1, char* name2)
 
 int parse_ant_movement(char* line)
 {
-    if (turn_line_count < 1000) {
+    if (turn_line_count < MAX_ACTIONS_PER_TURN - 1) {  // -1 pour sécurité
         turn_lines[turn_line_count] = strdup(line);
         turn_line_count++;
+    } else {
+        ft_printf("Attention: Trop de tours, limite atteinte (%d)\n", MAX_ACTIONS_PER_TURN);
     }
     
     char **tokens = ft_split(line, ' ');
@@ -150,8 +152,6 @@ int get_map_info(void)
     char line[1024];
     while (fgets(line, sizeof(line), stdin))
     {
-        ft_printf("Line: %s\n", line);
-        
         char* token = line;
         size_t len = ft_strlen(token);
         if (len > 0 && token[len - 1] == '\n')

@@ -1,16 +1,12 @@
 #ifndef VISUALIZER_H
 #define VISUALIZER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdbool.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
-#include "libft.h"
-#include "get_next_line.h"
-#include "ft_printf.h"
+#include <libft.h>
+#include <get_next_line.h>
+#include <ft_printf.h>
 
 #define MAX_ROOMS 256
 #define MAX_NAME_LENGTH 100
@@ -70,6 +66,8 @@ void reset_ants_to_start(void);
 int all_ants_stopped(void);
 void calculate_scaling(void);
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y);
+TTF_Font* load_font(int size);
+void cleanup_fonts(void);
 
 // Global variables declarations
 extern Map g_map;
