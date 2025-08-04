@@ -58,7 +58,6 @@ void process_turn_movements(int turn)
 
 void reset_ants_to_start(void)
 {
-    // search the index of the start room
     int start_room_index = -1;
     for (int i = 0; i < g_map.room_count; i++) {
         if (g_map.rooms[i].is_start) {
@@ -68,7 +67,6 @@ void reset_ants_to_start(void)
     }
     
     if (start_room_index != -1) {
-        // reset all ants to the start room
         for (int i = 0; i < g_map.ant_count; i++) {
             g_map.ants[i].current_room = start_room_index;
             g_map.ants[i].target_room = start_room_index;
