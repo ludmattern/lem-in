@@ -467,10 +467,26 @@ int display_map(void)
 
 	cleanup_fonts();
 
+		// Nettoyage SDL propre
+	if (screen)
+	{
+		SDL_FreeSurface(screen);
+		screen = NULL;
+	}
+	
+	TTF_Quit();
 	SDL_Quit();
 
+	// Libération des turn_lines
 	for (int i = 0; i < turn_line_count; i++)
+	{
 		if (turn_lines[i])
+		{
 			free(turn_lines[i]);
+			turn_lines[i] = NULL;
+		}
+	}
+	turn_line_count = 0;
+	
 	return (0);
 }

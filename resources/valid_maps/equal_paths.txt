@@ -2,7 +2,7 @@
 ##start
 Start 10 0
 ##end
-End 8 0
+End 30 30
 A 2 1
 B 4 1
 C 6 1
