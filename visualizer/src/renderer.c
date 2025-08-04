@@ -206,12 +206,12 @@ int display_map(void)
 {
 	if (get_map_info() == -1)
 	{
-		printf("Error: Failed to get map info\n");
+		ft_printf("Error: Failed to get map info\n");
 		return (-1);
 	}
 	if (init_sdl() != 0)
 	{
-		printf("Error: Failed to initialize SDL\n");
+		ft_printf("Error: Failed to initialize SDL\n");
 		return -1;
 	}
 
@@ -227,12 +227,12 @@ int display_map(void)
 	Uint32 last_time = SDL_GetTicks();
 	Uint32 last_auto_advance = SDL_GetTicks();
 
-	printf("Visualizer controls:\n");
-	printf("  SPACE - Next turn\n");
-	printf("  R     - Reset animation\n");
-	printf("  A     - Auto-play mode\n");
-	printf("  ESC   - Quit\n");
-	printf("  CLICK - Close window\n");
+	ft_printf("Visualizer controls:\n");
+	ft_printf("  SPACE - Next turn\n");
+	ft_printf("  R     - Reset animation\n");
+	ft_printf("  A     - Auto-play mode\n");
+	ft_printf("  ESC   - Quit\n");
+	ft_printf("  CLICK - Close window\n");
 
 	while (!quit)
 	{
@@ -261,7 +261,7 @@ int display_map(void)
 				else if (event.key.keysym.sym == SDLK_a)
 				{
 					auto_play = !auto_play;
-					printf("Auto-play: %s\n", auto_play ? "ON" : "OFF");
+					ft_printf("Auto-play: %s\n", auto_play ? "ON" : "OFF");
 				}
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
 				{
@@ -285,7 +285,7 @@ int display_map(void)
 				else if (current_turn >= turn_line_count && all_ants_stopped())
 				{
 					animation_finished = 1;
-					printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
+					ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
 				}
 			}
 		}
@@ -294,7 +294,7 @@ int display_map(void)
 		if (!auto_play && current_turn >= turn_line_count && all_ants_stopped() && !animation_finished)
 		{
 			animation_finished = 1;
-			printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
+			ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
 		}
 
 		update_ant_animation();

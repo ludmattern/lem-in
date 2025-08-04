@@ -10,18 +10,18 @@ void init_map(void)
 int init_sdl(void)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("Error: SDL_Init: %s\n", SDL_GetError());
+        ft_printf("Error: SDL_Init: %s\n", SDL_GetError());
         return -1;
     }
     
     if (TTF_Init() < 0) {
-        printf("Error: TTF_Init: %s\n", TTF_GetError());
+        ft_printf("Error: TTF_Init: %s\n", TTF_GetError());
         return -1;
     }    
     
     screen = SDL_SetVideoMode(1200, 800, 32, SDL_SWSURFACE);
     if (!screen) {
-        printf("Error: SDL_SetVideoMode: %s\n", SDL_GetError());
+        ft_printf("Error: SDL_SetVideoMode: %s\n", SDL_GetError());
         return -1;
     }
     

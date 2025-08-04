@@ -29,7 +29,7 @@ void process_turn_movements(int turn)
     
     for (int j = 0; tokens[j] != NULL; j++) {
         char* token = tokens[j];
-        char* dash = strchr(token, '-');
+        char* dash = ft_strchr(token, '-');
         if (dash) {
             *dash = '\0';
             char* ant_id_str = token;
@@ -40,7 +40,8 @@ void process_turn_movements(int turn)
             // search the index of the target room
             int target_room_index = -1;
             for (int i = 0; i < g_map.room_count; i++) {
-                if (strcmp(g_map.rooms[i].name, room_name) == 0) {
+                if (ft_strncmp(g_map.rooms[i].name, room_name, ft_strlen(room_name)) == 0 && 
+                    ft_strlen(g_map.rooms[i].name) == ft_strlen(room_name)) {
                     target_room_index = i;
                     break;
                 }
