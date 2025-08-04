@@ -406,7 +406,7 @@ int display_map(void)
 				}
 				else if (event.key.keysym.sym == SDLK_r)
 				{
-					current_turn = 0;
+					current_turn = 1;
 					animation_finished = 0;
 					reset_ants_to_start();
 				}
