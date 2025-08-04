@@ -4,6 +4,7 @@ NAME = visualizer
 SRCDIR = src
 OBJDIR = objs
 INCDIR = include
+LIBFTDIR = ../libft
 
 # Source files
 SRCS = main.c init.c parser.c renderer.c animation.c
@@ -15,7 +16,7 @@ OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
 CFLAGS += -O2 -march=native  # Optimization
-INCLUDES = -I$(INCDIR)
+INCLUDES = -I$(INCDIR) -I$(LIBFTDIR)/inc
 
 # SDL1 flags
 SDL_CFLAGS = $(shell sdl-config --cflags)
@@ -25,6 +26,9 @@ SDL_LIBS = $(shell sdl-config --libs) -lSDL_ttf
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
+# Disable PIE to avoid relocation warnings with libft
+CFLAGS += -fno-pie
+LDFLAGS = -no-pie
 
 # Colors for output
 GREEN = \033[0;32m
@@ -35,9 +39,9 @@ RESET = \033[0m
 # Rules
 all: $(NAME)
 
-$(NAME): $(OBJDIR) $(OBJS)
+$(NAME): $(OBJDIR) $(OBJS) $(LIBFTDIR)/libft.a
 	@echo "$(BLUE)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(SDL_LIBS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(SDL_LIBS) $(LIBFTDIR)/libft.a -o $(NAME)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(RESET)"
 
 $(OBJDIR):
