@@ -1,7 +1,9 @@
 #include "lem_in.h"
+#include "libft.h"
 
 int main(void)
 {
+	ft_printf("salut");
 	lem_in_parser_t *parser = parser_create();
 	int status = EXIT_SUCCESS;
 
