@@ -104,10 +104,12 @@ int parse_ant_movement(char *line)
 	if (turn_line_count < MAX_ACTIONS_PER_TURN - 1)
 	{
 		turn_lines[turn_line_count] = ft_strdup(line);
+		if (!turn_lines[turn_line_count])
+			return -1;
 		turn_line_count++;
 	}
 	else
-		ft_printf("Attention: Trop de tours, limite atteinte (%d)\n", MAX_ACTIONS_PER_TURN);
+		ft_printf("ERROR: Too many actions per turn (%d)\n", MAX_ACTIONS_PER_TURN);
 
 	char **tokens = ft_split(line, ' ');
 	if (!tokens)
@@ -216,7 +218,12 @@ int get_map_info(void)
 		if (line[0] == 'L')
 		{
 			ft_printf("Ant: %s\n", line);
-			parse_ant_movement(line);
+			if (parse_ant_movement(line) == -1)
+			{
+				free(line);
+				get_next_line(-1);
+				return (-1);
+			}
 			free(line);
 			continue;
 		}
