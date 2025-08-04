@@ -1,5 +1,4 @@
 #include "visualizer.h"
-#include <stdio.h>
 
 static TTF_Font *font_cache_small = NULL;
 static TTF_Font *font_cache_medium = NULL;
@@ -19,24 +18,19 @@ TTF_Font *load_font(int size)
 		return *cache_ptr;
 
 	const char *font_paths[] = {
-		"assets/DejaVuSans.ttf",								  // Local
-		"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",		  // Ubuntu/Debian
-		"/usr/share/fonts/TTF/DejaVuSans.ttf",					  // Arch Linux
-		"/System/Library/Fonts/Helvetica.ttc",					  // macOS
-		"/usr/share/fonts/liberation/LiberationSans-Regular.ttf", // Alternative
+		"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+		"/usr/share/fonts/TTF/DejaVuSans.ttf",
+		"/System/Library/Fonts/Helvetica.ttc",
+		"/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
 		NULL};
 
 	for (int i = 0; font_paths[i] != NULL; i++)
 	{
 		*cache_ptr = TTF_OpenFont(font_paths[i], size);
 		if (*cache_ptr)
-		{
-			ft_printf("Police chargée: %s (taille %d)\n", font_paths[i], size);
 			return *cache_ptr;
-		}
 	}
-
-	ft_printf("Erreur: Aucune police trouvée\n");
+	ft_printf("Error: Unable to load font at size %d\n", size);
 	return NULL;
 }
 
@@ -112,7 +106,7 @@ void calculate_scaling(void)
 	int scaled_width = (int)(map_width * scale_factor);
 	int scaled_height = (int)(map_height * scale_factor);
 	offset_x = (window_width - scaled_width) / 2 - (int)(min_x * scale_factor);
-	offset_y = (window_height - scaled_height) / 2 - (int)(min_y * scale_factor) + 25; // 25px pour le texte
+	offset_y = (window_height - scaled_height) / 2 - (int)(min_y * scale_factor) + 25;
 
 	ft_printf("Map bounds: (%d,%d) to (%d,%d)\n", min_x, min_y, max_x, max_y);
 	ft_printf("Scale factor: %.2f, Offset: (%d,%d)\n", scale_factor, offset_x, offset_y);
@@ -132,9 +126,9 @@ void draw_rooms(void)
 		int screen_x = (int)(room->x * scale_factor) + offset_x;
 		int screen_y = (int)(room->y * scale_factor) + offset_y;
 
-		Uint32 room_color = SDL_MapRGB(screen->format, 80, 40, 8); // Couleur normale pour toutes les salles
+		Uint32 room_color = SDL_MapRGB(screen->format, 80, 40, 8);
 
-		int ellipse_width = (int)(32 * scale_factor / 20.0); // Adapter la taille à l'échelle
+		int ellipse_width = (int)(32 * scale_factor / 20.0);
 		int ellipse_height = (int)(20 * scale_factor / 20.0);
 
 		if (ellipse_width < 8)
@@ -160,13 +154,9 @@ void draw_rooms(void)
 		{
 			Uint32 border_color;
 			if (room->is_start)
-			{
-				border_color = SDL_MapRGB(screen->format, 0, 255, 0); // Vert pour start
-			}
+				border_color = SDL_MapRGB(screen->format, 0, 255, 0);
 			else
-			{
-				border_color = SDL_MapRGB(screen->format, 255, 0, 0); // Rouge pour end
-			}
+				border_color = SDL_MapRGB(screen->format, 255, 0, 0);
 
 			int border_thickness = (int)(2 * scale_factor / 20.0);
 			if (border_thickness < 1)
@@ -374,8 +364,8 @@ int display_map(void)
 	SDL_Event event;
 	int quit = 0;
 	int animation_speed = 50;
-	int auto_play = 0;			// Mode lecture automatique
-	int animation_finished = 0; // Indicateur de fin d'animation
+	int auto_play = 0;
+	int animation_finished = 0;
 	Uint32 last_time = SDL_GetTicks();
 	Uint32 last_auto_advance = SDL_GetTicks();
 
@@ -391,9 +381,7 @@ int display_map(void)
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
-			{
 				quit = 1;
-			}
 			else if (event.type == SDL_KEYDOWN)
 			{
 				if (event.key.keysym.sym == SDLK_SPACE)
@@ -416,13 +404,10 @@ int display_map(void)
 					ft_printf("Auto-play: %s\n", auto_play ? "ON" : "OFF");
 				}
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
-				{
 					quit = 1;
-				}
 			}
 		}
 
-		// Mode auto-play : avance automatiquement toutes les 1000ms
 		if (auto_play && !animation_finished)
 		{
 			Uint32 current_auto_time = SDL_GetTicks();
@@ -442,7 +427,6 @@ int display_map(void)
 			}
 		}
 
-		// Vérifier si l'animation est terminée en mode manuel
 		if (!auto_play && current_turn >= turn_line_count && all_ants_stopped() && !animation_finished)
 		{
 			animation_finished = 1;
@@ -451,11 +435,10 @@ int display_map(void)
 
 		update_ant_animation();
 
-		// Ordre de rendu pour que les textes soient au premier plan :
-		draw_rooms();		// 1. Salles (sans noms)
-		draw_connections(); // 2. Connexions
-		draw_ants();		// 3. Fourmis
-		draw_room_names();	// 4. Noms des salles (premier plan)
+		draw_rooms();
+		draw_connections();
+		draw_ants();
+		draw_room_names();
 
 		font = load_font(16);
 		if (font)
@@ -465,10 +448,7 @@ int display_map(void)
 			if (animation_finished)
 				ft_sprintf(turn_info, "FINI - Tours: %d/%d", current_turn, turn_line_count);
 			else
-			{
-				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count,
-						   auto_play ? "(AUTO)" : "");
-			}
+				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count, auto_play ? "(AUTO)" : "");
 			SDL_Color text_color = {255, 255, 255, 255};
 			SDL_Surface *text_surface = TTF_RenderText_Solid(font, turn_info, text_color);
 			if (text_surface)
@@ -477,7 +457,6 @@ int display_map(void)
 				SDL_BlitSurface(text_surface, NULL, screen, &text_rect);
 				SDL_FreeSurface(text_surface);
 			}
-			// NE PAS fermer la police - elle est en cache !
 		}
 
 		SDL_Flip(screen);
@@ -488,16 +467,12 @@ int display_map(void)
 		last_time = SDL_GetTicks();
 	}
 
-	// Clean up fonts
 	cleanup_fonts();
 
-	// Clean up SDL
 	SDL_Quit();
 
 	for (int i = 0; i < turn_line_count; i++)
-	{
 		if (turn_lines[i])
 			free(turn_lines[i]);
-	}
 	return (0);
 }
