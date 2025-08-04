@@ -1,19 +1,19 @@
 #ifndef VISUALIZER_H
-#define VISUALIZER_H
+# define VISUALIZER_H
+ 
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
+# include <stdbool.h>
+# include <SDL/SDL.h>
+# include <SDL/SDL_ttf.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdbool.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
-
-#define MAX_ROOMS 256
-#define MAX_NAME_LENGTH 100
-#define MAX_CONNECTIONS 512
-#define MAX_ANTS 512
-#define MAX_ACTIONS_PER_TURN 1000
+# define MAX_ROOMS 256
+# define MAX_NAME_LENGTH 100
+# define MAX_CONNECTIONS 512
+# define MAX_ANTS 512
+# define MAX_ACTIONS_PER_TURN 1000
 
 typedef struct {
     char name[MAX_NAME_LENGTH];
@@ -76,4 +76,4 @@ extern int max_turns;
 extern char* turn_lines[1000];
 extern int turn_line_count;
 
-#endif
+# endif

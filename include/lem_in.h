@@ -1,30 +1,30 @@
 #ifndef LEM_IN_H
-#define LEM_IN_H
+# define LEM_IN_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <limits.h>
-#include <stdbool.h> // C99+ pour bool
-#include <stddef.h>	 // pour size_t
-#include <errno.h>	 // pour errno
-#include "libft.h"
-#include "get_next_line.h"
-#include "ft_printf.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <stdint.h>
+# include <string.h>
+# include <unistd.h>
+# include <limits.h>
+# include <stdbool.h> // C99+ pour bool
+# include <stddef.h>	 // pour size_t
+# include <errno.h>	 // pour errno
+# include "libft.h"
+# include "get_next_line.h"
+# include "ft_printf.h"
 
 // ============================================================================
 // CONSTANTS AND LIMITS
 // ============================================================================
 
-#define MAX_ROOMS 20000
-#define MAX_LINKS 200000
-#define HASH_SIZE 32768
-#define MAX_ANTS 10000
-#define MAX_PATHS 5
-#define MAX_INPUT_SIZE (1 << 20) // 1MB
-#define INVALID_ROOM_ID UINT16_MAX
+# define MAX_ROOMS 20000
+# define MAX_LINKS 200000
+# define HASH_SIZE 32768
+# define MAX_ANTS 10000
+# define MAX_PATHS 5
+# define MAX_INPUT_SIZE (1 << 20) // 1MB
+# define INVALID_ROOM_ID UINT16_MAX
 
 // ============================================================================
 // DATA STRUCTURES

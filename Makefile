@@ -1,48 +1,24 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/07/11 15:36:10 by lmattern          #+#    #+#              #
-#    Updated: 2025/07/11 15:36:10 by lmattern         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+.PHONY: all clean fclean re test release bonus visualizer libft
 
-NAME = lem-in
-
-# Directories
-SRCDIR = srcs
-OBJDIR = objs
-INCDIR = include
-LIBFTDIR = libft
-
-# Source files - modular approach with new organization
-SRCS = main.c \
-       parser.c \
-       parse_line.c \
-       input.c \
-       validator.c \
-       hash.c \
-       error.c \
-       output.c \
-       pathfinding.c
-
-# Object files
-OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
-
-# Compiler and flags - Modern C with strict warnings
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
-CFLAGS += -O2 -march=native  # Optimization
-INCLUDES = -I$(INCDIR) -I$(LIBFTDIR)/inc
-LIBS = -L$(LIBFTDIR) -lft
-
-# Additional security and analysis flags
+CFLAGS = -Wall -Wextra -Werror -std=c11 -MMD -MP
+CFLAGS += -O2 -march=native
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
+
+SRCS_DIR = srcs
+INCLUDE_DIR = include
+OBJS_DIR = objs
+LIBFTDIR = libft
+
+SRC_FILES = main parser parse_line input validator hash error output pathfinding
+SRCS = $(addprefix $(SRCS_DIR)/,$(addsuffix .c,$(SRC_FILES)))
+OBJS = $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS))
+DEPS = $(OBJS:.o=.d)
+INCLUDES = -I$(INCLUDE_DIR) -I$(LIBFTDIR)/inc
+LIBS = -L$(LIBFTDIR) -lft
+NAME = lem-in
 
 # Colors for output
 GREEN = \033[0;32m
@@ -53,23 +29,23 @@ RESET = \033[0m
 # Rules
 all: $(NAME)
 
-$(NAME): $(OBJDIR) libft $(OBJS)
+$(NAME): libft $(OBJS)
 	@echo "$(BLUE)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(OBJS) $(LIBS)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(RESET)"
+
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
+	@echo "$(BLUE)Compiling $<...$(RESET)"
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OBJS_DIR):
+	@mkdir -p $(OBJS_DIR)
 
 libft:
 	@echo "$(BLUE)Compiling libft...$(RESET)"
 	@$(MAKE) -C $(LIBFTDIR) --no-print-directory > /dev/null
 
-$(OBJDIR):
-	@mkdir -p $(OBJDIR)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	@echo "$(BLUE)Compiling $<...$(RESET)"
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-release: CFLAGS = -Wall -Wextra -Werror -std=c11 -O3 -DNDEBUG
+release: CFLAGS = -Wall -Wextra -Werror -std=c11 -O3 -DNDEBUG -MMD -MP
 release: fclean libft $(NAME)
 
 # Bonus rule - compile both lem-in and visualizer
@@ -92,10 +68,10 @@ visualizer:
 	@echo "$(BLUE)Running visualizer with map: $(MAP)$(RESET)"
 	@./lem-in < $(MAP) | ./visualizer/visualizer
 
-# Clean targets  
 clean:
 	@echo "$(RED)Removing object files...$(RESET)"
-	@rm -rf $(OBJDIR)
+	@rm -f $(OBJS) $(DEPS)
+	@rm -rf $(OBJS_DIR)
 	@$(MAKE) -C $(LIBFTDIR) clean --no-print-directory > /dev/null 2>&1
 	@cd visualizer && make clean > /dev/null 2>&1
 
@@ -107,9 +83,8 @@ fclean: clean
 
 re: fclean all
 
-# Testing
 test: $(NAME)
 	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
 	@./test_suite.sh -v
 
-.PHONY: all clean fclean re test release bonus visualizer libft
+-include $(DEPS)
