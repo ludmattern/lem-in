@@ -251,43 +251,43 @@ void draw_connections(void)
 		if (line_thickness > 5)
 			line_thickness = 5;
 
-		for (int thickness = -line_thickness; thickness <= line_thickness; thickness++)
+		// Dessiner une ligne épaisse en appliquant l'épaisseur perpendiculairement
+		int x_temp = x1;
+		int y_temp = y1;
+		int err_temp = dx - dy;
+
+		while (x_temp != x2 || y_temp != y2)
 		{
-			int x_temp = x1;
-			int y_temp = y1;
-			int err_temp = dx - dy;
-
-			while (x_temp != x2 || y_temp != y2)
+			// Dessiner l'épaisseur autour du point actuel
+			for (int thick_x = -line_thickness; thick_x <= line_thickness; thick_x++)
 			{
-				for (int offset_x = -1; offset_x <= 1; offset_x++)
+				for (int thick_y = -line_thickness; thick_y <= line_thickness; thick_y++)
 				{
-					for (int offset_y = -1; offset_y <= 1; offset_y++)
-					{
-						SDL_Rect pixel = {x_temp + offset_x + thickness, y_temp + offset_y, 1, 1};
-						SDL_FillRect(screen, &pixel, line_color);
-					}
-				}
-
-				int e2 = 2 * err_temp;
-				if (e2 > -dy)
-				{
-					err_temp -= dy;
-					x_temp += sx;
-				}
-				if (e2 < dx)
-				{
-					err_temp += dx;
-					y_temp += sy;
+					SDL_Rect pixel = {x_temp + thick_x, y_temp + thick_y, 1, 1};
+					SDL_FillRect(screen, &pixel, line_color);
 				}
 			}
 
-			for (int offset_x = -1; offset_x <= 1; offset_x++)
+			int e2 = 2 * err_temp;
+			if (e2 > -dy)
 			{
-				for (int offset_y = -1; offset_y <= 1; offset_y++)
-				{
-					SDL_Rect pixel = {x_temp + offset_x + thickness, y_temp + offset_y, 1, 1};
-					SDL_FillRect(screen, &pixel, line_color);
-				}
+				err_temp -= dy;
+				x_temp += sx;
+			}
+			if (e2 < dx)
+			{
+				err_temp += dx;
+				y_temp += sy;
+			}
+		}
+
+		// Dessiner le dernier pixel avec épaisseur
+		for (int thick_x = -line_thickness; thick_x <= line_thickness; thick_x++)
+		{
+			for (int thick_y = -line_thickness; thick_y <= line_thickness; thick_y++)
+			{
+				SDL_Rect pixel = {x_temp + thick_x, y_temp + thick_y, 1, 1};
+				SDL_FillRect(screen, &pixel, line_color);
 			}
 		}
 	}
