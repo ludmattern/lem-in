@@ -160,9 +160,12 @@ int parse_ant_movement(char *line)
 
 int get_map_info(void)
 {
+	int empty = 1;
 	char *line;
 	while ((line = get_next_line(STDIN_FILENO)) != NULL)
 	{
+		if (empty == 1)
+			empty = 0;
 		if (ft_strncmp(line, "ERROR", 5) == 0)
 		{
 			ft_eprintf("%s", line);
@@ -275,6 +278,8 @@ int get_map_info(void)
 		}
 		free(line);
 	}
+	if (empty == 1)
+		return (-1);
 	// Nettoyer get_next_line à la fin
 	get_next_line(-1);
 	return (0);
