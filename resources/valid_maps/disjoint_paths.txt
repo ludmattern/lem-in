@@ -18,21 +18,3 @@ P 4 2
 M 6 2
 N 8 2
 O 10 2
-Start-A
-A-B
-B-C
-C-D
-D-E
-E-End
-Start-F
-F-G
-G-H
-H-I
-I-J
-J-End
-Start-K
-K-P
-P-M
-M-N
-N-O
-O-End

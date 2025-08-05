@@ -1,14 +1,7 @@
-84
+1
 ##start
-Start 5 5
+rooma 0 0
+roomb 1 1
 ##end
-final 50 5
-A 25 2
-B 25 5
-C 25 8
-Start-A
-A-final
-Start-B
-B-final
-Start-C
-C-final 
+end 2 2
+rooma-roomb

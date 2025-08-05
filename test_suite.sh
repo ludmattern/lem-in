@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    test_suite.sh                                      :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lmattern <lmattern@student.42.fr>          +#+  +:+       +#+         #
+#    By: jgavairo <jgavairo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 15:36:16 by lmattern          #+#    #+#              #
-#    Updated: 2025/07/12 14:44:28 by lmattern         ###   ########.fr        #
+#    Updated: 2025/08/05 13:57:53 by jgavairo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -230,8 +230,8 @@ test_edge_cases() {
 	print_section "Edge Cases"
 
 	run_test "Start equals end" "1\n##start\n##end\nroom 0 0\nroom-room" false
-	run_test "No links" "1\n##start\nstart 0 0\n##end\nend 1 1" true
-	run_test "Disconnected graph" "2\n##start\nstart 0 0\nmiddle 1 1\n##end\nend 2 2\nstart-middle" true
+	run_test "No links" "1\n##start\nstart 0 0\n##end\nend 1 1" false
+	run_test "Disconnected graph" "2\n##start\nstart 0 0\nmiddle 1 1\n##end\nend 2 2\nstart-middle" false
 	run_test "Complex valid graph" "5\n##start\nstart 0 0\na 1 0\nb 2 0\nc 1 1\n##end\nend 2 1\nstart-a\nstart-b\na-c\nb-c\nc-end" true
 }
 
@@ -359,7 +359,7 @@ test_advanced_link_validation() {
 
 	# Edge cases with dashes in context
 	run_test "Room ending with number before dash" "1\n##start\nroom1 0 0\nroom2 1 1\n##end\nend 2 2\nroom1-room2" true
-	run_test "Very similar room names in link" "1\n##start\nrooma 0 0\nroomb 1 1\n##end\nend 2 2\nrooma-roomb" true
+	run_test "Very similar room names in link" "1\n##start\nrooma 0 0\nroomb 1 1\n##end\nend 2 2\nrooma-roomb\nroomb-end" true
 
 	# Invalid link formats
 	run_test "Link with extra text after" "1\n##start\nroom1 0 0\n##end\nroom2 1 1\nroom1-room2 extra" false "Link references unknown room"
