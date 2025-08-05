@@ -166,8 +166,8 @@ int get_map_info(void)
 		if (ft_strncmp(line, "ERROR", 5) == 0)
 		{
 			ft_eprintf("%s", line);
+			free(line);  // Libérer avant de nettoyer
 			get_next_line(-1);
-			free(line);
 			exit(-1);
 		}
 		size_t len = ft_strlen(line);
@@ -239,5 +239,7 @@ int get_map_info(void)
 		}
 		free(line);
 	}
+	// Nettoyer get_next_line à la fin
+	get_next_line(-1);
 	return (0);
 }

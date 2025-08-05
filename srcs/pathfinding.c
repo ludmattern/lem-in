@@ -16,6 +16,9 @@ static bool path_cache_valid = false;
 static uint16_t cached_paths[MAX_PATHS][MAX_ROOMS];
 static size_t cached_path_lengths[MAX_PATHS];
 
+// Forward declarations
+static void free_neighbors_table(void);
+
 // Hash function
 static inline uint8_t hash_function(uint16_t value)
 {
@@ -23,18 +26,21 @@ static inline uint8_t hash_function(uint16_t value)
 }
 
 // Add neighbor to hash table
-static inline void add_neighbor(uint16_t room, uint16_t neighbor)
+static inline bool add_neighbor(uint16_t room, uint16_t neighbor)
 {
 	uint8_t hash = hash_function(neighbor);
 	hash_node_t *node = malloc(sizeof(hash_node_t));
+	if (!node)
+		return false; // Échec d'allocation
 	node->neighbor = neighbor;
 	node->next = neighbors[room].buckets[hash];
 	neighbors[room].buckets[hash] = node;
 	neighbors[room].count++;
+	return true;
 }
 
 // Build neighbors hash table
-static void build_neighbors_table(const lem_in_parser_t *parser)
+static bool build_neighbors_table(const lem_in_parser_t *parser)
 {
 	for (size_t i = 0; i < MAX_ROOMS; i++)
 	{
@@ -48,9 +54,14 @@ static void build_neighbors_table(const lem_in_parser_t *parser)
 		uint16_t from = parser->links[i].from;
 		uint16_t to = parser->links[i].to;
 
-		add_neighbor(from, to);
-		add_neighbor(to, from);
+		if (!add_neighbor(from, to) || !add_neighbor(to, from))
+		{
+			// En cas d'échec, nettoyer la mémoire déjà allouée
+			free_neighbors_table();
+			return false;
+		}
 	}
+	return true;
 }
 
 // Free hash table memory
@@ -76,7 +87,8 @@ static void free_neighbors_table(void)
 // BFS with hash table
 bool valid_path(const lem_in_parser_t *parser)
 {
-	build_neighbors_table(parser);
+	if (!build_neighbors_table(parser))
+		return print_error(ERR_MEMORY, "neighbors table allocation");
 
 	uint16_t queue[MAX_ROOMS];
 	bool visited_bfs[MAX_ROOMS] = {false};
@@ -384,7 +396,8 @@ static void simulate_all_turns(const lem_in_parser_t *parser)
 // Main function
 bool find_paths(lem_in_parser_t *parser)
 {
-	build_neighbors_table(parser);
+	if (!build_neighbors_table(parser))
+		return print_error(ERR_MEMORY, "neighbors table allocation");
 
 	if (!find_disjoint_paths(parser))
 	{
