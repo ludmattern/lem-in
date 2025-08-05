@@ -31,7 +31,7 @@ int get_room(char *token)
 	char **parts = ft_split(token, ' ');
 	if (!parts || !parts[0] || !parts[1] || !parts[2])
 	{
-		ft_printf("Error: Invalid room format\n");
+		ft_printf("ERROR: Invalid room format\n");
 		if (parts)
 			ft_free_double_array(parts);
 		return (-1);
@@ -43,7 +43,7 @@ int get_room(char *token)
 
 	if (add_room(name, x, y) == -1)
 	{
-		ft_printf("Error: Too many rooms\n");
+		ft_printf("ERROR: Too many rooms\n");
 		ft_free_double_array(parts);
 		return (-1);
 	}
@@ -58,7 +58,7 @@ int get_connection(char *token)
 	char **parts = ft_split(token, '-');
 	if (!parts || !parts[0] || !parts[1])
 	{
-		ft_printf("Error: Invalid connection format\n");
+		ft_eprintf("ERROR: Invalid connection format\n");
 		if (parts)
 			ft_free_double_array(parts);
 		return (-1);
@@ -66,7 +66,7 @@ int get_connection(char *token)
 
 	if (add_connection(parts[0], parts[1]) == -1)
 	{
-		ft_printf("Error: Too many connections\n");
+		ft_eprintf("ERROR: Too many connections\n");
 		ft_free_double_array(parts);
 		return (-1);
 	}
@@ -109,7 +109,7 @@ int parse_ant_movement(char *line)
 		turn_line_count++;
 	}
 	else
-		ft_printf("ERROR: Too many actions per turn (%d)\n", MAX_ACTIONS_PER_TURN);
+		ft_eprintf("ERROR: Too many actions per turn (%d)\n", MAX_ACTIONS_PER_TURN);
 
 	char **tokens = ft_split(line, ' ');
 	if (!tokens)
@@ -185,7 +185,7 @@ int get_map_info(void)
 			int ants_count = ft_atoi(line);
 			if (ants_count > MAX_ANTS)
 			{
-				ft_printf("Error: Too many ants\n");
+				ft_eprintf("ERROR: Too many ants\n");
 				free(line);
 				get_next_line(-1);
 				return (-1);
@@ -207,7 +207,7 @@ int get_map_info(void)
 		{
 			if (get_room(line) == -1)
 			{
-				ft_printf("Error: Failed to get room\n");
+				ft_eprintf("ERROR: Failed to get room\n");
 				free(line);
 				get_next_line(-1);
 				return (-1);
@@ -243,7 +243,7 @@ int get_map_info(void)
 				// C'est une salle avec coordonnée négative
 				if (get_room(line) == -1)
 				{
-					ft_printf("Error: Failed to get room\n");
+					ft_eprintf("ERROR: Failed to get room\n");
 					free(line);
 					get_next_line(-1);
 					return (-1);
@@ -254,7 +254,7 @@ int get_map_info(void)
 				// C'est une vraie connexion
 				if (get_connection(line) == -1)
 				{
-					ft_printf("Error: Failed to get connection\n");
+					ft_eprintf("ERROR: Failed to get connection\n");
 					free(line);
 					get_next_line(-1);
 					return (-1);

@@ -30,7 +30,7 @@ TTF_Font *load_font(int size)
 		if (*cache_ptr)
 			return *cache_ptr;
 	}
-	ft_printf("Error: Unable to load font at size %d\n", size);
+	ft_eprintf("ERROR: Unable to load font at size %d\n", size);
 	return NULL;
 }
 
@@ -344,12 +344,12 @@ int display_map(void)
 {
 	if (get_map_info() == -1)
 	{
-		ft_printf("Error: Failed to get map info\n");
+		ft_eprintf("ERROR: Failed to get map info\n");
 		return (-1);
 	}
 	if (init_sdl() != 0)
 	{
-		ft_printf("Error: Failed to initialize SDL\n");
+		ft_eprintf("ERROR: Failed to initialize SDL\n");
 		return -1;
 	}
 
@@ -444,9 +444,9 @@ int display_map(void)
 			char turn_info[256];
             ft_bzero(turn_info, sizeof(turn_info));
 			if (animation_finished)
-				ft_sprintf(turn_info, "FINI - Tours: %d/%d", current_turn, turn_line_count);
+				ft_sprintf(turn_info, "FINISHED - Turns: %d/%d", current_turn, turn_line_count);
 			else
-				ft_sprintf(turn_info, "Tour: %d/%d %s", current_turn, turn_line_count, auto_play ? "(AUTO)" : "");
+				ft_sprintf(turn_info, "Turn: %d/%d %s", current_turn, turn_line_count, auto_play ? "(AUTO)" : "");
 			SDL_Color text_color = {255, 255, 255, 255};
 			SDL_Surface *text_surface = TTF_RenderText_Solid(font, turn_info, text_color);
 			if (text_surface)
