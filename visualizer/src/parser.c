@@ -203,17 +203,63 @@ int get_map_info(void)
 			free(line);
 			continue;
 		}
-		if (ft_strchr(line, '-') != NULL && line[0] != 'L')
+		if (ft_strchr(line, '-') == NULL)
 		{
-			if (get_connection(line) == -1)
+			if (get_room(line) == -1)
 			{
-				ft_printf("Error: Failed to get connection\n");
+				ft_printf("Error: Failed to get room\n");
 				free(line);
 				get_next_line(-1);
 				return (-1);
 			}
-			free(line);
-			continue;
+		}
+		else if (line[0] != 'L') // Ligne contient '-' mais pas mouvement de fourmi
+		{
+			// Vérifier si c'est vraiment une connexion ou une salle avec coordonnée négative
+			char **parts = ft_split(line, ' ');
+			bool is_room_with_negative_coord = false;
+			
+			// Si on a exactement 3 parties (nom x y), c'est probablement une salle
+			if (parts && parts[0] && parts[1] && parts[2] && !parts[3])
+			{
+				// Vérifier si parts[1] ou parts[2] sont des nombres (possiblement négatifs)
+				char *endptr;
+				ft_strtol(parts[1], &endptr, 10); // Test si parts[1] est un nombre
+				if (*endptr == '\0') // parts[1] est un nombre valide
+				{
+					ft_strtol(parts[2], &endptr, 10); // Test si parts[2] est un nombre
+					if (*endptr == '\0') // parts[2] est aussi un nombre valide
+					{
+						is_room_with_negative_coord = true;
+					}
+				}
+			}
+			
+			if (parts)
+				ft_free_double_array(parts);
+			
+			if (is_room_with_negative_coord)
+			{
+				// C'est une salle avec coordonnée négative
+				if (get_room(line) == -1)
+				{
+					ft_printf("Error: Failed to get room\n");
+					free(line);
+					get_next_line(-1);
+					return (-1);
+				}
+			}
+			else
+			{
+				// C'est une vraie connexion
+				if (get_connection(line) == -1)
+				{
+					ft_printf("Error: Failed to get connection\n");
+					free(line);
+					get_next_line(-1);
+					return (-1);
+				}
+			}
 		}
 		if (line[0] == 'L')
 		{
@@ -226,16 +272,6 @@ int get_map_info(void)
 			}
 			free(line);
 			continue;
-		}
-		if (ft_strchr(line, '-') == NULL)
-		{
-			if (get_room(line) == -1)
-			{
-				ft_printf("Error: Failed to get room\n");
-				free(line);
-				get_next_line(-1);
-				return (-1);
-			}
 		}
 		free(line);
 	}
