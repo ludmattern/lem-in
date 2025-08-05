@@ -1,0 +1,81 @@
+50
+##start
+Start 0 0
+##end
+End 30 0
+Hub1 5 0
+Hub2 5 1
+Hub3 5 2
+Hub4 5 3
+Hub5 5 4
+Hub6 5 5
+Hub7 5 6
+Mid1 10 0
+Mid2 10 1
+Mid3 10 2
+Mid4 10 3
+Mid5 10 4
+Mid6 10 5
+Slow1 15 0
+Slow2 15 1
+Slow3 15 2
+Slow4 15 3
+Slow5 15 4
+Slow6 15 5
+Far1 20 0
+Far2 20 1
+Far3 20 2
+Far4 20 3
+Far5 20 4
+Far6 20 5
+VFar1 25 0
+VFar2 25 1
+VFar3 25 2
+VFar4 25 3
+VFar5 25 4
+VFar6 25 5
+VFar7 25 6
+Secret 12 -3
+Ultra 18 -3
+Start-Hub1
+Hub1-Mid1
+Mid1-Slow1
+Slow1-Far1
+Far1-VFar1
+VFar1-End
+Start-Hub2
+Hub2-Mid2
+Mid2-Slow2
+Slow2-Far2
+Far2-VFar2
+VFar2-End
+Start-Hub3
+Hub3-Mid3
+Mid3-Slow3
+Slow3-Far3
+Far3-VFar3
+VFar3-End
+Start-Hub4
+Hub4-Mid4
+Mid4-Slow4
+Slow4-Far4
+Far4-VFar4
+VFar4-End
+Start-Hub5
+Hub5-Mid5
+Mid5-Slow5
+Slow5-Far5
+Far5-VFar5
+VFar5-End
+Start-Hub6
+Hub6-Mid6
+Mid6-Slow6
+Slow6-Far6
+Far6-VFar6
+VFar6-End
+Start-Hub7
+Hub7-VFar7
+VFar7-End
+Start-Secret
+Secret-Ultra
+Ultra-End 

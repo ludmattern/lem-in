@@ -6,7 +6,7 @@
 #    By: jgavairo <jgavairo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 15:36:16 by lmattern          #+#    #+#              #
-#    Updated: 2025/08/05 13:57:53 by jgavairo         ###   ########.fr        #
+#    Updated: 2025/08/05 15:03:01 by jgavairo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -337,16 +337,16 @@ test_advanced_room_name_validation() {
 	LONG_NAME_256=$(python3 -c "print('a' * 256)" 2>/dev/null || echo "$(printf 'a%.0s' $(seq 1 256))")
 	LONG_NAME_255=$(python3 -c "print('a' * 255)" 2>/dev/null || echo "$(printf 'a%.0s' $(seq 1 255))")
 	run_test "Very long room name (256 chars)" "1\n##start\n$LONG_NAME_256 0 0\n##end\nend 1 1" false "Invalid room name"
-	run_test "Exactly 255 chars room name" "1\n##start\n$LONG_NAME_255 0 0\n##end\nend 1 1" true
+	run_test "Exactly 255 chars room name" "1\n##start\n$LONG_NAME_255 0 0\n##end\nend 1 1\n$LONG_NAME_255-end" true
 
 	# Special characters at start
 	run_test "Room starting with L followed by letter" "1\n##start\nLroom 0 0\n##end\nend 1 1" false "Room name cannot start with 'L'"
-	run_test "Room starting with lowercase l" "1\n##start\nlroom 0 0\n##end\nend 1 1" true
+	run_test "Room starting with lowercase l" "1\n##start\nlroom 0 0\n##end\nend 1 1\nlroom-end" true
 	run_test "Room name exactly L" "1\n##start\nL 0 0\n##end\nend 1 1" false "Room name cannot start with 'L'"
 
 	# Hash character handling
 	run_test "Room starting with #" "1\n##start\n#room 0 0\n##end\nend 1 1" false "No ##start room defined"
-	run_test "Room with # in middle" "1\n##start\nro#om 0 0\n##end\nend 1 1" true
+	run_test "Room with # in middle" "1\n##start\nro#om 0 0\n##end\nend 1 1\nro#om-end" true
 }
 
 test_advanced_link_validation() {
@@ -358,7 +358,7 @@ test_advanced_link_validation() {
 	run_test "Bidirectional links" "1\n##start\nstart 0 0\n##end\nend 1 1\nstart-end\nend-start" true
 
 	# Edge cases with dashes in context
-	run_test "Room ending with number before dash" "1\n##start\nroom1 0 0\nroom2 1 1\n##end\nend 2 2\nroom1-room2" true
+	run_test "Room ending with number before dash" "1\n##start\nroom1 0 0\nroom2 1 1\n##end\nend 2 2\nroom1-room2\nroom2-end" true
 	run_test "Very similar room names in link" "1\n##start\nrooma 0 0\nroomb 1 1\n##end\nend 2 2\nrooma-roomb\nroomb-end" true
 
 	# Invalid link formats
