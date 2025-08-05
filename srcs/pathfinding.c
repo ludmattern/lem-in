@@ -235,9 +235,7 @@ static bool find_disjoint_paths(const lem_in_parser_t *parser)
 	used_rooms[parser->start_room_id] = true;
 	used_rooms[parser->end_room_id] = false;
 
-	size_t max_paths = 5;
-
-	while (path_count < max_paths)
+	while (path_count < MAX_PATHS)
 	{
 
 		if (!dijkstra_simplified(parser))
@@ -245,7 +243,7 @@ static bool find_disjoint_paths(const lem_in_parser_t *parser)
 
 		save_path(parser);
 
-		if (path_count >= 5)
+		if (path_count >= MAX_PATHS)
 			break;
 	}
 

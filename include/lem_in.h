@@ -16,7 +16,7 @@
 # define MAX_LINKS 200000
 # define HASH_SIZE 32768
 # define MAX_ANTS 10000
-# define MAX_PATHS 5
+# define MAX_PATHS 100
 # define MAX_INPUT_SIZE (1 << 20) // 1MB
 # define INVALID_ROOM_ID UINT16_MAX
 
