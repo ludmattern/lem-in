@@ -1,7 +1,7 @@
 # Compiled binary
 lem-in
 libft.a
-./visualizer/visualizer
+visualizer/visualizer
 
 # Object files
 *.o
