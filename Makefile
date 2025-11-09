@@ -148,8 +148,35 @@ viz: bonus
 	@./$(LEMIN_TARGET) < $(MAP) 2>&1 | ./$(VIS_TARGET)
 
 test: $(LEMIN_TARGET)
-	@printf "$(MSG_INFO) Running comprehensive test suite...\n"
-	@./test_suite.sh -v
+	@printf "$(MSG_INFO) Testing maps in $(BOLD)resources/all_generated$(RESET)...\n"
+	@set -e; \
+	dir="resources/all_generated"; \
+	if [ ! -d "$$dir" ]; then \
+		printf "$(MSG_ERROR) Directory '%s' not found\n" "$$dir"; exit 1; \
+	fi; \
+	rc=0; \
+	for map in "$$dir"/*; do \
+		[ -f "$$map" ] || continue; \
+		req=$$(grep -m1 -E '^#Here is the number of lines required: *[0-9]+' "$$map" | sed -E 's/.*: *([0-9]+).*/\1/'); \
+		if [ -z "$$req" ]; then \
+			printf "$(MSG_ERROR) %-40s -> missing required-lines header\n" "$$(basename "$$map")"; \
+			rc=1; \
+			continue; \
+		fi; \
+		got=$$(./$(LEMIN_TARGET) < "$$map" 2>/dev/null | awk -F': ' '/^# Nombre de lignes: /{v=$$2} END{if (v) print v}'); \
+		if [ -z "$$got" ]; then \
+			printf "$(MSG_ERROR) %-40s -> no result found (got N/A, required=%s)\n" "$$(basename "$$map")" "$$req"; \
+			rc=1; \
+			continue; \
+		fi; \
+		if [ "$$got" -le "$$req" ]; then \
+			printf "$(MSG_SUCCESS) %-40s -> SUCCESS (required=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
+		else \
+			printf "$(MSG_ERROR) %-40s -> FAIL    (required=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
+			rc=1; \
+		fi; \
+	done; \
+	exit $$rc
 
 # =============================== CLEANING ================================== #
 clean: libft-clean

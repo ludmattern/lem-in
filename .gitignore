@@ -26,6 +26,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Cursor/VSCode assistants
+.cursor/
+.history/
+
 # Test outputs
 test_results.txt
 *.log
@@ -33,3 +37,7 @@ test_results.txt
 # Backup files
 *.bak
 *.orig
+
+compile_commands.json
+
+.docs/

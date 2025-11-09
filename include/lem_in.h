@@ -110,6 +110,7 @@ typedef struct
 typedef struct
 {
 	uint16_t id;
+    uint16_t path_id;
 	uint16_t current_room;
 	uint16_t path_index;
 	bool finished;
