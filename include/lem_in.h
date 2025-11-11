@@ -19,6 +19,8 @@
 # define MAX_PATHS 100
 # define MAX_INPUT_SIZE (1 << 20) // 1MB
 # define INVALID_ROOM_ID UINT16_MAX
+# define MAX_NODES (MAX_ROOMS * 2)
+# define MAX_EDGES (MAX_LINKS * 4 + MAX_ROOMS * 2)
 
 // ============================================================================
 // DATA STRUCTURES
