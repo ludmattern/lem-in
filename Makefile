@@ -1,19 +1,19 @@
 # ================================ TARGETS =================================== #
-.PHONY: all clean fclean re test release debug help
+.PHONY: all clean fclean re test big-test release debug help
 .PHONY: libft libft-clean libft-fclean
-.PHONY: lem-in visualizer bonus
+.PHONY: bonus
 .DEFAULT_GOAL := all
 
 # =============================== COMPILER ================================== #
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11 -MMD -MP
+CFLAGS = -Wall -Wextra -Werror -std=c11 -MMD -MP -fsanitize=address
 CFLAGS += -O2 -march=native
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes
-CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS += -fstack-protector-strong
 
 DEBUG_FLAGS = -g3 -DDEBUG -fsanitize=address,undefined
-RELEASE_FLAGS = -O3 -DNDEBUG
+RELEASE_FLAGS = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2
 
 # ============================= DIRECTORIES ================================ #
 BUILD_DIR = build
@@ -68,7 +68,14 @@ MSG_SUCCESS = $(GREEN)[SUCCESS]$(RESET)
 MSG_ERROR = $(RED)[ERROR]$(RESET)
 
 # ============================= MAIN TARGETS =============================== #
-all: $(LEMIN_TARGET)
+all:
+	@if [ ! -f "$(LEMIN_TARGET)" ]; then \
+		$(MAKE) $(LEMIN_TARGET); \
+	elif $(MAKE) -q $(LEMIN_TARGET); then \
+		printf "$(MSG_INFO) No files to compile, $(BOLD)lem-in$(RESET) is already up to date.\n"; \
+	else \
+		$(MAKE) $(LEMIN_TARGET); \
+	fi
 
 $(LEMIN_TARGET): $(LIBFT) $(LEMIN_OBJS)
 	@printf "$(MSG_LINK) Linking $(BOLD)$@$(RESET)...\n"
@@ -178,6 +185,13 @@ test: $(LEMIN_TARGET)
 	done; \
 	exit $$rc
 
+big-test: $(LEMIN_TARGET)
+	@printf "$(MSG_INFO) Running big test suite (generates 10x each map style)...\n"
+	@if [ ! -f "scripts/big_test.sh" ]; then \
+		printf "$(MSG_ERROR) Script big_test.sh not found\n"; exit 1; \
+	fi
+	@bash scripts/big_test.sh
+
 # =============================== CLEANING ================================== #
 clean: libft-clean
 	@printf "$(MSG_CLEAN) Removing object files...\n"
@@ -198,6 +212,7 @@ help:
 	@printf "  $(GREEN)debug$(RESET)      - Build with debug flags\n"
 	@printf "  $(GREEN)release$(RESET)    - Build optimized release version\n"
 	@printf "  $(GREEN)test$(RESET)       - Run test suite\n"
+	@printf "  $(GREEN)big-test$(RESET)   - Generate and test 10x each map style\n"
 	@printf "  $(GREEN)run$(RESET)        - Run lem-in with MAP=<file>\n"
 	@printf "  $(GREEN)viz$(RESET)        - Run visualizer with MAP=<file>\n"
 	@printf "  $(GREEN)clean$(RESET)      - Remove object files\n"

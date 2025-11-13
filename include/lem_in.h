@@ -16,10 +16,10 @@
 # define MAX_LINKS 200000
 # define HASH_SIZE 32768
 # define MAX_ANTS 10000
-# define MAX_PATHS 100
+# define MAX_PATHS 15
 # define MAX_INPUT_SIZE (1 << 20) // 1MB
 # define INVALID_ROOM_ID UINT16_MAX
-# define MAX_NODES (MAX_ROOMS * 2)
+# define MAX_NODES (MAX_ROOMS * 2 + 8)
 # define MAX_EDGES (MAX_LINKS * 4 + MAX_ROOMS * 2)
 
 // ============================================================================
@@ -177,6 +177,6 @@ bool display_input(const lem_in_parser_t *parser);
 
 // Pathfinding functions
 bool valid_path(const lem_in_parser_t *parser);
-bool find_paths(lem_in_parser_t *parser);
+bool start(lem_in_parser_t *parser);
 
 #endif // LEM_IN_H

@@ -5,7 +5,7 @@ bool read_input(lem_in_parser_t *parser)
 	if (!parser)
 		return false;
 
-	size_t capacity = 4096; // Start smaller
+	size_t capacity = 4096;
 	size_t size = 0;
 
 	parser->input_buffer = malloc(capacity);
@@ -17,7 +17,6 @@ bool read_input(lem_in_parser_t *parser)
 	{
 		size += bytes_read;
 
-		// Need more space?
 		if (size >= capacity - 1)
 		{
 			if (capacity >= MAX_INPUT_SIZE)
