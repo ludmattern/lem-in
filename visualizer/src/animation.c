@@ -18,9 +18,11 @@ void update_ant_animation(void)
 
 void process_turn_movements(int turn)
 {
-    if (turn >= turn_line_count) return;
+    // turn est 1-indexé pour l'affichage, mais turn_lines est 0-indexé
+    int turn_index = turn - 1;
+    if (turn_index < 0 || turn_index >= turn_line_count) return;
     
-    char* line = turn_lines[turn];
+    char* line = turn_lines[turn_index];
     if (!line) return;
     
     char** tokens = ft_split(line, ' ');

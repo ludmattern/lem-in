@@ -6,7 +6,7 @@
 
 # =============================== COMPILER ================================== #
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11 -MMD -MP -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -std=c11 -MMD -MP
 CFLAGS += -O2 -march=native
 CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes

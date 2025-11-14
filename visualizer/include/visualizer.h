@@ -69,6 +69,7 @@ void calculate_scaling(void);
 void get_map_bounds(int *min_x, int *max_x, int *min_y, int *max_y);
 TTF_Font *load_font(int size);
 void cleanup_fonts(void);
+void cleanup_all(void);
 
 // Global variables declarations
 extern Map g_map;

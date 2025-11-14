@@ -384,7 +384,7 @@ int display_map(void)
 			{
 				if (event.key.keysym.sym == SDLK_SPACE)
 				{
-					if (all_ants_stopped() && current_turn < turn_line_count)
+					if (all_ants_stopped() && current_turn <= turn_line_count)
 					{
 						process_turn_movements(current_turn);
 						current_turn++;
@@ -411,13 +411,13 @@ int display_map(void)
 			Uint32 current_auto_time = SDL_GetTicks();
 			if (current_auto_time - last_auto_advance > 1000)
 			{
-				if (all_ants_stopped() && current_turn < turn_line_count)
+				if (all_ants_stopped() && current_turn <= turn_line_count)
 				{
 					process_turn_movements(current_turn);
 					current_turn++;
 					last_auto_advance = current_auto_time;
 				}
-				else if (current_turn >= turn_line_count && all_ants_stopped())
+				else if (current_turn > turn_line_count && all_ants_stopped())
 				{
 					animation_finished = 1;
 					ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
@@ -425,7 +425,7 @@ int display_map(void)
 			}
 		}
 
-		if (!auto_play && current_turn >= turn_line_count && all_ants_stopped() && !animation_finished)
+		if (!auto_play && current_turn > turn_line_count && all_ants_stopped() && !animation_finished)
 		{
 			animation_finished = 1;
 			ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
