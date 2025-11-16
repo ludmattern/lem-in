@@ -522,8 +522,6 @@ static bool build_neighbors_table(const lem_in_parser_t *parser)
 	return true;
 }
 
-// Free hash table memory
-// Libère toute la mémoire allouée pour la table des voisins
 static void free_neighbors_table(void)
 {
 	for (size_t i = 0; i < MAX_ROOMS; i++)
@@ -591,10 +589,6 @@ bool valid_path(const lem_in_parser_t *parser)
 }
 
 
-// ========================= Ant Distribution & Simulation =========================
-
-// Décide combien de fourmis iront sur chaque chemin (partage simple)
-// TODO : Optimiser cette fonction pour prendre en compte la longueur des chemins
 static void calculate_ants_per_path(const lem_in_parser_t *parser)
 {
 	for (size_t i = 0; i < path_count; i++)
@@ -605,7 +599,6 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 
 	uint16_t remaining_ants = parser->ant_count;
 
-	// Distribuer les fourmis une par une sur le chemin qui finira le plus tôt
 	while (remaining_ants > 0)
 	{
 		int best_path = 0;
@@ -626,7 +619,6 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 	}
 }
 
-// Crée les fourmis et les assigne à leurs chemins respectifs
 static void init_ants(const lem_in_parser_t *parser)
 {
 	uint16_t ant_id = 1;
@@ -648,43 +640,42 @@ static void init_ants(const lem_in_parser_t *parser)
 	}
 }
 
-// Simulate one turn
-// Fait bouger les fourmis d'une étape si possible et imprime la ligne du tour
-static void simulate_turn(const lem_in_parser_t *parser, int turn) // Réalise un tour d'animation
+static void simulate_turn(const lem_in_parser_t *parser, int turn)
 {
-	(void)turn; // Paramètre non utilisé (conservé pour cohérence)
-	bool first_move = true; // Pour savoir si on met un espace avant le prochain mouvement
+	(void)turn;
+	bool first_move = true;
 
 	for (uint16_t i = 0; i < parser->ant_count; i++)
 	{
-		if (ants[i].finished) // Déjà arrivée à la fin ?
-			continue; // On ignore cette fourmi
+		if (ants[i].finished)
+			continue; //ignore if already finished
 
-		uint16_t path_id = 0; // Quel chemin suit cette fourmi
-		uint16_t ant_offset = 0; // Cumul pour retrouver sa tranche d'IDs
+		uint16_t path_id = 0;
+		uint16_t ant_offset = 0; 
 		for (size_t p = 0; p < path_count; p++)
 		{
+			//find the path for the ant
 			if (ants[i].id <= ant_offset + ants_per_path[p])
 			{
-				path_id = p; // On a trouvé le chemin
-				break; // On arrête la recherche
+				path_id = p;
+				break;
 			}
-			ant_offset += ants_per_path[p]; // On avance au prochain chemin
+			ant_offset += ants_per_path[p];
 		}
 
 		if (ants[i].path_index < cached_path_lengths[path_id])
 		{
-			uint16_t next_room = cached_paths[path_id][ants[i].path_index]; // Prochaine salle ciblée
+			uint16_t next_room = cached_paths[path_id][ants[i].path_index]; // Next room to move to
 
-			bool room_available = true; // On suppose la salle libre
-			if (next_room != parser->start_room_id && next_room != parser->end_room_id) // Start/End ne bloquent pas
+			bool room_available = true;
+			if (next_room != parser->start_room_id && next_room != parser->end_room_id) 
 			{
 				for (uint16_t j = 0; j < parser->ant_count; j++)
 				{
 					if (j != i && !ants[j].finished && ants[j].current_room == next_room)
 					{
-						room_available = false; // Salle occupée par une autre fourmi
-						break; // On ne peut pas avancer
+						room_available = false;
+						break;
 					}
 				}
 			}
@@ -693,79 +684,68 @@ static void simulate_turn(const lem_in_parser_t *parser, int turn) // Réalise u
 			{
 				if (first_move)
 				{
-					ft_printf("L%d-%s", ants[i].id, parser->rooms[next_room].name); // Premier mouvement de la ligne
-					first_move = false; // Les suivants seront précédés d'un espace
+					ft_printf("L%d-%s", ants[i].id, parser->rooms[next_room].name); 
+					first_move = false;
 				}
 				else
-					ft_printf(" L%d-%s", ants[i].id, parser->rooms[next_room].name); // Mouvement suivant
+					ft_printf(" L%d-%s", ants[i].id, parser->rooms[next_room].name);
 
-				ants[i].current_room = next_room; // Mise à jour de la position
-				ants[i].path_index++; // On passe à l'étape suivante du chemin
+				ants[i].current_room = next_room;
+				ants[i].path_index++;
 
-				if (next_room == parser->end_room_id)
+				if (ants[i].current_room == parser->end_room_id)
 				{
-					ants[i].finished = true; // Arrivée atteinte
+					ants[i].finished = true;
 				}
 			}
 		}
 	}
 
-	if (!first_move) // S'il y a eu au moins un mouvement ce tour
-		ft_printf("\n"); // On termine la ligne
+	if (!first_move)
+		ft_printf("\n");
 }
 
-// Calculate total turns
-// Calcule le nombre total de tours nécessaires (formule du sujet)
-static int calculate_total_turns(const lem_in_parser_t *parser) // Calcule le nombre total de tours
+static int calculate_total_turns(const lem_in_parser_t *parser)
 {
-	(void)parser; // Non utilisé ici
-	int total_turns = 0; // On prendra le maximum sur tous les chemins
+	(void)parser;
+	int total_turns = 0;
 
-	for (size_t i = 0; i < path_count; i++) // On parcourt chaque chemin
+	for (size_t i = 0; i < path_count; i++)
 	{
-		if (ants_per_path[i] > 0) // Chemin utilisé par au moins une fourmi ?
+		if (ants_per_path[i] > 0)
 		{
-			int time_for_path = cached_path_lengths[i] + ants_per_path[i] - 1; // Formule du sujet
-			if (time_for_path > total_turns) // Mise à jour du pire cas
+			int time_for_path = cached_path_lengths[i] + ants_per_path[i] - 1;
+			if (time_for_path > total_turns)
 			{
-				total_turns = time_for_path; // Nouveau maximum
+				total_turns = time_for_path;
 			}
 		}
 	}
 
-	return total_turns; // Nombre de lignes de mouvements
+	return total_turns;
 }
 
-// Simulate all turns
-// Lance tous les tours de la simulation et imprime un récapitulatif
-static void simulate_all_turns(const lem_in_parser_t *parser) // Joue tous les tours et affiche le bilan
+static void simulate_all_turns(const lem_in_parser_t *parser)
 {
-	int total_turns = calculate_total_turns(parser); // Nombre de tours à exécuter
+	int total_turns = calculate_total_turns(parser);
 
-	for (int turn = 1; turn <= total_turns; turn++) // Pour chaque tour
+	for (int turn = 1; turn <= total_turns; turn++)
 	{
-		simulate_turn(parser, turn); // On fait avancer et on imprime ce tour
+		simulate_turn(parser, turn);
 	}
 
 	ft_printf("# Nombre de lignes: %d\n", total_turns); // Récapitulatif final
 }
 
-// Main function
-// Point d'entrée: on prépare, on cherche des chemins, on répartit, on simule
-bool start(lem_in_parser_t *parser) // Orchestration: prépare, cherche, répartit, simule
+bool start(lem_in_parser_t *parser)
 {
-	if (!build_neighbors_table(parser)) // Construit la table d'adjacence
-		return print_error(ERR_MEMORY, "neighbors table allocation"); // Erreur si mémoire manquante
-
     find_superposition_paths(parser); // Cherche un lot de chemins via superposition
 
-	calculate_ants_per_path(parser); // Répartit les fourmis sur les chemins
+	calculate_ants_per_path(parser);
 
-	init_ants(parser); // Place les fourmis au départ
+	init_ants(parser);
 
-	simulate_all_turns(parser); // Exécute et imprime la simulation
-
-	free_neighbors_table(); // Nettoie la structure d'adjacence
+	simulate_all_turns(parser);
 
 	return true;
 }
