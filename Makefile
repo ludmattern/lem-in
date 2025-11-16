@@ -170,7 +170,7 @@ test: $(LEMIN_TARGET)
 			rc=1; \
 			continue; \
 		fi; \
-		got=$$(./$(LEMIN_TARGET) < "$$map" 2>/dev/null | awk -F': ' '/^# Nombre de lignes: /{v=$$2} END{if (v) print v}'); \
+		got=$$(./$(LEMIN_TARGET) < "$$map" 2>/dev/null | awk -F': ' '/^# Number of lines: /{v=$$2} END{if (v) print v}'); \
 		if [ -z "$$got" ]; then \
 			printf "$(MSG_ERROR) %-40s -> no result found (got N/A, required=%s)\n" "$$(basename "$$map")" "$$req"; \
 			rc=1; \

@@ -198,7 +198,7 @@ test_map() {
         return 1
     fi
     
-    local got=$(echo "$output" | awk -F': ' '/^# Nombre de lignes: /{v=$2} END{if (v) print v}')
+    local got=$(echo "$output" | awk -F': ' '/^# Number of lines: /{v=$2} END{if (v) print v}')
     
     if [ -z "$got" ]; then
         local plain_msg="FAIL    ${map_name:0:50} -> no result found (got N/A, required=$required, time=${elapsed}s)"
