@@ -12,7 +12,8 @@ static size_t g_path_count = 0;
 static ant_t g_ants[MAX_ANTS];
 
 // How many ants are sent on each path
-static uint16_t g_ants_per_path[MAX_PATHS];
+static uint16_t g_number_of_ants_on_path[MAX_PATHS];
+static bool g_path_is_used[MAX_PATHS];
 
 // Neighbors of each room (fast access structure built from links)
 static hash_table_t g_neighbors[MAX_ROOMS];
@@ -31,7 +32,6 @@ static int g_graph_next_edge[MAX_EDGES];       					// For each edge: index of t
 static int g_graph_reverse_edge[MAX_EDGES];   					// For each edge: index of its reverse edge
 static int g_graph_edge_count;
 
-static bool g_path_used[MAX_PATHS];
 static void free_neighbors_table(void);
 static inline int node_in(uint16_t r) { return (int)r * 2; } 
 static inline int node_out(uint16_t r) { return (int)r * 2 + 1; }
@@ -514,10 +514,10 @@ static void optimize_path_selection(const lem_in_parser_t *parser)
 
 	// Marquer les chemins à utiliser
 	for (size_t i = 0; i < g_path_count; i++)
-		g_path_used[i] = (best_mask & (1U << i)) != 0;
+		g_path_is_used[i] = (best_mask & (1U << i)) != 0;
 }
 
-static bool paths_finder(const lem_in_parser_t *parser)
+static bool paths_finder_main_function(const lem_in_parser_t *parser)
 {
 	residual_graph_builder(parser);
 	int flow = min_cost_maxflow(parser);
@@ -529,7 +529,7 @@ static bool paths_finder(const lem_in_parser_t *parser)
 	
 	// Initialiser tous les chemins comme utilisés par défaut
 	for (size_t i = 0; i < g_path_count; i++)
-		g_path_used[i] = true;
+		g_path_is_used[i] = true;
 	
 	// Optimiser la sélection
 	optimize_path_selection(parser);
@@ -648,7 +648,7 @@ bool is_valid_path(const lem_in_parser_t *parser)
 static void calculate_ants_per_path(const lem_in_parser_t *parser)
 {
 	for (size_t i = 0; i < g_path_count; i++)
-		g_ants_per_path[i] = 0;
+		g_number_of_ants_on_path[i] = 0;
 
 	if (g_path_count == 0)
 		return;
@@ -663,10 +663,10 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 		for (size_t i = 0; i < g_path_count; i++)
 		{
 			// Ignore unused paths
-			if (!g_path_used[i])
+			if (!g_path_is_used[i])
 				continue;
 			
-			int time_of_current_path = (int)g_cached_path_lengths[i] + g_ants_per_path[i];
+			int time_of_current_path = (int)g_cached_path_lengths[i] + g_number_of_ants_on_path[i];
 			if (time_of_current_path < best_time)
 			{
 				best_time = time_of_current_path;
@@ -677,7 +677,7 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 		if (best_path == -1)
 			break;
 
-		g_ants_per_path[best_path]++;
+		g_number_of_ants_on_path[best_path]++;
 		remaining_ants--;
 	}
 }
@@ -688,7 +688,7 @@ static void init_ants(const lem_in_parser_t *parser)
 
 	for (size_t path_idx = 0; path_idx < g_path_count; path_idx++)
 	{
-		for (uint16_t ant_count = 0; ant_count < g_ants_per_path[path_idx]; ant_count++)
+		for (uint16_t ant_count = 0; ant_count < g_number_of_ants_on_path[path_idx]; ant_count++)
 		{
 			if (ant_id > parser->ant_count)
 				break;
@@ -703,12 +703,6 @@ static void init_ants(const lem_in_parser_t *parser)
 		}
 	}
 }
-
-// Ajouter cette structure en haut du fichier (après les autres static)
-typedef struct {
-	uint16_t ant_id;
-	uint16_t room_id;
-} move_t;
 
 static void simulate_turn(const lem_in_parser_t *parser, int turn)
 {
@@ -793,12 +787,12 @@ static int calculate_total_turns(const lem_in_parser_t *parser)
 
 	for (size_t i = 0; i < g_path_count; i++)
 	{
-		if (!g_path_used[i])
+		if (!g_path_is_used[i])
 			continue;
 			
-		if (g_ants_per_path[i] > 0)
+		if (g_number_of_ants_on_path[i] > 0)
 		{
-			int time_for_path = (int)g_cached_path_lengths[i] + g_ants_per_path[i] - 1;
+			int time_for_path = (int)g_cached_path_lengths[i] + g_number_of_ants_on_path[i] - 1;
 			if (time_for_path > total_turns)
 			{
 				total_turns = time_for_path;
@@ -823,7 +817,7 @@ static void simulate_all_turns(const lem_in_parser_t *parser)
 
 bool start(lem_in_parser_t *parser)
 {
-    paths_finder(parser);
+    paths_finder_main_function(parser);
 
 	calculate_ants_per_path(parser);
 

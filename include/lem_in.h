@@ -95,6 +95,11 @@ typedef struct hash_node
 	struct hash_node *next;
 } hash_node_t;
 
+typedef struct {
+	uint16_t ant_id;
+	uint16_t room_id;
+} move_t;
+
 typedef struct
 {
 	hash_node_t *buckets[256]; // 256 buckets pour une distribution optimale
