@@ -599,7 +599,7 @@ static void free_neighbors_table(void)
 	}
 }
 
-bool valid_path(const lem_in_parser_t *parser)
+bool is_valid_path(const lem_in_parser_t *parser)
 {
 	if (!build_neighbors_table(parser))
 		return print_error(ERR_MEMORY, "neighbors table allocation");
@@ -825,7 +825,7 @@ static void simulate_all_turns(const lem_in_parser_t *parser)
 
 bool start(lem_in_parser_t *parser)
 {
-    find_superposition_paths(parser);
+    paths_finder(parser);
 
 	calculate_ants_per_path(parser);
 

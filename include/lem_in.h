@@ -177,7 +177,7 @@ const char *error_to_string(error_code_t code);
 bool display_input(const lem_in_parser_t *parser);
 
 // Pathfinding functions
-bool valid_path(const lem_in_parser_t *parser);
+bool is_valid_path(const lem_in_parser_t *parser);
 bool start(lem_in_parser_t *parser);
 
 #endif // LEM_IN_H
