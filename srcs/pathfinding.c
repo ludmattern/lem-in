@@ -1,6 +1,8 @@
 #include "lem_in.h"
 #include <stdint.h>
 
+#include <stdio.h>
+
 
 // List of paths found (each path is a sequence of room identifiers)
 static path_t paths[MAX_PATHS];
@@ -27,6 +29,9 @@ static int res_cost[MAX_EDGES];
 static int res_next_e[MAX_EDGES];       // For each edge: index of the next edge in the list
 static int res_rev[MAX_EDGES];          // For each edge: index of its inverse edge (return)
 static int res_edge_count = 0;
+
+static bool path_used[MAX_PATHS];
+
 
 static void free_neighbors_table(void);
 
@@ -99,7 +104,7 @@ static int spfa_augment(int start, int end, int ant_count)
 	
 	for (int i = 0; i < MAX_NODES; i++)
 	{
-		dist[i] = 2147483647;
+		dist[i] = INT_MAX;
 		parent_edge[i] = -1;
 		parent_node[i] = -1;
 		in_queue[i] = false;
@@ -121,7 +126,7 @@ static int spfa_augment(int start, int end, int ant_count)
 		{
 			int destination = res_to[e];
 
-			if (res_cap[e] > 0 && dist[current] != 2147483647 && dist[current] + res_cost[e] < dist[destination])
+			if (res_cap[e] > 0 && dist[current] != INT_MAX && dist[current] + res_cost[e] < dist[destination])
 			{
 				dist[destination] = dist[current] + res_cost[e];
 				parent_node[destination] = current;
@@ -138,7 +143,7 @@ static int spfa_augment(int start, int end, int ant_count)
 			}
 		}
 	}
-	if (dist[end] == 2147483647)
+	if (dist[end] == INT_MAX)
 		return 0;
 	int min_cap = ant_count;
 	int x = end;
@@ -180,6 +185,58 @@ static int min_cost_maxflow(const lem_in_parser_t *parser)
 	return path_found;
 }
 
+static void debug_paths(const lem_in_parser_t *parser)
+{
+	fprintf(stderr, "\n=== PATHS FOUND ===\n");
+	
+	for (size_t i = 0; i < path_count; i++)
+	{
+		fprintf(stderr, "Path %lu (length=%lu): ", (unsigned long)i, (unsigned long)paths[i].length);
+		for (size_t j = 0; j < paths[i].length; j++)
+		{
+			fprintf(stderr, "%s", parser->rooms[paths[i].path[j]].name);
+			if (j < paths[i].length - 1)
+				fprintf(stderr, " -> ");
+		}
+		fprintf(stderr, "\n");
+	}
+	
+	// Vérifier les intersections
+	fprintf(stderr, "\n=== CHECKING FOR OVERLAPS ===\n");
+	bool has_overlap = false;
+	
+	for (size_t i = 0; i < path_count; i++)
+	{
+		for (size_t j = i + 1; j < path_count; j++)
+		{
+			for (size_t pi = 0; pi < paths[i].length; pi++)
+			{
+				uint16_t room_i = paths[i].path[pi];
+				
+				if (room_i == parser->start_room_id || room_i == parser->end_room_id)
+					continue;
+				
+				for (size_t pj = 0; pj < paths[j].length; pj++)
+				{
+					uint16_t room_j = paths[j].path[pj];
+					
+					if (room_i == room_j)
+					{
+						fprintf(stderr, "WARNING OVERLAP: Path %lu and Path %lu share room '%s'\n",
+							(unsigned long)i, (unsigned long)j, parser->rooms[room_i].name);
+						has_overlap = true;
+					}
+				}
+			}
+		}
+	}
+	
+	if (!has_overlap)
+		fprintf(stderr, "All paths are disjoint!\n");
+	
+	fprintf(stderr, "===================\n\n");
+}
+
 static bool extract_paths_from_flow(const lem_in_parser_t *parser, int flow)
 {
 	path_count = 0;
@@ -189,65 +246,84 @@ static bool extract_paths_from_flow(const lem_in_parser_t *parser, int flow)
 
 	static int parent_edge[MAX_NODES];
 	static int parent_node[MAX_NODES];
-	static int dist[MAX_NODES];
 	static int queue[MAX_NODES];
 
-	while (path_count < (size_t)flow && path_count < MAX_PATHS)
+	// Pour chaque unité de flux, extraire un chemin
+	for (int path_num = 0; path_num < flow && path_count < MAX_PATHS; path_num++)
 	{
 		int front = 0, rear = 0;
 
-		// Initialize : find the minimum cost path in the used flow
+		// Initialisation
 		for (int j = 0; j < MAX_NODES; j++)
 		{
 			parent_edge[j] = -1;
 			parent_node[j] = -1;
-			dist[j] = 2147483647;
 		}
 
 		queue[rear] = start;
 		rear = (rear + 1) % MAX_NODES;
 		parent_node[start] = start;
-		dist[start] = 0;
 
-		// Modified BFS : find the edges where the reverse flow > 0
-		while (front != rear && parent_node[end] == -1)
+		// BFS : trouver UN chemin où le flow inverse > 0
+		bool found = false;
+		while (front != rear && !found)
 		{
 			int current = queue[front];
 			front = (front + 1) % MAX_NODES;
+			
 			for (int e = res_head[current]; e != -1; e = res_next_e[e])
 			{
 				int destination = res_to[e];
 				int rev = res_rev[e];
 				
-				// If the reverse flow > 0, it means we pushed flow here
-				if (parent_node[destination] == -1 && res_cap[rev] > 0 && 
-				    dist[current] + res_cost[e] < dist[destination])
+				// Si le flow inverse > 0 ET coût >= 0, c'est un chemin utilisé
+				// (coût < 0 = arête inverse d'origine, on l'ignore)
+				if (parent_node[destination] == -1 && res_cap[rev] > 0 && res_cost[e] >= 0)
 				{
 					parent_node[destination] = current;
 					parent_edge[destination] = e;
-					dist[destination] = dist[current] + res_cost[e];
+					
+					if (destination == end)
+					{
+						found = true;
+						break;
+					}
+					
 					int next_rear = (rear + 1) % MAX_NODES;
 					if (next_rear == front)
 						continue;
+					
 					queue[rear] = destination;
 					rear = next_rear;
-					if (destination == end)
-						break;
 				}
 			}
 		}
 
-		// No more path available
-		if (parent_node[end] == -1)
+		// Plus de chemin disponible
+		if (!found || parent_node[end] == -1)
 			break;
 
-		// Build the path
+		// Construire le chemin et consommer 1 unité de flow
 		path_t *p = &paths[path_count];
 		p->length = 0;
-	
+
+		// Remonter le chemin et consommer 1 unité de flow
+		int x = end;
+		while (x != start)
+		{
+			int e = parent_edge[x];
+			
+			// Consommer le flow sur l'arête inverse
+			res_cap[res_rev[e]] -= 1;
+			res_cap[e] += 1;
+			
+			x = parent_node[x];
+		}
+
+		// Reconstruire le chemin pour l'affichage
+		x = end;
 		int nodes_path[MAX_NODES];
 		int nodes_len = 0;
-		int x = end;
 
 		while (x != start)
 		{
@@ -255,38 +331,22 @@ static bool extract_paths_from_flow(const lem_in_parser_t *parser, int flow)
 			x = parent_node[x];
 		}
 		nodes_path[nodes_len++] = start;
-
-		// Collect the edges
-		int edges_on_path[MAX_NODES];
-		int edges_count = 0;
-		x = end;
-
-		while (x != start)
-		{
-			edges_on_path[edges_count++] = parent_edge[x];
-			x = parent_node[x];
-		}
 		
-		// Convert the nodes to rooms
+		// Convertir les nœuds en salles
 		for (int j = nodes_len - 1; j >= 0; j--)
 		{
 			int node = nodes_path[j];
 			uint16_t room = (uint16_t)(node / 2);
 
+			// Ajouter la salle si ce n'est pas un doublon consécutif
 			if (p->length == 0 || p->path[p->length - 1] != room)
 				p->path[p->length++] = room;
 		}
 
-		// Consume 1 unit of flow on this path
-		for (int j = 0; j < edges_count; j++)
-		{
-			int e = edges_on_path[j];
-			res_cap[res_rev[e]] -= 1;
-			res_cap[e] += 1;
-		}
-
 		path_count++;
 	}
+
+	debug_paths(parser);
 
 	return path_count > 0;
 }
@@ -347,15 +407,15 @@ static void test_combination_internal(const lem_in_parser_t *parser, uint32_t te
 	uint16_t remaining = parser->ant_count;
 	static int test_ants[MAX_PATHS];
 	
-	// Initialize the counters for the used paths
+	// Initialiser
 	for (size_t i = 0; i < path_count; i++)
 		test_ants[i] = 0;
 
-	// Distribute the ants on the used paths
+	// Distribuer les fourmis sur les chemins actifs
 	while (remaining > 0)
 	{
 		int best_path = -1;
-		int best_t = 2147483647;
+		int best_t = INT_MAX;
 
 		for (size_t i = 0; i < path_count; i++)
 		{
@@ -366,7 +426,7 @@ static void test_combination_internal(const lem_in_parser_t *parser, uint32_t te
 			if (t < best_t)
 			{
 				best_t = t;
-				best_path = i;
+				best_path = (int)i;
 			}
 		}
 		
@@ -377,7 +437,7 @@ static void test_combination_internal(const lem_in_parser_t *parser, uint32_t te
 		remaining--;
 	}
 
-	// count the total time with this configuration
+	// Calculer le temps total
 	int max_time = 0;
 	for (size_t i = 0; i < path_count; i++)
 	{
@@ -389,11 +449,10 @@ static void test_combination_internal(const lem_in_parser_t *parser, uint32_t te
 		}
 	}
 
-	// Keep the best configuration
+	// Garder le meilleur
 	if (max_time < *best_time_ref)
 	{
 		*best_time_ref = max_time;
-		// Count the number of used paths
 		size_t count = 0;
 		for (size_t i = 0; i < path_count; i++)
 		{
@@ -409,29 +468,58 @@ static void optimize_path_selection(const lem_in_parser_t *parser)
 	if (path_count <= 1)
 		return;
 	
+	// Trier les chemins par longueur (déjà fait normalement)
 	sort_paths_by_length();
 
 	size_t best_count = path_count;
-	int best_time = 2147483647;
+	int best_time = INT_MAX;
+	uint32_t best_mask = (1U << path_count) - 1; // Tous les chemins par défaut
 
+	// Tester différentes combinaisons
+	// 1. Toujours tester les N premiers chemins (les plus courts)
 	for (size_t test_count = 1; test_count <= path_count; test_count++)
 	{
 		uint32_t mask = (1U << test_count) - 1;
 		test_combination_internal(parser, mask, &best_count, &best_time);
+		
+		// Mise à jour du meilleur masque
+		if (best_time < INT_MAX)
+		{
+			size_t count = 0;
+			for (size_t i = 0; i < path_count; i++)
+			{
+				if (mask & (1U << i))
+					count++;
+			}
+			if (count == best_count)
+				best_mask = mask;
+		}
 	}
 
-	// If we have few paths, test all possible combinations
+	// 2. Si peu de chemins (≤8), tester toutes les combinaisons
 	if (path_count <= 8)
 	{
 		for (uint32_t mask = 1; mask < (1U << path_count); mask++)
 		{
-			test_combination_internal(parser, mask, &best_count, &best_time);
+			size_t temp_count = best_count;
+			int temp_time = best_time;
+			test_combination_internal(parser, mask, &temp_count, &temp_time);
+			
+			if (temp_time < best_time)
+			{
+				best_time = temp_time;
+				best_count = temp_count;
+				best_mask = mask;
+			}
 		}
 	}
-	path_count = best_count;
+
+	// Marquer les chemins à utiliser
+	for (size_t i = 0; i < path_count; i++)
+		path_used[i] = (best_mask & (1U << i)) != 0;
 }
 
-static bool find_superposition_paths(const lem_in_parser_t *parser)
+static bool paths_finder(const lem_in_parser_t *parser)
 {
 	residual_graph_builder(parser);
 	int flow = min_cost_maxflow(parser);
@@ -441,6 +529,11 @@ static bool find_superposition_paths(const lem_in_parser_t *parser)
 		return false;
 	cache_paths_for_simulation(parser);
 	
+	// Initialiser tous les chemins comme utilisés par défaut
+	for (size_t i = 0; i < path_count; i++)
+		path_used[i] = true;
+	
+	// Optimiser la sélection
 	optimize_path_selection(parser);
 	
 	return true;
@@ -566,18 +659,25 @@ static void calculate_ants_per_path(const lem_in_parser_t *parser)
 
 	while (remaining_ants > 0)
 	{
-		int best_path = 0;
-		int best_time = (int)cached_path_lengths[0] + ants_per_path[0];
+		int best_path = -1;
+		int best_time = INT_MAX;
 
-		for (size_t i = 1; i < path_count; i++)
+		for (size_t i = 0; i < path_count; i++)
 		{
+			// Ignorer les chemins non-utilisés
+			if (!path_used[i])
+				continue;
+			
 			int time_if_added = (int)cached_path_lengths[i] + ants_per_path[i];
 			if (time_if_added < best_time)
 			{
 				best_time = time_if_added;
-				best_path = i;
+				best_path = (int)i;
 			}
 		}
+
+		if (best_path == -1)
+			break;
 
 		ants_per_path[best_path]++;
 		remaining_ants--;
@@ -598,6 +698,7 @@ static void init_ants(const lem_in_parser_t *parser)
 			ants[ant_id - 1].id = ant_id;
 			ants[ant_id - 1].current_room = parser->start_room_id;
 			ants[ant_id - 1].path_index = 0;
+			ants[ant_id - 1].assigned_path = path_idx; // ← AJOUTER CETTE LIGNE
 			ants[ant_id - 1].finished = false;
 
 			ant_id++;
@@ -605,35 +706,33 @@ static void init_ants(const lem_in_parser_t *parser)
 	}
 }
 
+// Ajouter cette structure en haut du fichier (après les autres static)
+typedef struct {
+	uint16_t ant_id;
+	uint16_t room_id;
+} move_t;
+
 static void simulate_turn(const lem_in_parser_t *parser, int turn)
 {
 	(void)turn;
-	bool first_move = true;
+	static move_t moves[MAX_ANTS];
+	size_t move_count = 0;
 
-	for (uint16_t i = 0; i < parser->ant_count; i++)
+	// Parcourir les fourmis EN ORDRE INVERSE
+	for (int i = (int)parser->ant_count - 1; i >= 0; i--)
 	{
 		if (ants[i].finished)
-			continue; //ignore if already finished
+			continue;
 
-		uint16_t path_id = 0;
-		uint16_t ant_offset = 0; 
-		for (size_t p = 0; p < path_count; p++)
-		{
-			//find the path for the ant
-			if (ants[i].id <= ant_offset + ants_per_path[p])
-			{
-				path_id = p;
-				break;
-			}
-			ant_offset += ants_per_path[p];
-		}
+		uint16_t path_id = ants[i].assigned_path; // ← UTILISER LE CHAMP
 
 		if (ants[i].path_index < cached_path_lengths[path_id])
 		{
-			uint16_t next_room = cached_paths[path_id][ants[i].path_index]; // Next room to move to
+			uint16_t next_room = cached_paths[path_id][ants[i].path_index];
 
 			bool room_available = true;
-			if (next_room != parser->start_room_id && next_room != parser->end_room_id) 
+			
+			if (next_room != parser->end_room_id)
 			{
 				for (uint16_t j = 0; j < parser->ant_count; j++)
 				{
@@ -647,13 +746,9 @@ static void simulate_turn(const lem_in_parser_t *parser, int turn)
 
 			if (room_available)
 			{
-				if (first_move)
-				{
-					ft_printf("L%d-%s", ants[i].id, parser->rooms[next_room].name); 
-					first_move = false;
-				}
-				else
-					ft_printf(" L%d-%s", ants[i].id, parser->rooms[next_room].name);
+				moves[move_count].ant_id = ants[i].id;
+				moves[move_count].room_id = next_room;
+				move_count++;
 
 				ants[i].current_room = next_room;
 				ants[i].path_index++;
@@ -666,8 +761,31 @@ static void simulate_turn(const lem_in_parser_t *parser, int turn)
 		}
 	}
 
-	if (!first_move)
+	// Trier et afficher les mouvements
+	if (move_count > 0)
+	{
+		for (size_t i = 0; i < move_count - 1; i++)
+		{
+			for (size_t j = i + 1; j < move_count; j++)
+			{
+				if (moves[i].ant_id > moves[j].ant_id)
+				{
+					move_t tmp = moves[i];
+					moves[i] = moves[j];
+					moves[j] = tmp;
+				}
+			}
+		}
+
+		for (size_t i = 0; i < move_count; i++)
+		{
+			if (i == 0)
+				ft_printf("L%d-%s", moves[i].ant_id, parser->rooms[moves[i].room_id].name);
+			else
+				ft_printf(" L%d-%s", moves[i].ant_id, parser->rooms[moves[i].room_id].name);
+		}
 		ft_printf("\n");
+	}
 }
 
 static int calculate_total_turns(const lem_in_parser_t *parser)
@@ -677,9 +795,12 @@ static int calculate_total_turns(const lem_in_parser_t *parser)
 
 	for (size_t i = 0; i < path_count; i++)
 	{
+		if (!path_used[i])
+			continue;
+			
 		if (ants_per_path[i] > 0)
 		{
-			int time_for_path = cached_path_lengths[i] + ants_per_path[i] - 1;
+			int time_for_path = (int)cached_path_lengths[i] + ants_per_path[i] - 1;
 			if (time_for_path > total_turns)
 			{
 				total_turns = time_for_path;

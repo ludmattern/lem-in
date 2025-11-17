@@ -115,6 +115,7 @@ typedef struct
     uint16_t path_id;
 	uint16_t current_room;
 	uint16_t path_index;
+	uint16_t assigned_path;
 	bool finished;
 } ant_t;
 
