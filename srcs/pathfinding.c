@@ -183,57 +183,57 @@ static int min_cost_maxflow(const lem_in_parser_t *parser)
 	return path_found;
 }
 
-static void debug_paths(const lem_in_parser_t *parser)
-{
-	fprintf(stderr, "\n=== PATHS FOUND ===\n");
+// static void debug_paths(const lem_in_parser_t *parser)
+// {
+// 	fprintf(stderr, "\n=== PATHS FOUND ===\n");
 	
-	for (size_t i = 0; i < g_path_count; i++)
-	{
-		fprintf(stderr, "Path %lu (length=%lu): ", (unsigned long)i, (unsigned long)g_paths[i].length);
-		for (size_t j = 0; j < g_paths[i].length; j++)
-		{
-			fprintf(stderr, "%s", parser->rooms[g_paths[i].path[j]].name);
-			if (j < g_paths[i].length - 1)
-				fprintf(stderr, " -> ");
-		}
-		fprintf(stderr, "\n");
-	}
+// 	for (size_t i = 0; i < g_path_count; i++)
+// 	{
+// 		fprintf(stderr, "Path %lu (length=%lu): ", (unsigned long)i, (unsigned long)g_paths[i].length);
+// 		for (size_t j = 0; j < g_paths[i].length; j++)
+// 		{
+// 			fprintf(stderr, "%s", parser->rooms[g_paths[i].path[j]].name);
+// 			if (j < g_paths[i].length - 1)
+// 				fprintf(stderr, " -> ");
+// 		}
+// 		fprintf(stderr, "\n");
+// 	}
 	
-	// Vérifier les intersections
-	fprintf(stderr, "\n=== CHECKING FOR OVERLAPS ===\n");
-	bool has_overlap = false;
+// 	// Vérifier les intersections
+// 	fprintf(stderr, "\n=== CHECKING FOR OVERLAPS ===\n");
+// 	bool has_overlap = false;
 	
-	for (size_t i = 0; i < g_path_count; i++)
-	{
-		for (size_t j = i + 1; j < g_path_count; j++)
-		{
-			for (size_t pi = 0; pi < g_paths[i].length; pi++)
-			{
-				uint16_t room_i = g_paths[i].path[pi];
+// 	for (size_t i = 0; i < g_path_count; i++)
+// 	{
+// 		for (size_t j = i + 1; j < g_path_count; j++)
+// 		{
+// 			for (size_t pi = 0; pi < g_paths[i].length; pi++)
+// 			{
+// 				uint16_t room_i = g_paths[i].path[pi];
 				
-				if (room_i == parser->start_room_id || room_i == parser->end_room_id)
-					continue;
+// 				if (room_i == parser->start_room_id || room_i == parser->end_room_id)
+// 					continue;
 				
-				for (size_t pj = 0; pj < g_paths[j].length; pj++)
-				{
-					uint16_t room_j = g_paths[j].path[pj];
+// 				for (size_t pj = 0; pj < g_paths[j].length; pj++)
+// 				{
+// 					uint16_t room_j = g_paths[j].path[pj];
 					
-					if (room_i == room_j)
-					{
-						fprintf(stderr, "WARNING OVERLAP: Path %lu and Path %lu share room '%s'\n",
-							(unsigned long)i, (unsigned long)j, parser->rooms[room_i].name);
-						has_overlap = true;
-					}
-				}
-			}
-		}
-	}
+// 					if (room_i == room_j)
+// 					{
+// 						fprintf(stderr, "WARNING OVERLAP: Path %lu and Path %lu share room '%s'\n",
+// 							(unsigned long)i, (unsigned long)j, parser->rooms[room_i].name);
+// 						has_overlap = true;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
 	
-	if (!has_overlap)
-		fprintf(stderr, "All paths are disjoint!\n");
+// 	if (!has_overlap)
+// 		fprintf(stderr, "All paths are disjoint!\n");
 	
-	fprintf(stderr, "===================\n\n");
-}
+// 	fprintf(stderr, "===================\n\n");
+// }
 
 static bool extract_paths_from_flow(const lem_in_parser_t *parser, int flow)
 {
@@ -344,7 +344,7 @@ static bool extract_paths_from_flow(const lem_in_parser_t *parser, int flow)
 		g_path_count++;
 	}
 
-	debug_paths(parser);
+	// debug_paths(parser);
 
 	return g_path_count > 0;
 }
