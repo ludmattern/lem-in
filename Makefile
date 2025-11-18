@@ -66,6 +66,7 @@ MSG_CLEAN = $(YELLOW)[CLEAN]$(RESET)
 MSG_INFO = $(BLUE)[INFO]$(RESET)
 MSG_SUCCESS = $(GREEN)[SUCCESS]$(RESET)
 MSG_ERROR = $(RED)[ERROR]$(RESET)
+MSG_WARNING = $(YELLOW)[WARNING]$(RESET)
 
 # ============================= MAIN TARGETS =============================== #
 all:
@@ -172,14 +173,14 @@ test: $(LEMIN_TARGET)
 		fi; \
 		got=$$(./$(LEMIN_TARGET) < "$$map" 2>/dev/null | awk -F': ' '/^# Number of lines: /{v=$$2} END{if (v) print v}'); \
 		if [ -z "$$got" ]; then \
-			printf "$(MSG_ERROR) %-40s -> no result found (got N/A, required=%s)\n" "$$(basename "$$map")" "$$req"; \
+			printf "$(MSG_ERROR) %-40s -> no result found (got N/A, perfect=%s)\n" "$$(basename "$$map")" "$$req"; \
 			rc=1; \
 			continue; \
 		fi; \
 		if [ "$$got" -le "$$req" ]; then \
-			printf "$(MSG_SUCCESS) %-40s -> SUCCESS (required=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
+			printf "$(MSG_SUCCESS) %-40s -> SUCCESS (perfect=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
 		else \
-			printf "$(MSG_ERROR) %-40s -> FAIL    (required=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
+			printf "$(MSG_WARNING) %-40s -> WARNING   (perfect=%s, got=%s)\n" "$$(basename "$$map")" "$$req" "$$got"; \
 			rc=1; \
 		fi; \
 	done; \

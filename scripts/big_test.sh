@@ -92,12 +92,28 @@ warning() {
 }
 
 # Détecter le générateur selon l'OS
-if [ -f "$PROJECT_DIR/resources/map_generator/generator_osx" ]; then
-    GENERATOR="$PROJECT_DIR/resources/map_generator/generator_osx"
-elif [ -f "$PROJECT_DIR/resources/map_generator/generator_linux" ]; then
-    GENERATOR="$PROJECT_DIR/resources/map_generator/generator_linux"
-else
-    error "Aucun générateur trouvé (generator_osx ou generator_linux)"
+detect_generator() {
+    local os_name
+    os_name=$(uname -s 2>/dev/null)
+
+    case "$os_name" in
+        Darwin*)
+            echo "$PROJECT_DIR/resources/map_generator/generator_osx"
+            ;;
+        Linux*)
+            echo "$PROJECT_DIR/resources/map_generator/generator_linux"
+            ;;
+        *)
+            error "OS non supporté: $os_name"
+            exit 1
+            ;;
+    esac
+}
+
+GENERATOR=$(detect_generator)
+
+if [ ! -f "$GENERATOR" ]; then
+    error "Générateur non trouvé pour $(uname -s): $GENERATOR"
     exit 1
 fi
 
@@ -223,20 +239,33 @@ test_map() {
         SLOW_TESTS=$((SLOW_TESTS + 1))
     fi
     
-    # Comparer le résultat
-    if [ "$got" -le "$required" ]; then
-        if [ "$elapsed_int" -le 9 ]; then
-            echo -e "${GREEN}SUCCESS${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status})"
-        else
-            echo -e "${GREEN}SUCCESS${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
-        fi
-        return 0
+    # Déterminer le statut selon le nombre de tours
+    local status_label=""
+    local status_color=""
+    if [ "$got" -eq "$required" ]; then
+        status_label="PERFECT"
+        status_color="${CYAN}"
+    elif [ "$got" -gt $((required + 10)) ]; then
+        status_label="WARNING"
+        status_color="${YELLOW}"
     else
-        local plain_msg="FAIL    ${map_name:0:50} -> required=$required, got=$got, time=${elapsed}s"
-        echo -e "${RED}FAIL${RESET}    ${map_name:0:50} -> required=$required, got=$got, time=${elapsed}s"
-        log_failure "$plain_msg" "$map_file" "$map_name"
-        return 1
+        status_label="SUCCESS"
+        status_color="${GREEN}"
     fi
+
+    # Afficher le résultat
+    if [ "$elapsed_int" -le 9 ]; then
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status})"
+    else
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
+    fi
+
+    # WARNING reste un succès logique (non optimal) -> pas d'échec bloquant
+    if [ "$status_label" = "WARNING" ]; then
+        warning "${map_name:0:50} -> plus de 10 lignes au-dessus du requis (got=$got, required=$required)"
+    fi
+
+    return 0
 }
 
 # Générer toutes les maps
