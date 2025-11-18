@@ -91,7 +91,7 @@ static void residual_graph_builder(const lem_in_parser_t *parser)
 	}
 }
 
-static int spfa_augment(int start, int end, int ant_count)
+static int shortest_path_finder(int start, int end, int ant_count)
 {
 	static int parent_edge[MAX_NODES];
 	static int parent_node[MAX_NODES];
@@ -175,8 +175,8 @@ static int min_cost_maxflow(const lem_in_parser_t *parser)
 
 	while (path_found < limit)
 	{
-		int augmented = spfa_augment(start, end, 1);
-		if (!augmented)
+		int flow_found = shortest_path_finder(start, end, 1);
+		if (!flow_found)
 			break;
 		path_found++;
 	}
