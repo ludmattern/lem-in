@@ -217,8 +217,8 @@ test_map() {
     local got=$(echo "$output" | awk -F': ' '/^# Number of lines: /{v=$2} END{if (v) print v}')
     
     if [ -z "$got" ]; then
-        local plain_msg="FAIL    ${map_name:0:50} -> no result found (got N/A, required=$required, time=${elapsed}s)"
-        echo -e "${RED}FAIL${RESET}    ${map_name:0:50} -> ${RED}no result found (got N/A, required=$required, time=${elapsed}s)${RESET}"
+        local plain_msg="FAIL    ${map_name:0:50} -> no result found (obtenu N/A / voulu $required, temps=${elapsed}s)"
+        echo -e "${RED}FAIL${RESET}    ${map_name:0:50} -> ${RED}no result found (obtenu N/A / voulu $required, temps=${elapsed}s)${RESET}"
         log_failure "$plain_msg" "$map_file" "$map_name"
         return 1
     fi
@@ -242,7 +242,7 @@ test_map() {
     # Déterminer le statut selon le nombre de tours
     local status_label=""
     local status_color=""
-    if [ "$got" -eq "$required" ]; then
+    if [ "$got" -le "$required" ]; then
         status_label="PERFECT"
         status_color="${CYAN}"
     elif [ "$got" -gt $((required + 10)) ]; then
@@ -254,15 +254,16 @@ test_map() {
     fi
 
     # Afficher le résultat
+    local result_text="obtenu/voulu: ${got}/${required}"
     if [ "$elapsed_int" -le 9 ]; then
-        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status})"
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status})"
     else
-        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> required=$required, got=$got, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
     fi
 
     # WARNING reste un succès logique (non optimal) -> pas d'échec bloquant
     if [ "$status_label" = "WARNING" ]; then
-        warning "${map_name:0:50} -> plus de 10 lignes au-dessus du requis (got=$got, required=$required)"
+        warning "${map_name:0:50} -> plus de 10 lignes au-dessus du requis (obtenu=$got / voulu=$required)"
     fi
 
     return 0
