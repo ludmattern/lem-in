@@ -14,6 +14,7 @@ SRC_FILES = ft_isalpha ft_isdigit ft_isalnum ft_isascii ft_isprint ft_strlen \
 			ft_memchr ft_memcmp ft_calloc ft_toupper ft_tolower ft_atoi ft_abs \
 			ft_putchar_fd ft_putstr_fd ft_putendl_fd ft_putnbr_fd ft_lstnew_bonus ft_strndup \
 			ft_lstadd_front_bonus ft_lstsize_bonus ft_lstlast_bonus ft_lstadd_back_bonus \
+			ft_lstappend \
 			ft_lstdelone_bonus ft_lstclear_bonus ft_lstiter_bonus ft_lstmap_bonus \
 			get_next_line get_next_line_utils printf_fmt itoa_printf libftprintf \
 			eprintf_fmt libfteprintf ft_strcat ft_strncpy ft_strcpy ft_realloc \

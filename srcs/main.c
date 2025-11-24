@@ -8,7 +8,7 @@ int main(void)
 	if (!parser)
 		return EXIT_FAILURE;
 
-	if (!read_input(parser) || !parse_input(parser) || !is_valid_path(parser) || !display_input(parser) || !start(parser))
+	if (!read_input(parser) || !parse_input(parser) || !display_input(parser))
 		status = EXIT_FAILURE;
 
 	parser_destroy(parser);

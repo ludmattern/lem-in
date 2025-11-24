@@ -1,40 +1,45 @@
 #ifndef LEM_IN_H
 # define LEM_IN_H
 
+# include <stddef.h>
 # include <stdint.h>
 # include <limits.h>
 # include <errno.h>
+# include <sys/_types/_ssize_t.h>
 # include "libft.h"
-# include "get_next_line.h"
-# include "ft_printf.h"
 
 // ============================================================================
 // CONSTANTS AND LIMITS
 // ============================================================================
 
-# define MAX_ROOMS 20000
-# define MAX_LINKS 200000
-# define HASH_SIZE 32768
-# define MAX_ANTS 10000
-# define MAX_PATHS 15
 # define MAX_INPUT_SIZE (1 << 20) // 1MB
 # define INVALID_ROOM_ID UINT16_MAX
-# define MAX_NODES (MAX_ROOMS * 2 + 8)
-# define MAX_EDGES (MAX_LINKS * 4 + MAX_ROOMS * 2)
+# define HASH_SIZE 32768
+
+# define MAX_ROOMS 20000
+# define MAX_LINKS 200000
+
+# define INCREASE 1
+# define DECREASE -1
+
+# define SUCCESS 0
+# define FAILURE -1
+
+# define FALSE 0
+# define TRUE 1
 
 // ============================================================================
 // DATA STRUCTURES
 // ============================================================================
 
-typedef enum
+typedef enum s_room_flags
 {
 	ROOM_NORMAL = 0,
 	ROOM_START = 1,
 	ROOM_END = 2,
-	ROOM_VISITED = 4
 } room_flags_t;
 
-typedef struct
+typedef struct s_room
 {
 	const char *name;	// points inside input buffer
 	int32_t x, y;		// coordinates (can be negative)
@@ -42,17 +47,81 @@ typedef struct
 	uint16_t id;		// unique room identifier
 } room_t;
 
-typedef struct
+typedef struct s_link
 {
 	uint16_t from; // source room id
 	uint16_t to;   // destination room id
 } link_t;
 
-typedef struct
+typedef struct s_hash_entry
 {
 	const char *name;
 	uint16_t room_id;
 } hash_entry_t;
+
+
+
+typedef struct s_edge
+{
+	size_t dest;
+	size_t capacity;
+	struct s_edge *next;
+} t_edge;
+
+
+typedef struct s_node
+{
+	t_edge *head;
+	int index;
+	room_flags_t flags;
+	uint8_t bfs_marked;
+	uint8_t enqueued;
+	uint8_t enqueued_backward;
+	char padding[7];
+	char *name;
+} t_node;
+
+typedef struct s_graph
+{
+	t_node *nodes;
+	size_t ants;
+	size_t size;
+	size_t start_room_id;
+	size_t end_room_id;
+	size_t paths_count;
+	size_t old_output_lines;
+} t_graph;
+
+typedef struct s_bfs
+{
+	t_list *shortest_path;
+	t_edge *neighbours;
+	t_edge *neighbours2;
+	ssize_t *queue;
+	ssize_t *prev;
+	size_t queue_front;
+	size_t queue_rear;
+	size_t queue_size;
+	size_t queue_capacity;
+	size_t node;
+} t_bfs;
+
+typedef struct s_paths
+{
+	t_list **array;
+	size_t *ants_to_paths;
+	size_t *n;
+	size_t *len;
+	size_t output_lines;
+	uint8_t *available;
+	t_edge *neighbours;
+	t_edge *neighbours2;
+} t_paths;
+
+typedef struct
+{
+	
+} t_options;
 
 // ============================================================================
 // ERROR HANDLING
@@ -87,42 +156,6 @@ typedef enum
 	ERR_TOO_MANY_LINKS,
 	ERR_NO_PATH
 } error_code_t;
-
-// Table de hachage pour les voisins (accès O(1) garanti)
-typedef struct hash_node
-{
-	uint16_t neighbor;
-	struct hash_node *next;
-} hash_node_t;
-
-typedef struct {
-	uint16_t ant_id;
-	uint16_t room_id;
-} move_t;
-
-typedef struct
-{
-	hash_node_t *buckets[256]; // 256 buckets pour une distribution optimale
-	size_t count;
-} hash_table_t;
-
-// Structures optimisées
-typedef struct
-{
-	uint16_t path[MAX_ROOMS];
-	size_t length;
-	int cost;
-} path_t;
-
-typedef struct
-{
-	uint16_t id;
-    uint16_t path_id;
-	uint16_t current_room;
-	uint16_t path_index;
-	uint16_t assigned_path;
-	bool finished;
-} ant_t;
 
 // ============================================================================
 // MAIN PARSER STRUCTURE
@@ -181,8 +214,49 @@ const char *error_to_string(error_code_t code);
 // Output
 bool display_input(const lem_in_parser_t *parser);
 
-// Pathfinding functions
-bool is_valid_path(const lem_in_parser_t *parser);
-bool start(lem_in_parser_t *parser);
+// graph building functions
+t_graph *graph_builder(const lem_in_parser_t *parser);
+t_graph *create_graph(const lem_in_parser_t *parser);
+int8_t create_edge(t_graph *graph, size_t src, size_t dest);
+
+// cleaner functions
+void free_graph(t_graph *graph);
+void free_bfs(t_bfs *bfs);
+void del_content(void *content);
+t_paths *free_paths(t_paths *paths, t_graph *graph);
+
+// bfs functions
+t_bfs *bfs_initializer(t_graph *graph);
+int8_t enqueue(size_t node, size_t neigh, t_graph *graph, t_bfs *bfs);
+size_t dequeue(t_bfs *bfs);
+int8_t direct_start_end(t_graph *graph);
+void reset_marks(t_graph *graph, t_bfs *bfs);
+void reset_marks_fail(t_graph *graph, t_bfs *bfs);
+void update_capacity(t_graph *graph, t_bfs *bfs, int8_t order);
+void capacity_changer(t_graph *graph, t_list *from, t_list *to, int8_t order);
+size_t is_on_path(size_t node, t_list *path, t_graph *graph);
+size_t find_path_index(t_list **path, t_list *aug_paths, t_graph *graph);
+t_list *get_next_path(t_list *path, t_graph *graph);
+t_list *add_node_to_paths(size_t *node, t_list **aug_paths);
+t_list *rebuild_paths(t_graph *graph);
+
+// paths finder functions
+t_bfs *bfs(t_graph *graph, t_list *path);
+int8_t is_source_neighbours(size_t node, t_graph *graph);
+void skip_node(t_bfs *new_bfs, t_edge *neigh, t_graph *graph, t_list *path);
+t_bfs *reconstruct_path(t_bfs *new_bfs, t_graph *graph);
+void enqueue_node(t_bfs *new_bfs, t_graph *graph, t_edge *neigh, t_list *path);
+size_t compute_path_pos(t_list **path, t_list *aug_paths, t_graph *graph);
+t_list *bfs_and_compare(t_graph *graph, t_list *aug_paths, t_list **path);
+t_list *first_bfs(t_graph *graph);
+int8_t is_new_solution_better(t_list *aug_paths, t_graph *graph);
+t_paths *find_solution(t_graph *graph, t_list *aug_paths);
+t_list *find_paths(t_graph *graph);
+
+// solver functions
+int8_t solver(t_graph *graph, t_list *aug_paths);
+int8_t reset_availability(t_graph *graph, t_paths *paths, size_t *ants2paths);
+void assign_ants_to_paths(t_graph *graph, t_paths *paths, size_t *tmp);
+void print_lines(t_paths *paths, t_graph *graph);
 
 #endif // LEM_IN_H
