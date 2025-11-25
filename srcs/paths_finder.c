@@ -4,13 +4,6 @@
  *                               PATHS FINDER
  *=========================================================================== */
 
-
-
- /*---------------------------------------------------------------------------
- *                             helper functions
- *--------------------------------------------------------------------------- */
-
-//Verifie si un chemin est meilleur que le precedent
 int8_t is_new_solution_better(t_list *aug_paths, t_graph *graph)
 {
     t_paths *paths;
@@ -28,7 +21,6 @@ int8_t is_new_solution_better(t_list *aug_paths, t_graph *graph)
     return FALSE;
 }
 
-// --- find_paths_tools.c : is_source_neighbours ---
 int8_t is_source_neighbours(size_t node, t_graph *graph)
 {
     t_edge *curr;
@@ -43,7 +35,6 @@ int8_t is_source_neighbours(size_t node, t_graph *graph)
     return (FALSE);
 }
 
-// --- find_paths_tools.c : skip_node ---
 void skip_node(t_bfs *new_bfs, t_edge *neigh, t_graph *graph, t_list *path)
 {
     t_edge *neigh2;
@@ -65,7 +56,6 @@ void skip_node(t_bfs *new_bfs, t_edge *neigh, t_graph *graph, t_list *path)
     }
 }
 
-// --- find_paths_tools.c : reconstruct_path (modified for malloc safety) ---
 t_bfs *reconstruct_path(t_bfs *new_bfs, t_graph *graph)
 {
     t_list *tmp;
@@ -95,7 +85,6 @@ t_bfs *reconstruct_path(t_bfs *new_bfs, t_graph *graph)
     return (new_bfs);
 }
 
-// --- find_paths.c : enqueue_node ---
 void enqueue_node(t_bfs *new_bfs, t_graph *graph, t_edge *neigh, t_list *path)
 {
     if (graph->nodes[neigh->dest].enqueued == FALSE)
@@ -117,7 +106,6 @@ void enqueue_node(t_bfs *new_bfs, t_graph *graph, t_edge *neigh, t_list *path)
     }
 }
 
-// --- find_paths.c : bfs ---
 t_bfs *bfs(t_graph *graph, t_list *path)
 {
     t_bfs *new_bfs;
@@ -139,7 +127,6 @@ t_bfs *bfs(t_graph *graph, t_list *path)
     return (reconstruct_path(new_bfs, graph));
 }
 
-// --- find_paths.c : bfs_and_compare ---
 t_list *bfs_and_compare(t_graph *graph, t_list *aug_paths, t_list **path)
 {
     t_bfs *new_bfs;
@@ -166,7 +153,6 @@ t_list *bfs_and_compare(t_graph *graph, t_list *aug_paths, t_list **path)
     return (aug_paths);
 }
 
-// --- find_paths.c : first_bfs ---
 t_list *first_bfs(t_graph *graph)
 {
     t_list *aug_paths;

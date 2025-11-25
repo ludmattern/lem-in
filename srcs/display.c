@@ -1,7 +1,5 @@
 #include "lem_in.h"
 
-// Plus besoin de all_moved, count_paths_occupied, are_all_ants_launched pour l'affichage simple
-
 static void	display_first_move(t_list **ants_positions, t_paths *paths,
 	t_graph *graph, size_t i, int *first)
 {
