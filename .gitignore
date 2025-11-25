@@ -38,8 +38,9 @@ test_results.txt
 *.bak
 *.orig
 
+# Build system files
 compile_commands.json
 
+# Documentation and cache
 .docs/
-
 .cache/
