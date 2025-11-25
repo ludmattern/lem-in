@@ -1,5 +1,4 @@
 #include "lem_in.h"
-#include <stdio.h>
 
 // Plus besoin de all_moved, count_paths_occupied, are_all_ants_launched pour l'affichage simple
 
@@ -15,10 +14,11 @@ static void	display_first_move(t_list **ants_positions, t_paths *paths,
 		paths->n[paths->ants_to_paths[i]]--;
 		if (ants_positions[i] != NULL)
 		{
-            if (!*first) printf(" "); // Espace avant si pas premier
-			printf("L%zu-%s", i + 1,
+			if (!*first)
+				ft_printf(" ");
+			ft_printf("L%zu-%s", i + 1,
 				graph->nodes[*(size_t *)ants_positions[i]->content].name);
-            *first = 0;
+			*first = 0;
 		}
 	}
 }
@@ -31,18 +31,20 @@ static void display_moves(t_list **ants_positions, t_paths *paths, t_graph *grap
 		ants_positions[i] = ants_positions[i]->next;
 	if (ants_positions[i] != NULL)
 	{
-        if (!*first) printf(" "); // Espace avant si pas premier
-		printf("L%zu-%s", i + 1,
+		if (!*first)
+			ft_printf(" ");
+		ft_printf("L%zu-%s", i + 1,
 			graph->nodes[*(size_t *)ants_positions[i]->content].name);
-        *first = 0;
+		*first = 0;
 	}
 }
 
 static void display_laps(t_paths *paths, t_graph *graph, t_list **ants_positions)
 {
 	size_t	i;
-    int     first = 1; // Flag pour le premier élément du tour
+	int		first;
 
+	first = 1;
 	i = 0;
 	while (i < graph->ants)
 	{
@@ -51,12 +53,10 @@ static void display_laps(t_paths *paths, t_graph *graph, t_list **ants_positions
 		else if (ants_positions[i] != NULL && ants_positions[i]->next != NULL)
 			display_moves(ants_positions, paths, graph, i, &first);
 		else if (ants_positions[i] != NULL && ants_positions[i]->next == NULL)
-			ants_positions[i] = ants_positions[i]->next; 
-		
-        // Plus besoin de logique d'espace ici
+			ants_positions[i] = ants_positions[i]->next;
 		i++;
 	}
-	write(1, "\n", 1);
+	ft_printf("\n");
 }
 
 void display_lines(t_paths *paths, t_graph *graph)

@@ -1,5 +1,14 @@
 #include "../inc/ft_printf.h"
 
+static int	process_format_z(const char **format, va_list *args)
+{
+	(*format)++;
+	if (**format == 'u')
+		return (print_size_t_printf((size_t)va_arg(*args, size_t)));
+	(*format)--;
+	return (0);
+}
+
 static int	process_format(const char **format, va_list *args)
 {
 	int	result;
@@ -18,6 +27,8 @@ static int	process_format(const char **format, va_list *args)
 		**format);
 	else if (**format == '%')
 		result = ft_putchar_fd('%', 1);
+	else if (**format == 'z')
+		result = process_format_z(format, args);
 	else
 	{
 		(*format)--;

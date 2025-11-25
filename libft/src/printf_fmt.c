@@ -88,3 +88,21 @@ int	print_int_printf(int nbr)
 	free(str);
 	return (len);
 }
+
+int	print_size_t_printf(size_t num)
+{
+	char	*str;
+	int		len;
+
+	str = itoa_printf((unsigned long long)num, 10);
+	if (!str)
+		return (-1);
+	if (ft_putstr_fd(str, 1) < 0)
+	{
+		free(str);
+		return (-1);
+	}
+	len = ft_strlen(str);
+	free(str);
+	return (len);
+}

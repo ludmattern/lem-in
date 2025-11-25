@@ -1,6 +1,5 @@
 #include "lem_in.h"
 #include <stddef.h>
-#include <stdio.h>
 
 int8_t is_solution_found(t_paths *paths, t_graph *graph)
 {
@@ -111,7 +110,6 @@ void assign_ants_to_paths(t_graph *graph, t_paths *paths, size_t *tmp)
 
 int8_t solver(t_graph *graph, t_list *aug_paths)
 {
-    fprintf(stderr, "DEBUG: Paths found: %zu\n", graph->paths_count);
     t_paths *paths;
     size_t i = 0, tmp[graph->paths_count];
 

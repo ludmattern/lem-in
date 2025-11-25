@@ -16,6 +16,7 @@ int		print_char_printf(char c);
 int		print_string_printf(char *str);
 int		print_pointer_printf(void *ptr, char *str, int len);
 int		print_int_printf(int nbr);
+int		print_size_t_printf(size_t num);
 
 /*
 ft_eprintf
