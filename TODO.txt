@@ -1,0 +1,7 @@
+Clean la sortie (printf actuellement)
+
+verifier avec le visualizer si pas d'anomalie
+
+verifier les leaks
+
+ajouter des commentaires de comprehension sur les dernieres fonctions ajoutees

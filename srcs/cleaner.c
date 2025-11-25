@@ -1,6 +1,5 @@
 #include "lem_in.h"
 
-//supprimer le contenu d'un noeud
 void del_content(void *content)
 {
      free(content);

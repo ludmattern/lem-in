@@ -32,7 +32,22 @@ VIS_OBJ_DIR = $(BUILD_DIR)/visualizer
 VIS_TARGET = visualizer/visualizer
 
 # ================================ SOURCES =================================== #
-LEMIN_SRCS = main.c parser.c parse_line.c input.c validator.c hash.c error.c output.c pathfinding.c
+LEMIN_SRCS = \
+	main.c \
+	parser.c \
+	parse_line.c \
+	input.c \
+	validator.c \
+	hash.c \
+	error.c \
+	display.c \
+	init.c \
+	output.c \
+	cleaner.c \
+	graph_builder.c \
+	bfs.c \
+	paths_finder.c \
+	solver.c
 LEMIN_OBJS = $(addprefix $(LEMIN_OBJ_DIR)/,$(LEMIN_SRCS:.c=.o))
 LEMIN_DEPS = $(LEMIN_OBJS:.o=.d)
 

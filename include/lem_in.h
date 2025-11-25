@@ -246,17 +246,24 @@ int8_t is_source_neighbours(size_t node, t_graph *graph);
 void skip_node(t_bfs *new_bfs, t_edge *neigh, t_graph *graph, t_list *path);
 t_bfs *reconstruct_path(t_bfs *new_bfs, t_graph *graph);
 void enqueue_node(t_bfs *new_bfs, t_graph *graph, t_edge *neigh, t_list *path);
-size_t compute_path_pos(t_list **path, t_list *aug_paths, t_graph *graph);
+size_t find_path_index(t_list **path, t_list *aug_paths, t_graph *graph);
 t_list *bfs_and_compare(t_graph *graph, t_list *aug_paths, t_list **path);
 t_list *first_bfs(t_graph *graph);
 int8_t is_new_solution_better(t_list *aug_paths, t_graph *graph);
 t_paths *find_solution(t_graph *graph, t_list *aug_paths);
 t_list *find_paths(t_graph *graph);
+int8_t is_solution_found(t_paths *paths, t_graph *graph);
 
 // solver functions
 int8_t solver(t_graph *graph, t_list *aug_paths);
-int8_t reset_availability(t_graph *graph, t_paths *paths, size_t *ants2paths);
+// int8_t reset_availability(t_graph *graph, t_paths *paths, size_t *ants2paths);
 void assign_ants_to_paths(t_graph *graph, t_paths *paths, size_t *tmp);
-void print_lines(t_paths *paths, t_graph *graph);
+void display_lines(t_paths *paths, t_graph *graph);
+
+
+// init functions
+t_paths *init_paths(t_graph *graph, t_list *aug_paths);
+t_paths *init_output(t_graph *graph, t_list *aug_paths);
+void init_lines(t_paths *paths, t_graph *graph);
 
 #endif // LEM_IN_H

@@ -148,7 +148,7 @@ void update_capacity(t_graph *graph, t_bfs *bfs, int8_t order)
 }
 
  /*---------------------------------------------------------------------------
- *                               bfs resest
+ *                               bfs reset
  *--------------------------------------------------------------------------- */
 
 // verifier si un noeud a un passage avec une capacite de 2
@@ -187,7 +187,6 @@ void reset_marks(t_graph *graph, t_bfs *bfs)
     int8_t found;
     t_list *curr;
 
-    
     for (size_t i = 0; i < graph->size; i++)
     {
         found = FALSE;
@@ -200,8 +199,9 @@ void reset_marks(t_graph *graph, t_bfs *bfs)
         }
         found = find_neighbour(graph, i, found);
         if (found == FALSE || \
-            (((graph->nodes[i].flags & ROOM_START) == TRUE || (graph->nodes[i].flags & ROOM_END) == TRUE) && direct_start_end(graph) == FALSE))
+            (((graph->nodes[i].flags & ROOM_START) || (graph->nodes[i].flags & ROOM_END)) && direct_start_end(graph) == FALSE))
             graph->nodes[i].bfs_marked = FALSE;
+            
         graph->nodes[i].enqueued = FALSE;
         graph->nodes[i].enqueued_backward = FALSE;
     }
@@ -303,4 +303,3 @@ t_bfs *bfs_initializer(t_graph *graph)
     }
     return bfs;
 }
-
