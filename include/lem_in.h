@@ -177,6 +177,8 @@ typedef struct
 	int32_t ant_count;
 	bool has_start;
 	bool has_end;
+
+	t_list *file_content;
 } lem_in_parser_t;
 
 // ============================================================================

@@ -44,6 +44,15 @@ void *parser_destroy(lem_in_parser_t *parser)
 	if (!parser)
 		return NULL;
 
+	t_list *current = parser->file_content;
+	while (current)
+	{
+		t_list *next = current->next;
+		free(current->content);
+		free(current);
+		current = next;
+	}
+
 	free(parser->input_buffer);
 	free(parser->rooms);
 	free(parser->links);
@@ -108,6 +117,18 @@ static bool handle_command(char *line, int *next_flag)
 
 static bool process_line(lem_in_parser_t *parser, char *line, int *next_flag, bool *found_ant_count)
 {
+	char *line_copy = ft_strdup(line);
+	if (!line_copy)
+		return print_error(ERR_MEMORY, "line duplication");
+
+	t_list *new_node = ft_lstnew(line_copy);
+	if (!new_node)
+	{
+		free(line_copy);
+		return print_error(ERR_MEMORY, "file content list");
+	}
+	ft_lstadd_back(&parser->file_content, new_node);
+
 	if (line[0] == '#')
 		return handle_command(line, next_flag);
 
