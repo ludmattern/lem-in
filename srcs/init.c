@@ -9,6 +9,11 @@ t_paths	*init_paths(t_graph *graph, t_list *aug_paths)
 
 	if (!(paths = malloc(sizeof(t_paths))))
 		return (NULL);
+	paths->array = NULL;
+	paths->n = NULL;
+	paths->len = NULL;
+	paths->available = NULL;
+	paths->ants_to_paths = NULL;
 	if (!(paths->array = malloc(graph->paths_count * sizeof(t_list*))))
 		return (free_paths(paths, graph));
 	i = 0;
@@ -20,12 +25,12 @@ t_paths	*init_paths(t_graph *graph, t_list *aug_paths)
 	{
         size_t *dup = malloc(sizeof(size_t));
         if (!dup)
-            return NULL;
+            return (free_paths(paths, graph));
         *dup = *(size_t *)curr->content;
         if (!(tmp = ft_lstnew(dup)))
         {
             free(dup);
-            return NULL;
+            return (free_paths(paths, graph));
         }
 		ft_lstappend(&paths->array[i], tmp);
 		curr = curr->next;

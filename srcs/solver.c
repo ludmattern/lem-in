@@ -39,7 +39,10 @@ t_paths *find_solution(t_graph *graph, t_list *aug_paths)
         paths->output_lines++;
     }
     if (graph->paths_count && !(paths->available = malloc(sizeof(int8_t) * graph->paths_count)))
+    {
+        free_paths(paths, graph);
         return NULL;
+    }
     return paths;
 }
 
@@ -125,6 +128,5 @@ int8_t solver(t_graph *graph, t_list *aug_paths)
     assign_ants_to_paths(graph, paths, tmp);
     display_lines(paths, graph);
     free_paths(paths, graph);
-    free_graph(graph);
     return SUCCESS;
 }

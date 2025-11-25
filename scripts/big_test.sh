@@ -13,6 +13,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 BOLD='\033[1m'
+BOLDCYAN='\033[1;36m'
 
 # Chemins
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -242,9 +243,12 @@ test_map() {
     # Déterminer le statut selon le nombre de tours
     local status_label=""
     local status_color=""
-    if [ "$got" -le "$required" ]; then
+    if [ "$got" -eq "$required" ]; then
         status_label="PERFECT"
         status_color="${CYAN}"
+    elif [ "$got" -lt "$required" ]; then
+        status_label="BETTER"
+        status_color="${BOLDCYAN}"
     elif [ "$got" -gt $((required + 10)) ]; then
         status_label="WARNING"
         status_color="${YELLOW}"

@@ -1,5 +1,5 @@
 # ================================ TARGETS =================================== #
-.PHONY: all clean fclean re test big-test release debug help
+.PHONY: all clean fclean re test big-test ultra-test release debug help
 .PHONY: test-big-superposition test-big test-flow-one test-flow-ten test-flow-thousand
 .PHONY: libft libft-clean libft-fclean
 .PHONY: bonus
@@ -209,6 +209,13 @@ big-test: $(LEMIN_TARGET)
 	fi
 	@bash scripts/big_test.sh
 
+ultra-test: $(LEMIN_TARGET)
+	@printf "$(MSG_INFO) Running ULTRA test suite (100 big-superposition maps)...\n"
+	@if [ ! -f "scripts/ultra_test.sh" ]; then \
+		printf "$(MSG_ERROR) Script ultra_test.sh not found\n"; exit 1; \
+	fi
+	@bash scripts/ultra_test.sh
+
 # =============================== CLEANING ================================== #
 clean: libft-clean
 	@printf "$(MSG_CLEAN) Removing object files...\n"
@@ -230,6 +237,7 @@ help:
 	@printf "  $(GREEN)release$(RESET)    - Build optimized release version\n"
 	@printf "  $(GREEN)test$(RESET)       - Run test suite\n"
 	@printf "  $(GREEN)big-test$(RESET)   - Generate and test 10x each map style\n"
+	@printf "  $(GREEN)ultra-test$(RESET) - Generate and test 100 big-superposition maps\n"
 	@printf "  $(GREEN)run$(RESET)        - Run lem-in with MAP=<file>\n"
 	@printf "  $(GREEN)viz$(RESET)        - Run visualizer with MAP=<file>\n"
 	@printf "  $(GREEN)clean$(RESET)      - Remove object files\n"

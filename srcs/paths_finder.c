@@ -179,14 +179,17 @@ t_list *first_bfs(t_graph *graph)
     ft_lstappend(&aug_paths, new_bfs->shortest_path);
     update_capacity(graph, new_bfs, INCREASE);
     if ((paths = find_solution(graph, aug_paths)) == NULL)
+    {
+        ft_lstclear(&new_bfs->shortest_path, del_content);
+        free_bfs(new_bfs);
         return (NULL);
+    }
     graph->old_output_lines = paths->output_lines;
     free_bfs(new_bfs);
     free_paths(paths, graph);
     return (aug_paths);
 }
 
-// --- find_paths.c : find_paths ---
 t_list *find_paths(t_graph *graph)
 {
     t_list *path;

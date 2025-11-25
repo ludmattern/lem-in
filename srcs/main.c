@@ -10,14 +10,7 @@ int main(void)
 	if (!parser)
 		return EXIT_FAILURE;
 
-	if (!read_input(parser) || !parse_input(parser))
-	{
-		parser_destroy(parser);
-		return EXIT_FAILURE;
-	}
-	
-	graph = graph_builder(parser);
-	if (!graph)
+	if (!read_input(parser) || !parse_input(parser) || (graph = graph_builder(parser)) == NULL)
 	{
 		parser_destroy(parser);
 		return EXIT_FAILURE;
@@ -34,9 +27,12 @@ int main(void)
 	if (!display_input(parser))
 		status = EXIT_FAILURE;
 	
-	aug_paths = find_paths(graph);
-	if (!aug_paths)
+	if ((aug_paths = find_paths(graph)) == NULL)
+	{
+		free_graph(graph);
+		parser_destroy(parser);
 		return EXIT_FAILURE;
+	}
 	
 	if (solver(graph, aug_paths) == FAILURE)
 		return EXIT_FAILURE;
