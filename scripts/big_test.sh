@@ -74,22 +74,22 @@ log_failure() {
 
 # Function to display error message
 error() {
-    echo -e "${RED}${BOLD}[ERROR]${RESET} $1" >&2
+    echo -e "${RED}[ERROR]${RESET} $1" >&2
 }
 
 # Function to display success message
 success() {
-    echo -e "${GREEN}${BOLD}[SUCCESS]${RESET} $1"
+    echo -e "${GREEN}[SUCCESS]${RESET} $1"
 }
 
 # Function to display info message
 info() {
-    echo -e "${BLUE}${BOLD}[INFO]${RESET} $1"
+    echo -e "${BLUE}[INFO]${RESET} $1"
 }
 
 # Function to display warning message
 warning() {
-    echo -e "${YELLOW}${BOLD}[WARNING]${RESET} $1"
+    echo -e "${YELLOW}[WARNING]${RESET} $1"
 }
 
 # Detect generator according to OS
@@ -225,17 +225,13 @@ test_map() {
     fi
     
     # Determine time status (use elapsed_int for comparisons)
-    local time_status=""
     local time_color=""
     if [ "$elapsed_int" -le 3 ]; then
-        time_status="excellent"
         time_color="${GREEN}"
     elif [ "$elapsed_int" -le 9 ]; then
-        time_status="mediocre"
         time_color="${YELLOW}"
         SLOW_TESTS=$((SLOW_TESTS + 1))
     else
-        time_status="slow"
         time_color="${RED}"
         SLOW_TESTS=$((SLOW_TESTS + 1))
     fi
@@ -244,25 +240,25 @@ test_map() {
     local status_label=""
     local status_color=""
     if [ "$got" -eq "$required" ]; then
-        status_label="PERFECT"
+        status_label="[PERFECT]"
         status_color="${CYAN}"
     elif [ "$got" -lt "$required" ]; then
-        status_label="BETTER"
+        status_label="[BETTER] "
         status_color="${BOLDCYAN}"
     elif [ "$got" -gt $((required + 10)) ]; then
-        status_label="WARNING"
+        status_label="[WARNING]"
         status_color="${YELLOW}"
     else
-        status_label="SUCCESS"
+        status_label="[SUCCESS]"
         status_color="${GREEN}"
     fi
 
     # Display result
     local result_text="got/wanted: ${got}/${required}"
     if [ "$elapsed_int" -le 9 ]; then
-        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status})"
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET})"
     else
-        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
+        echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} ${YELLOW}⚠${RESET}"
     fi
 
     # WARNING remains a logical success (not optimal) -> no blocking failure
@@ -308,7 +304,7 @@ echo ""
 echo "=========================================="
 if [ $FAILED_TESTS -eq 0 ] && [ $TIMEOUT_TESTS -eq 0 ]; then
     success "All tests passed!"
-    echo -e "${GREEN}${BOLD}Result:${RESET} $PASSED_TESTS/$TOTAL_TESTS tests succeeded"
+    echo -e "${GREEN}Result:${RESET} $PASSED_TESTS/$TOTAL_TESTS tests succeeded"
     if [ $SLOW_TESTS -gt 0 ]; then
         warning "$SLOW_TESTS test(s) with mediocre (>3s) or slow (>9s) performance"
     fi
@@ -317,10 +313,10 @@ if [ $FAILED_TESTS -eq 0 ] && [ $TIMEOUT_TESTS -eq 0 ]; then
     fi
 else
     error "Some tests failed"
-    echo -e "${RED}${BOLD}Failures:${RESET} $FAILED_TESTS/$TOTAL_TESTS"
-    echo -e "${GREEN}${BOLD}Succeeded:${RESET} $PASSED_TESTS/$TOTAL_TESTS"
+    echo -e "${RED}Failures:${RESET} $FAILED_TESTS/$TOTAL_TESTS"
+    echo -e "${GREEN}Succeeded:${RESET} $PASSED_TESTS/$TOTAL_TESTS"
     if [ $TIMEOUT_TESTS -gt 0 ]; then
-        echo -e "${RED}${BOLD}Timeouts:${RESET} $TIMEOUT_TESTS test(s) > 15s"
+        echo -e "${RED}Timeouts:${RESET} $TIMEOUT_TESTS test(s) > 15s"
     fi
     if [ $SLOW_TESTS -gt 0 ]; then
         warning "$SLOW_TESTS test(s) with mediocre (>3s) or slow (>9s) performance"
@@ -331,13 +327,13 @@ else
 fi
 echo "=========================================="
 echo ""
-echo -e "${CYAN}${BOLD}Performance criteria:${RESET}"
+echo -e "${CYAN}Performance criteria:${RESET}"
 echo -e "  ${GREEN}≤ 3s${RESET}  : Excellent (2-3s is ideal)"
 echo -e "  ${YELLOW}4-9s${RESET}  : Mediocre (9s is acceptable but not optimal)"
 echo -e "  ${RED}10-14s${RESET} : Slow (acceptable but should be optimized)"
-echo -e "  ${RED}≥ 15s${RESET}  : ${RED}${BOLD}Too slow - INVALID MAP${RESET} (according to subject: '15 seconds is too much')"
+echo -e "  ${RED}≥ 15s${RESET}  : ${RED}Too slow - INVALID MAP${RESET} (according to subject: '15 seconds is too much')"
 echo ""
-echo -e "${CYAN}${BOLD}Result status legend:${RESET}"
+echo -e "${CYAN}Result status legend:${RESET}"
 echo -e "  ${BOLDCYAN}BETTER${RESET}  : Solution better than required (got < wanted)"
 echo -e "  ${CYAN}PERFECT${RESET} : Exact optimal solution (got = wanted)"
 echo -e "  ${GREEN}SUCCESS${RESET} : Good solution (got ≤ wanted + 10 lines)"
