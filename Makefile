@@ -1,5 +1,5 @@
 # ================================ TARGETS =================================== #
-.PHONY: all clean fclean re test big-test ultra-test release debug help
+.PHONY: all clean fclean re test big-test ultra-test parsing-test release debug help
 .PHONY: test-big-superposition test-big test-flow-one test-flow-ten test-flow-thousand
 .PHONY: libft libft-clean libft-fclean
 .PHONY: bonus
@@ -216,6 +216,13 @@ ultra-test: $(LEMIN_TARGET)
 	fi
 	@bash scripts/ultra_test.sh
 
+parsing-test: $(LEMIN_TARGET)
+	@printf "$(MSG_INFO) Running parsing validation test suite...\n"
+	@if [ ! -f "scripts/test_suite.sh" ]; then \
+		printf "$(MSG_ERROR) Script test_suite.sh not found\n"; exit 1; \
+	fi
+	@bash scripts/test_suite.sh
+
 # =============================== CLEANING ================================== #
 clean: libft-clean
 	@printf "$(MSG_CLEAN) Removing object files...\n"
@@ -235,10 +242,11 @@ help:
 	@printf "  $(GREEN)bonus$(RESET)      - Build both lem-in and visualizer\n"
 	@printf "  $(GREEN)debug$(RESET)      - Build with debug flags\n"
 	@printf "  $(GREEN)release$(RESET)    - Build optimized release version\n"
-	@printf "  $(GREEN)test$(RESET)       - Run test suite\n"
-	@printf "  $(GREEN)big-test$(RESET)   - Generate and test 10x each map style\n"
-	@printf "  $(GREEN)ultra-test$(RESET) - Generate and test 100 big-superposition maps\n"
-	@printf "  $(GREEN)run$(RESET)        - Run lem-in with MAP=<file>\n"
+	@printf "  $(GREEN)test$(RESET)         - Run test suite\n"
+	@printf "  $(GREEN)parsing-test$(RESET) - Run comprehensive parsing validation tests\n"
+	@printf "  $(GREEN)big-test$(RESET)     - Generate and test 10x each map style\n"
+	@printf "  $(GREEN)ultra-test$(RESET)   - Generate and test 100 big-superposition maps\n"
+	@printf "  $(GREEN)run$(RESET)          - Run lem-in with MAP=<file>\n"
 	@printf "  $(GREEN)viz$(RESET)        - Run visualizer with MAP=<file>\n"
 	@printf "  $(GREEN)clean$(RESET)      - Remove object files\n"
 	@printf "  $(GREEN)fclean$(RESET)     - Remove all generated files\n"

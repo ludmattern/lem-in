@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # ============================================================================
-# Script de test massif pour lem-in
-# Génère 10x chaque style de map et teste toutes les maps générées
+# Massive test script for lem-in
+# Generates 10x each map style and tests all generated maps
 # ============================================================================
 
-# Couleurs pour l'affichage
+# Colors for display
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -15,11 +15,11 @@ RESET='\033[0m'
 BOLD='\033[1m'
 BOLDCYAN='\033[1;36m'
 
-# Chemins
+# Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Styles de maps à générer
+# Map styles to generate
 MAP_STYLES=(
     "flow-one"
     "flow-ten"
@@ -28,18 +28,18 @@ MAP_STYLES=(
     "big-superposition"
 )
 
-# Compteurs
+# Counters
 TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILED_TESTS=0
 SLOW_TESTS=0
 TIMEOUT_TESTS=0
 
-# Dossier de logs pour les échecs
+# Log folder for failures
 LOG_DIR="$PROJECT_DIR/resources/big_test_logs"
 LOG_FILE=""
 
-# Prépare le fichier de log à la première utilisation
+# Prepare log file on first use
 prepare_log_file() {
     if [ -z "$LOG_FILE" ]; then
         mkdir -p "$LOG_DIR"
@@ -50,7 +50,7 @@ prepare_log_file() {
     fi
 }
 
-# Ajoute une entrée au log et sauvegarde la map échouée
+# Add entry to log and save failed map
 log_failure() {
     local message="$1"
     local map_file="$2"
@@ -72,27 +72,27 @@ log_failure() {
     fi
 }
 
-# Fonction pour afficher un message d'erreur
+# Function to display error message
 error() {
     echo -e "${RED}${BOLD}[ERROR]${RESET} $1" >&2
 }
 
-# Fonction pour afficher un message de succès
+# Function to display success message
 success() {
     echo -e "${GREEN}${BOLD}[SUCCESS]${RESET} $1"
 }
 
-# Fonction pour afficher un message d'info
+# Function to display info message
 info() {
     echo -e "${BLUE}${BOLD}[INFO]${RESET} $1"
 }
 
-# Fonction pour afficher un message de warning
+# Function to display warning message
 warning() {
     echo -e "${YELLOW}${BOLD}[WARNING]${RESET} $1"
 }
 
-# Détecter le générateur selon l'OS
+# Detect generator according to OS
 detect_generator() {
     local os_name
     os_name=$(uname -s 2>/dev/null)
@@ -105,7 +105,7 @@ detect_generator() {
             echo "$PROJECT_DIR/resources/map_generator/generator_linux"
             ;;
         *)
-            error "OS non supporté: $os_name"
+            error "Unsupported OS: $os_name"
             exit 1
             ;;
     esac
@@ -114,30 +114,30 @@ detect_generator() {
 GENERATOR=$(detect_generator)
 
 if [ ! -f "$GENERATOR" ]; then
-    error "Générateur non trouvé pour $(uname -s): $GENERATOR"
+    error "Generator not found for $(uname -s): $GENERATOR"
     exit 1
 fi
 
 LEMIN="$PROJECT_DIR/lem-in"
 TEST_DIR="$PROJECT_DIR/resources/big_test_maps"
 
-# Vérifier que les fichiers nécessaires existent
+# Check that necessary files exist
 if [ ! -f "$GENERATOR" ]; then
-    error "Générateur non trouvé: $GENERATOR"
+    error "Generator not found: $GENERATOR"
     exit 1
 fi
 
 if [ ! -f "$LEMIN" ]; then
-    error "lem-in non trouvé: $LEMIN"
-    error "Compile d'abord avec: make"
+    error "lem-in not found: $LEMIN"
+    error "Compile first with: make"
     exit 1
 fi
 
-# Créer le dossier de test
+# Create test folder
 mkdir -p "$TEST_DIR"
-info "Dossier de test: $TEST_DIR"
+info "Test folder: $TEST_DIR"
 
-# Fonction pour générer une map
+# Function to generate a map
 generate_map() {
     local style=$1
     local index=$2
@@ -154,24 +154,24 @@ generate_map() {
     elif [ "$style" = "big-superposition" ]; then
         "$GENERATOR" --big-superposition > "$output_file" 2>/dev/null
     else
-        error "Style inconnu: $style"
+        error "Unknown style: $style"
         return 1
     fi
     
     if [ $? -ne 0 ] || [ ! -f "$output_file" ] || [ ! -s "$output_file" ]; then
-        error "Échec de génération: ${style}_${index}"
+        error "Generation failed: ${style}_${index}"
         return 1
     fi
     
     return 0
 }
 
-# Fonction pour tester une map
+# Function to test a map
 test_map() {
     local map_file=$1
     local map_name=$(basename "$map_file")
     
-    # Extraire le nombre requis
+    # Extract required number
     local required=$(grep -m1 -E '^#Here is the number of lines required: *[0-9]+' "$map_file" 2>/dev/null | sed -E 's/.*: *([0-9]+).*/\1/')
     
     if [ -z "$required" ]; then
@@ -181,32 +181,32 @@ test_map() {
         return 1
     fi
     
-    # Mesurer le temps d'exécution avec la commande time
-    # TIMEFORMAT='%R' donne le temps réel en secondes (format décimal)
-    # time écrit sur stderr, donc on capture stderr séparément
+    # Measure execution time with time command
+    # TIMEFORMAT='%R' gives real time in seconds (decimal format)
+    # time writes to stderr, so we capture stderr separately
     local TIMEFORMAT='%R'
     local temp_output=$(mktemp)
     local time_stderr=$( { time "$LEMIN" < "$map_file" 2>/dev/null > "$temp_output"; } 2>&1 )
     local output=$(cat "$temp_output" 2>/dev/null)
     rm -f "$temp_output"
     
-    # Extraire le temps réel (dernière ligne de stderr qui contient la sortie de time)
+    # Extract real time (last line of stderr containing time output)
     local elapsed=$(echo "$time_stderr" | tail -1)
     
-    # Vérifier que elapsed est un nombre valide
+    # Check that elapsed is a valid number
     if ! echo "$elapsed" | grep -qE '^[0-9]+\.?[0-9]*$'; then
         local plain_msg="FAIL    ${map_name:0:50} -> unable to measure execution time"
-        error "Impossible de mesurer le temps pour ${map_name}"
+        error "Unable to measure time for ${map_name}"
         log_failure "$plain_msg" "$map_file" "$map_name"
         return 1
     fi
     
-    # Convertir le temps décimal en entier (arrondi vers le haut pour être strict)
-    # Utiliser awk pour arrondir vers le haut
+    # Convert decimal time to integer (round up to be strict)
+    # Use awk to round up
     local elapsed_int=$(echo "$elapsed" | awk '{printf "%.0f", ($1 + 0.5)}')
     
-    # Vérifier le timeout (15 secondes) - invalide la map si dépassé
-    # Selon le sujet: "15 seconds is too much" → la map est invalide
+    # Check timeout (15 seconds) - invalidate map if exceeded
+    # According to subject: "15 seconds is too much" → map is invalid
     if [ "$elapsed_int" -ge 15 ]; then
         TIMEOUT_TESTS=$((TIMEOUT_TESTS + 1))
         local plain_msg="FAIL    ${map_name:0:50} -> TIMEOUT (${elapsed}s, max=15s) - MAP INVALIDE"
@@ -218,13 +218,13 @@ test_map() {
     local got=$(echo "$output" | awk -F': ' '/^# Number of lines: /{v=$2} END{if (v) print v}')
     
     if [ -z "$got" ]; then
-        local plain_msg="FAIL    ${map_name:0:50} -> no result found (obtenu N/A / voulu $required, temps=${elapsed}s)"
-        echo -e "${RED}FAIL${RESET}    ${map_name:0:50} -> ${RED}no result found (obtenu N/A / voulu $required, temps=${elapsed}s)${RESET}"
+        local plain_msg="FAIL    ${map_name:0:50} -> no result found (got N/A / wanted $required, time=${elapsed}s)"
+        echo -e "${RED}FAIL${RESET}    ${map_name:0:50} -> ${RED}no result found (got N/A / wanted $required, time=${elapsed}s)${RESET}"
         log_failure "$plain_msg" "$map_file" "$map_name"
         return 1
     fi
     
-    # Déterminer le statut du temps (utiliser elapsed_int pour les comparaisons)
+    # Determine time status (use elapsed_int for comparisons)
     local time_status=""
     local time_color=""
     if [ "$elapsed_int" -le 3 ]; then
@@ -240,7 +240,7 @@ test_map() {
         SLOW_TESTS=$((SLOW_TESTS + 1))
     fi
     
-    # Déterminer le statut selon le nombre de tours
+    # Determine status according to number of turns
     local status_label=""
     local status_color=""
     if [ "$got" -eq "$required" ]; then
@@ -257,41 +257,41 @@ test_map() {
         status_color="${GREEN}"
     fi
 
-    # Afficher le résultat
-    local result_text="obtenu/voulu: ${got}/${required}"
+    # Display result
+    local result_text="got/wanted: ${got}/${required}"
     if [ "$elapsed_int" -le 9 ]; then
         echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status})"
     else
         echo -e "${status_color}${status_label}${RESET} ${map_name:0:50} -> ${result_text}, time=${time_color}${elapsed}s${RESET} (${time_status}) ${YELLOW}⚠${RESET}"
     fi
 
-    # WARNING reste un succès logique (non optimal) -> pas d'échec bloquant
+    # WARNING remains a logical success (not optimal) -> no blocking failure
     if [ "$status_label" = "WARNING" ]; then
-        warning "${map_name:0:50} -> plus de 10 lignes au-dessus du requis (obtenu=$got / voulu=$required)"
+        warning "${map_name:0:50} -> more than 10 lines above required (got=$got / wanted=$required)"
     fi
 
     return 0
 }
 
-# Générer toutes les maps
-info "Génération de 10 maps pour chaque style..."
+# Generate all maps
+info "Generating 10 maps for each style..."
 for style in "${MAP_STYLES[@]}"; do
-    info "Génération des maps: $style"
+    info "Generating maps: $style"
     for i in {1..10}; do
         if generate_map "$style" "$i"; then
-            echo -e "  ${CYAN}✓${RESET} ${style}_${i} générée"
+            echo -e "  ${CYAN}✓${RESET} ${style}_${i} generated"
             sleep 1
         else
-            echo -e "  ${RED}✗${RESET} ${style}_${i} échec"
+            echo -e "  ${RED}✗${RESET} ${style}_${i} failed"
             sleep 1
         fi
     done
 done
 
 echo ""
-info "Début des tests..."
+info "Starting tests..."
 
-# Tester toutes les maps générées
+# Test all generated maps
 for map_file in "$TEST_DIR"/*; do
     if [ -f "$map_file" ]; then
         TOTAL_TESTS=$((TOTAL_TESTS + 1))
@@ -303,55 +303,62 @@ for map_file in "$TEST_DIR"/*; do
     fi
 done
 
-# Résumé final
+# Final summary
 echo ""
 echo "=========================================="
 if [ $FAILED_TESTS -eq 0 ] && [ $TIMEOUT_TESTS -eq 0 ]; then
-    success "Tous les tests sont passés !"
-    echo -e "${GREEN}${BOLD}Résultat:${RESET} $PASSED_TESTS/$TOTAL_TESTS tests réussis"
+    success "All tests passed!"
+    echo -e "${GREEN}${BOLD}Result:${RESET} $PASSED_TESTS/$TOTAL_TESTS tests succeeded"
     if [ $SLOW_TESTS -gt 0 ]; then
-        warning "$SLOW_TESTS test(s) avec performance médiocre (>3s) ou lente (>9s)"
+        warning "$SLOW_TESTS test(s) with mediocre (>3s) or slow (>9s) performance"
     fi
     if [ -n "$LOG_FILE" ]; then
-        warning "Voir les logs dans $LOG_FILE (maps copiées dans $LOG_DIR)"
+        warning "See logs in $LOG_FILE (maps copied to $LOG_DIR)"
     fi
 else
-    error "Certains tests ont échoué"
-    echo -e "${RED}${BOLD}Échecs:${RESET} $FAILED_TESTS/$TOTAL_TESTS"
-    echo -e "${GREEN}${BOLD}Réussis:${RESET} $PASSED_TESTS/$TOTAL_TESTS"
+    error "Some tests failed"
+    echo -e "${RED}${BOLD}Failures:${RESET} $FAILED_TESTS/$TOTAL_TESTS"
+    echo -e "${GREEN}${BOLD}Succeeded:${RESET} $PASSED_TESTS/$TOTAL_TESTS"
     if [ $TIMEOUT_TESTS -gt 0 ]; then
         echo -e "${RED}${BOLD}Timeouts:${RESET} $TIMEOUT_TESTS test(s) > 15s"
     fi
     if [ $SLOW_TESTS -gt 0 ]; then
-        warning "$SLOW_TESTS test(s) avec performance médiocre (>3s) ou lente (>9s)"
+        warning "$SLOW_TESTS test(s) with mediocre (>3s) or slow (>9s) performance"
     fi
     if [ -n "$LOG_FILE" ]; then
-        warning "Voir les logs dans $LOG_FILE (maps copiées dans $LOG_DIR)"
+        warning "See logs in $LOG_FILE (maps copied to $LOG_DIR)"
     fi
 fi
 echo "=========================================="
 echo ""
-echo -e "${CYAN}${BOLD}Critères de performance:${RESET}"
-echo -e "  ${GREEN}≤ 3s${RESET}  : Excellent (2-3s est idéal)"
-echo -e "  ${YELLOW}4-9s${RESET}  : Médiocre (9s est acceptable mais pas optimal)"
-echo -e "  ${RED}10-14s${RESET} : Lent (acceptable mais à optimiser)"
-echo -e "  ${RED}≥ 15s${RESET}  : ${RED}${BOLD}Trop lent - MAP INVALIDE${RESET} (selon le sujet: '15 seconds is too much')"
-
-# Nettoyer les maps générées
+echo -e "${CYAN}${BOLD}Performance criteria:${RESET}"
+echo -e "  ${GREEN}≤ 3s${RESET}  : Excellent (2-3s is ideal)"
+echo -e "  ${YELLOW}4-9s${RESET}  : Mediocre (9s is acceptable but not optimal)"
+echo -e "  ${RED}10-14s${RESET} : Slow (acceptable but should be optimized)"
+echo -e "  ${RED}≥ 15s${RESET}  : ${RED}${BOLD}Too slow - INVALID MAP${RESET} (according to subject: '15 seconds is too much')"
 echo ""
-info "Nettoyage des maps générées..."
+echo -e "${CYAN}${BOLD}Result status legend:${RESET}"
+echo -e "  ${BOLDCYAN}BETTER${RESET}  : Solution better than required (got < wanted)"
+echo -e "  ${CYAN}PERFECT${RESET} : Exact optimal solution (got = wanted)"
+echo -e "  ${GREEN}SUCCESS${RESET} : Good solution (got ≤ wanted + 10 lines)"
+echo -e "  ${YELLOW}WARNING${RESET} : Suboptimal solution (got > wanted + 10 lines)"
+echo -e "  ${RED}FAIL${RESET}    : Test failed (error, timeout, or no result)"
+
+# Clean up generated maps
+echo ""
+info "Cleaning up generated maps..."
 if [ -d "$TEST_DIR" ]; then
     rm -rf "$TEST_DIR"
     if [ $? -eq 0 ]; then
-        echo -e "  ${CYAN}✓${RESET} Dossier $TEST_DIR supprimé"
+        echo -e "  ${CYAN}✓${RESET} Folder $TEST_DIR deleted"
     else
-        warning "Impossible de supprimer $TEST_DIR"
+        warning "Unable to delete $TEST_DIR"
     fi
 else
-    echo -e "  ${CYAN}✓${RESET} Aucun dossier à nettoyer"
+    echo -e "  ${CYAN}✓${RESET} No folder to clean up"
 fi
 
-# Retourner le code d'erreur approprié
+# Return appropriate error code
 if [ $FAILED_TESTS -eq 0 ] && [ $TIMEOUT_TESTS -eq 0 ]; then
     exit 0
 else
