@@ -3,3 +3,7 @@ verifier avec le visualizer si pas d'anomalie
 verifier les leaks
 
 ajouter des commentaires de comprehension sur les dernieres fonctions ajoutees
+
+Ajouter erreur si pas de chemin
+
+Afficher les commentaires standard output (commencent par #)

@@ -72,4 +72,5 @@ void display_lines(t_paths *paths, t_graph *graph)
 	{
 		display_laps(paths, graph, ants_positions);
 	}
+	ft_printf("# Number of lines: %zu\n", paths->output_lines);
 }

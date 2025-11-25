@@ -1,5 +1,6 @@
 # ================================ TARGETS =================================== #
 .PHONY: all clean fclean re test big-test release debug help
+.PHONY: test-big-superposition test-big test-flow-one test-flow-ten test-flow-thousand
 .PHONY: libft libft-clean libft-fclean
 .PHONY: bonus
 .DEFAULT_GOAL := all
