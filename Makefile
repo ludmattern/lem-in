@@ -13,7 +13,7 @@ CFLAGS += -Wformat=2 -Wformat-security -Wcast-align -Wpointer-arith
 CFLAGS += -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS += -fstack-protector-strong
 
-DEBUG_FLAGS = -g3 -DDEBUG -fsanitize=address,undefined
+DEBUG_FLAGS = -g3 -DDEBUG=1 -fsanitize=address,undefined
 RELEASE_FLAGS = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2
 
 # ============================= DIRECTORIES ================================ #

@@ -303,3 +303,75 @@ t_bfs *bfs_initializer(t_graph *graph)
     }
     return bfs;
 }
+
+/*---------------------------------------------------------------------------
+ *                               PATH VALIDATION
+ *--------------------------------------------------------------------------- */
+
+// Verifie si un chemin existe entre start et end en utilisant un BFS simple
+int8_t is_valid_path(t_graph *graph)
+{
+    ssize_t *queue;
+    size_t queue_front;
+    size_t queue_rear;
+    size_t queue_size;
+    size_t queue_capacity;
+    size_t current_node;
+    t_edge *neighbours;
+    int8_t path_exists;
+
+    queue_capacity = graph->size;
+    if (!(queue = malloc(queue_capacity * sizeof(ssize_t))))
+        return FAILURE;
+    
+    for (size_t i = 0; i < queue_capacity; i++)
+        queue[i] = -1;
+
+    for (size_t i = 0; i < graph->size; i++)
+    {
+        graph->nodes[i].bfs_marked = FALSE;
+        graph->nodes[i].enqueued = FALSE;
+    }
+
+    queue_front = 0;
+    queue_rear = 0;
+    queue_size = 1;
+    queue[0] = graph->start_room_id;
+    graph->nodes[graph->start_room_id].bfs_marked = TRUE;
+    path_exists = FALSE;
+
+    while (queue_size > 0 && path_exists == FALSE)
+    {
+        current_node = queue[queue_front];
+        queue_front++;
+        queue_size--;
+
+        if (current_node == graph->end_room_id)
+        {
+            path_exists = TRUE;
+            break;
+        }
+
+        neighbours = graph->nodes[current_node].head;
+        while (neighbours != NULL)
+        {
+            if (graph->nodes[neighbours->dest].bfs_marked == FALSE)
+            {
+                graph->nodes[neighbours->dest].bfs_marked = TRUE;
+                queue_rear++;
+                queue[queue_rear] = neighbours->dest;
+                queue_size++;
+            }
+            neighbours = neighbours->next;
+        }
+    }
+
+    for (size_t i = 0; i < graph->size; i++)
+    {
+        graph->nodes[i].bfs_marked = FALSE;
+        graph->nodes[i].enqueued = FALSE;
+    }
+
+    free(queue);
+    return path_exists;
+}

@@ -1,0 +1,24 @@
+14
+##start
+Qtf3 4 2
+##end
+Std6 4 12
+Uno 2 4
+Dos 2 6
+Tres 2 8
+Quattro 2 10
+Cinco 6 4
+Six 6 6
+Huit 6 8
+Sept 6 10
+Qtf3-Uno
+Qtf3-Cinco
+Uno-Dos
+Dos-Tres
+Tres-Quattro
+Quattro-Std6
+Dos-Sept
+Cinco-Six
+Six-Huit
+Huit-Sept
+Sept-Std6

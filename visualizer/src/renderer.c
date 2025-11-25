@@ -357,7 +357,7 @@ int display_map(void)
 
 	reset_ants_to_start();
 
-	current_turn = 1;
+	current_turn = 0;
 
 	SDL_Event event;
 	int quit = 0;
@@ -384,15 +384,15 @@ int display_map(void)
 			{
 				if (event.key.keysym.sym == SDLK_SPACE)
 				{
-					if (all_ants_stopped() && current_turn <= turn_line_count)
+					if (all_ants_stopped() && current_turn < turn_line_count)
 					{
-						process_turn_movements(current_turn);
 						current_turn++;
+						process_turn_movements(current_turn);
 					}
 				}
 				else if (event.key.keysym.sym == SDLK_r)
 				{
-					current_turn = 1;
+					current_turn = 0;
 					animation_finished = 0;
 					reset_ants_to_start();
 				}
@@ -411,13 +411,13 @@ int display_map(void)
 			Uint32 current_auto_time = SDL_GetTicks();
 			if (current_auto_time - last_auto_advance > 1000)
 			{
-				if (all_ants_stopped() && current_turn <= turn_line_count)
+				if (all_ants_stopped() && current_turn < turn_line_count)
 				{
-					process_turn_movements(current_turn);
 					current_turn++;
+					process_turn_movements(current_turn);
 					last_auto_advance = current_auto_time;
 				}
-				else if (current_turn > turn_line_count && all_ants_stopped())
+				else if (current_turn >= turn_line_count && all_ants_stopped())
 				{
 					animation_finished = 1;
 					ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
@@ -425,7 +425,7 @@ int display_map(void)
 			}
 		}
 
-		if (!auto_play && current_turn > turn_line_count && all_ants_stopped() && !animation_finished)
+		if (!auto_play && current_turn >= turn_line_count && all_ants_stopped() && !animation_finished)
 		{
 			animation_finished = 1;
 			ft_printf("Animation completed! Press 'R' to restart or ESC to quit.\n");
@@ -445,6 +445,8 @@ int display_map(void)
             ft_bzero(turn_info, sizeof(turn_info));
 			if (animation_finished)
 				ft_sprintf(turn_info, "FINISHED - Turns: %d/%d", current_turn, turn_line_count);
+			else if (current_turn == 0)
+				ft_sprintf(turn_info, "Turn: 0/%d (Initial state) %s", turn_line_count, auto_play ? "(AUTO)" : "");
 			else
 				ft_sprintf(turn_info, "Turn: %d/%d %s", current_turn, turn_line_count, auto_play ? "(AUTO)" : "");
 			SDL_Color text_color = {255, 255, 255, 255};

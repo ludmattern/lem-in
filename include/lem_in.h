@@ -27,6 +27,10 @@
 # define FALSE 0
 # define TRUE 1
 
+# ifndef DEBUG
+#  define DEBUG 0
+# endif
+
 // ============================================================================
 // DATA STRUCTURES
 // ============================================================================
@@ -238,6 +242,7 @@ size_t find_path_index(t_list **path, t_list *aug_paths, t_graph *graph);
 t_list *get_next_path(t_list *path, t_graph *graph);
 t_list *add_node_to_paths(size_t *node, t_list **aug_paths);
 t_list *rebuild_paths(t_graph *graph);
+int8_t is_valid_path(t_graph *graph);
 
 // paths finder functions
 t_bfs *bfs(t_graph *graph, t_list *path);
